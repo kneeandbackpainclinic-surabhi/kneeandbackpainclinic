@@ -47,3 +47,24 @@ function render(){
 document.querySelectorAll('[data-start]').forEach(b=>b.addEventListener('click',openQuiz));
 document.querySelector('.close').addEventListener('click',closeQuiz);
 dialog.addEventListener('close',()=>{document.body.style.overflow=''});
+
+const storyVideos=new Set(['wrwncuc7zz8','s_OgsH07lCQ','vOP7CtT9VGQ']);
+document.querySelectorAll('.story-image[data-video-id]').forEach(button=>{
+  button.addEventListener('click',()=>{
+    const id=button.dataset.videoId;
+    if(!storyVideos.has(id))return;
+    document.querySelectorAll('.story-media iframe').forEach(player=>{
+      const poster=player._poster;
+      if(poster)player.replaceWith(poster);
+    });
+    const player=document.createElement('iframe');
+    player.src=`https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+    player.title=button.getAttribute('aria-label');
+    player.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    player.allowFullscreen=true;
+    player.referrerPolicy='strict-origin-when-cross-origin';
+    player._poster=button;
+    button.replaceWith(player);
+    player.focus();
+  });
+});
