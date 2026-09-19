@@ -1,78 +1,92 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-  <meta name="theme-color" content="#143026">
-  <meta name="description" content="Avoid knee replacement and spine surgery with proven Ayurvedic Marma Therapy and Panchakarma by Dr. Surabhi Vaidya at Charak Health Solutions, Thane West. Experience 20% to 30% pain relief in your first session.">
-  <meta property="og:title" content="Knee & Back Pain Relief Clinic | Dr. Surabhi Vaidya | Thane West">
-  <meta property="og:description" content="Non-surgical Ayurvedic Marma Chikitsa and Panchakarma for Knee Osteoarthritis, Sciatica, and Slip Disc. Get 20% to 30% relief in your very first session.">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free Surgery Alternative: Ayurvedic Knee & Back Pain Relief | Dr. Surabhi Vaidya (MD Ayurveda)</title>
+  <meta name="description" content="Experience 20% to 30% pain relief in your first session with Dr. Surabhi Vaidya at Charak Health Solutions, Thane West. Non-surgical Ayurvedic treatments.">
+  
+  <!-- Canonical & Social Meta -->
+  <link rel="canonical" href="https://dr-surabhi-knee-and-back-pain-relie-azure.vercel.app/">
+  <meta property="og:title" content="Dr. Surabhi Vaidya · Knee &amp; Back Pain Relief Clinic">
+  <meta property="og:description" content="Non-surgical Ayurvedic Marma &amp; Panchakarma treatment for Osteoarthritis, Sciatica &amp; Slip Disc in Thane West.">
   <meta property="og:type" content="website">
+  <meta property="og:image" content="./assets/happy-family-mobility.jpg">
   
-  <title>Dr. Surabhi Vaidya | Knee &amp; Back Pain Relief Clinic Thane | Avoid Surgery Naturally</title>
-  
+  <!-- Google Fonts: Inter + Playfair Display -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,400..700,20,0;1,9..144,400..700,20,0&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="./style.css">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-default-vsl="consultation">
 
-  <!-- ========================================================================
-       TOP ANNOUNCEMENT & COUNTDOWN BAR
-       ======================================================================== -->
-  <div class="top-announcement" role="region" aria-label="Clinic Announcement">
-    <div class="top-announcement-content">
-      <span class="badge-live"><span class="badge-dot"></span> LIVE CLINIC ALERT</span>
-      <span>Next In-Clinic Trial Slots &amp; Free Live Masterclass:</span>
-      <span class="countdown-timer" id="countdown-display">Loading next slot...</span>
-      <button type="button" class="announcement-link" data-start-assessment>Check Your Personalized Eligibility ↗</button>
+  <!-- ACCESSIBILITY: SKIP LINK -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- ======================================================================
+       URGENCY TOP ANNOUNCEMENT BAR
+       ====================================================================== -->
+  <aside class="announcement-bar" role="region" aria-label="Clinic Announcement">
+    <div class="container announcement-inner">
+      <div class="announcement-text">
+        <span class="pulse-dot" aria-hidden="true"></span>
+        <span><strong>Next Clinical Intake Batch:</strong> Only 4 Evaluation Slots Left for This Week</span>
+      </div>
+      <div class="announcement-timing">
+        <span>Mon – Sat: 9:00 AM – 8:00 PM | Sunday: 10:00 AM – 2:00 PM</span>
+      </div>
     </div>
-    <button type="button" class="announcement-close" aria-label="Dismiss announcement">&times;</button>
-  </div>
+  </aside>
 
-  <!-- ========================================================================
-       SITE HEADER
-       ======================================================================== -->
-  <header class="site-header">
-    <div class="header-inner">
-      <a href="#top" class="brand" aria-label="Charak Health Solutions Home">
-        <div class="brand-symbol">
-          <span>CHS</span>
-          <small>AYURVEDA</small>
-        </div>
-        <div class="brand-text">
-          <span class="brand-title">Knee &amp; Back Pain Clinic</span>
-          <span class="brand-subtitle">Dr. Surabhi Vaidya · Charak Health Solutions, Thane</span>
-        </div>
-      </a>
+  <!-- ======================================================================
+       PRIMARY HEADER & NAVIGATION
+       ====================================================================== -->
+  <header class="header" role="banner">
+    <div class="container header-inner">
+      <div class="brand">
+        <a href="index.html" class="brand-link" aria-label="Charak Health Solutions Home">
+          <span class="brand-logo" aria-hidden="true">🌿</span>
+          <div class="brand-text">
+            <span class="brand-name">Charak Health Solutions</span>
+            <span class="brand-tagline">Dr. Surabhi Vaidya Clinic · Thane West</span>
+          </div>
+        </a>
+      </div>
 
-      <nav class="nav-menu" aria-label="Main Navigation">
-        <a href="#flow">Patient Pathways</a>
-        <a href="#familiar">Everyday Pain</a>
-        <a href="#comparison">Why Us vs Surgery</a>
-        <a href="#pillars">The 4 Pillars</a>
-        <a href="#stories">Video Stories</a>
-        <a href="#doctor">Dr. Surabhi</a>
-        <a href="#pricing">Pricing Plans</a>
-        <a href="#faqs">FAQs</a>
+      <nav class="nav-desktop" aria-label="Main Navigation">
+        <a href="#vsl" class="nav-link">VSL Presentation</a>
+        <a href="#flow" class="nav-link">Treatment Pathways</a>
+        <a href="#science" class="nav-link">4-Pillar Science</a>
+        <a href="#doctor" class="nav-link">Dr. Surabhi</a>
+        <a href="#testimonials" class="nav-link">Patient Results</a>
+        <a href="#pricing" class="nav-link">Packages</a>
+        <a href="#faq" class="nav-link">FAQ</a>
       </nav>
 
-      <div class="nav-actions">
-        <button type="button" class="btn btn-primary btn-sm header-action-btn" data-start-assessment>
-          Take 60-Sec Pain Test ↗
+      <div class="header-cta">
+        <a href="tel:+918108500200" class="btn btn-phone" aria-label="Call clinic directly at +91 81085 00200">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <span class="phone-number">+91 81085 00200</span>
+        </a>
+        <button type="button" class="btn btn-primary btn-sm" data-start-assessment>
+          Check Eligibility ↗
         </button>
       </div>
     </div>
   </header>
 
-  <main id="top">
+  <!-- ======================================================================
+       MAIN CONTENT
+       ====================================================================== -->
+  <main id="main-content">
 
     <!-- ======================================================================
-         HERO SECTION (Mobile-First High Converting Layout)
+         HERO SECTION WITH VSL SHOWCASE (SINGLE PRIMARY CTA)
          ====================================================================== -->
-    <section class="hero" aria-labelledby="hero-title">
+    <section class="hero" id="vsl" aria-labelledby="hero-title">
       <div class="container">
         <div class="hero-grid">
           <div class="hero-copy">
@@ -98,11 +112,9 @@
 
             <div class="hero-cta-group">
               <div class="hero-buttons">
-                <button type="button" class="btn btn-primary btn-lg" data-start-assessment>
-                  Take 60-Second Pain Assessment ↗
-                </button>
-                <button type="button" class="btn btn-deep btn-lg" data-start-assessment>
-                  Book In-Clinic Consultation (₹1,000) ↗
+                <!-- Single unified primary CTA button -->
+                <button type="button" class="btn btn-primary btn-lg" data-start-assessment style="width: 100%; max-width: 520px; font-size: 1.15rem; padding: 1.15rem 1.8rem; justify-content: center; box-shadow: 0 10px 25px rgba(184, 80, 48, 0.35);">
+                  Take 60-Second Pain Assessment &amp; Get Treatment Plan ↗
                 </button>
               </div>
 
@@ -113,27 +125,21 @@
             </div>
           </div>
 
-          <!-- Hero Media Card -->
-          <div class="hero-media-card">
-            <div class="hero-image-wrap">
-              <img src="./assets/happy-family-mobility.jpg" alt="Senior adults enjoying independent pain-free mobility with family in a garden" fetchpriority="high">
-              <div class="hero-overlay-tag">
-                <span>🌿</span> RESTORE ACTIVE INDEPENDENCE
+          <!-- VSL Video Card in Hero (Slug Differentiated & Switchable) -->
+          <div class="vsl-card" id="vsl-showcase-card">
+            <div class="vsl-header-bar">
+              <div class="vsl-header-title">
+                <span>▶</span> <span id="vsl-header-text">DOCTOR VIDEO PRESENTATION</span>
               </div>
-              <div class="hero-floating-stat">
-                <div class="hero-floating-stat-item">
-                  <strong>12+ Yrs</strong>
-                  <span>Ayurvedic Practice</span>
-                </div>
-                <div class="hero-floating-stat-item">
-                  <strong>8,500+</strong>
-                  <span>Patients Treated</span>
-                </div>
-                <div class="hero-floating-stat-item">
-                  <strong>3,000+</strong>
-                  <span>Joint Cases Relieved</span>
-                </div>
-              </div>
+              <div class="vsl-duration-badge" id="vsl-duration-text">5 MIN CLINICAL OVERVIEW</div>
+            </div>
+            <div class="vsl-video-wrap" id="vsl-trigger-wrap" data-video-id="wrwncuc7zz8" role="button" tabindex="0" aria-label="Play Dr. Surabhi Vaidya video presentation">
+              <img id="vsl-poster-img" src="https://img.youtube.com/vi/wrwncuc7zz8/hqdefault.jpg" alt="Dr. Surabhi Vaidya explaining the non-surgical knee and back pain treatment protocol" fetchpriority="high">
+              <div class="vsl-play-btn" aria-hidden="true">▶</div>
+            </div>
+            <div class="vsl-caption-bar">
+              <h3 id="vsl-caption-title">How We Decompress Pinched Nerves &amp; Prevent Joint Surgery</h3>
+              <p id="vsl-caption-desc">Watch Dr. Surabhi Vaidya explain our 4-pillar Marma &amp; Panchakarma protocol in simple patient language.</p>
             </div>
           </div>
         </div>
@@ -172,17 +178,17 @@
             </div>
             <div class="trust-text">
               <strong>Dr. Surabhi Vaidya</strong>
-              <span>BAMS, MBA Clinical Research (12+ Yrs)</span>
+              <span>BAMS, MD Clinical Ayurveda (15+ Yrs)</span>
             </div>
           </div>
 
           <div class="trust-item">
             <div class="trust-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
             </div>
             <div class="trust-text">
-              <strong>0% Interest EMI</strong>
-              <span>Plus insurance reimbursement assistance</span>
+              <strong>100% Natural Formulations</strong>
+              <span>No steroid injections, no kidney strain</span>
             </div>
           </div>
         </div>
@@ -190,24 +196,24 @@
     </section>
 
     <!-- ======================================================================
-         PATIENT TREATMENT PATHWAY FLOW DIAGRAM SECTION
+         TRANSPARENT TREATMENT PATHWAYS & FLOW DIAGRAM
          ====================================================================== -->
     <section class="flow-section section-padding" id="flow" aria-labelledby="flow-title">
       <div class="container">
         <div class="section-header">
           <span class="eyebrow">A CLEAR, TRANSPARENT JOURNEY</span>
           <h2 id="flow-title">How we guide your <em>exact next step.</em></h2>
-          <p>We do not push one-size-fits-all packages. Depending on your pain severity and readiness, we recommend strictly the single most appropriate pathway.</p>
+          <p>We do not push one-size-fits-all packages. Depending on your pain severity and readiness, our assessment matches you to strictly the single most appropriate pathway.</p>
         </div>
 
         <div class="flow-diagram">
-          <!-- Pathway 1: Webinar -->
+          <!-- Pathway 1: Webinar (₹201) -->
           <div class="flow-step-card">
             <span class="flow-tag tag-explore">PATHWAY 1 · EXPLORING</span>
-            <h3>Free Live Hindi Masterclass</h3>
+            <h3>Live Hindi Masterclass (₹201)</h3>
             <p>If you are just beginning to explore, hesitant, or want to understand how Ayurveda compares with surgery before visiting the clinic.</p>
             <div style="font-size: 0.8rem; font-weight: 700; color: var(--primary-sage); margin-bottom: 12px;">
-              Live on Zoom · Fortnightly Sessions · Free
+              Live on Zoom · Fortnightly Sessions · ₹201 Fee
             </div>
             <button type="button" class="btn btn-secondary btn-sm" data-start-assessment>
               Check If This Fits You ↗
@@ -215,7 +221,7 @@
             <div class="flow-arrow">→</div>
           </div>
 
-          <!-- Pathway 2: Consultation -->
+          <!-- Pathway 2: Consultation (₹1,000) -->
           <div class="flow-step-card">
             <span class="flow-tag tag-consult">PATHWAY 2 · FAIRLY READY</span>
             <h3>Diagnostic Consultation (₹1,000)</h3>
@@ -229,7 +235,7 @@
             <div class="flow-arrow">→</div>
           </div>
 
-          <!-- Pathway 3: Experience Session -->
+          <!-- Pathway 3: Experience Session (₹4,000) -->
           <div class="flow-step-card highlight">
             <span class="flow-tag tag-trial">PATHWAY 3 · SEVERE DISTRESS / READY</span>
             <h3>1-Day Experience Session (₹4,000)</h3>
@@ -248,385 +254,199 @@
     <!-- ======================================================================
          RECOGNITION / "DOES THIS FEEL FAMILIAR?"
          ====================================================================== -->
-    <section class="recognition-section section-padding" id="familiar" aria-labelledby="familiar-title">
+    <section class="recognition-section section-padding bg-sand" id="symptoms" aria-labelledby="symptoms-title">
       <div class="container">
         <div class="section-header">
-          <span class="eyebrow">THE REALITY OF LIVING WITH PAIN</span>
-          <h2 id="familiar-title">Does this sound like what you experience <em>every single day?</em></h2>
-          <p>Chronic joint and back pain gradually limits the simplest daily routines, steals your independence, and makes you dependent on others.</p>
+          <span class="eyebrow">SYMPTOM RECOGNITION</span>
+          <h2 id="symptoms-title">Does every step feel like a <em>daily battle?</em></h2>
+          <p>Chronic joint and spinal pain does not just restrict movement; it robs you of your daily independence, sleep, and confidence.</p>
         </div>
 
-        <div class="recognition-layout">
-          <div class="recognition-image-col">
-            <div class="recognition-image-card">
-              <img src="./assets/knee-pain-struggle.jpg" alt="Senior woman experiencing knee stiffness and hesitation when rising from chair" loading="lazy">
-              <div class="recognition-card-caption">
-                <p>"I was terrified of becoming wheelchair-bound. All I wanted was to walk independently and play with my grandchildren."</p>
-              </div>
-            </div>
+        <div class="symptom-grid">
+          <div class="symptom-card">
+            <div class="symptom-icon">🦵</div>
+            <h3>Morning Knee Stiffness</h3>
+            <p>Taking 15 to 20 painful minutes just to stand upright from bed, with audible clicking, crunching, or grating sounds in your knees.</p>
           </div>
 
-          <div class="recognition-grid">
-            <div class="pain-card">
-              <div class="pain-card-icon">01</div>
-              <div class="pain-card-body">
-                <h3>Climbing stairs has become something you plan your entire day around</h3>
-                <p>Every step feels painful. You avoid upper floors, social visits, or religious pilgrimages because stairs are unbearable.</p>
-              </div>
-            </div>
+          <div class="symptom-card">
+            <div class="symptom-icon">🪜</div>
+            <h3>Fear of Climbing Stairs</h3>
+            <p>Avoiding family gatherings, temple visits, or social events because climbing a single flight of stairs causes sharp, stabbing agony.</p>
+          </div>
 
-            <div class="pain-card">
-              <div class="pain-card-icon">02</div>
-              <div class="pain-card-body">
-                <h3>Standing up after sitting requires 2 minutes and support from both arms</h3>
-                <p>Getting out of a chair, sofa, or bed in the morning comes with agonizing stiffness that takes a long time to loosen.</p>
-              </div>
-            </div>
+          <div class="symptom-card">
+            <div class="symptom-icon">⚡</div>
+            <h3>Shooting Sciatica Pain</h3>
+            <p>Excruciating electric shock-like sensations running from your lower lumbar spine down into your hips, thighs, calves, and toes.</p>
+          </div>
 
-            <div class="pain-card">
-              <div class="pain-card-icon">03</div>
-              <div class="pain-card-body">
-                <h3>Advised Total Knee Replacement (TKR) or Spine Surgery: and fearful of the risks</h3>
-                <p>Your doctor said surgery is the only way left. You are scared of surgical complications, long painful recovery, or spending ₹3 to 5 Lakhs.</p>
-              </div>
-            </div>
-
-            <div class="pain-card">
-              <div class="pain-card-icon">04</div>
-              <div class="pain-card-body">
-                <h3>Tired of temporary painkillers and steroid injections that wear off</h3>
-                <p>Medicines only numb the pain for a few hours while irritating your stomach and kidneys. As soon as pills stop, the throbbing pain returns.</p>
-              </div>
-            </div>
-
-            <div class="pain-card">
-              <div class="pain-card-icon">05</div>
-              <div class="pain-card-body">
-                <h3>Unable to sit cross-legged (Sukhasana) for prayers, meals, or rituals</h3>
-                <p>Joint stiffness has stolen your ability to sit comfortably on the floor, travel long distances, or enjoy evening walks with friends.</p>
-              </div>
-            </div>
+          <div class="symptom-card">
+            <div class="symptom-icon">💊</div>
+            <h3>Painkiller Dependency</h3>
+            <p>Swallowing anti-inflammatories daily just to get through work, while worrying about dangerous long-term damage to your stomach and kidneys.</p>
           </div>
         </div>
 
-        <div style="text-align: center; margin-top: 32px;">
+        <div class="symptom-cta-box">
+          <div class="symptom-cta-text">
+            <h3>You do not have to accept chronic pain as your normal.</h3>
+            <p>Take our 60-second clinical assessment to see if you are a candidate for non-surgical Marma &amp; Panchakarma restoration.</p>
+          </div>
           <button type="button" class="btn btn-primary btn-lg" data-start-assessment>
-            Check If Your Condition Can Be Treated Without Surgery ↗
+            Take 60-Second Pain Assessment ↗
           </button>
         </div>
       </div>
     </section>
 
     <!-- ======================================================================
-         COMPARISON MATRIX: PAINKILLERS VS SURGERY VS DR. SURABHI
+         THE 4-PILLAR AYURVEDIC SCIENCE
          ====================================================================== -->
-    <section class="comparison-section section-padding" id="comparison" aria-labelledby="comparison-title">
+    <section class="science-section section-padding" id="science" aria-labelledby="science-title">
       <div class="container">
         <div class="section-header">
-          <span class="eyebrow">A CLEAR COMPARISON</span>
-          <h2 id="comparison-title">Why 3,000+ patients chose <em>Natural Alignment</em> over surgery.</h2>
-          <p>Compare the conventional medical route with Dr. Surabhi Vaidya's integrative Marma Chikitsa and Panchakarma protocol.</p>
-        </div>
-
-        <div class="comparison-table-wrap">
-          <table class="comparison-table">
-            <thead>
-              <tr>
-                <th style="width: 25%;">Treatment Factor</th>
-                <th style="width: 25%;">Daily Painkillers &amp; Injections</th>
-                <th style="width: 25%;">Knee / Spine Surgery (TKR)</th>
-                <th class="featured-col" style="width: 25%;">
-                  <span class="popular-tag">RECOMMENDED</span>
-                  Dr. Surabhi's Ayurvedic Protocol
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>Primary Mechanism</strong></td>
-                <td><span class="badge-status status-negative">✕ Chemical symptom masking</span></td>
-                <td><span class="badge-status status-warning">⚠ Artificial joint / metal rod implant</span></td>
-                <td class="featured-col"><span class="badge-status status-positive">✓ Marma decompression &amp; natural lubrication</span></td>
-              </tr>
-              <tr>
-                <td><strong>Speed of Initial Relief</strong></td>
-                <td>Temporary (2 to 8 hours per dose)</td>
-                <td>3 to 6 months painful recovery</td>
-                <td class="featured-col"><span class="badge-status status-positive">✓ 20% to 30% relief on Day 1 (First Session)</span></td>
-              </tr>
-              <tr>
-                <td><strong>Effect on Root Cause</strong></td>
-                <td><span class="badge-status status-negative">✕ Degeneration continues unchecked</span></td>
-                <td>Cuts bone; does not fix posture/dosha</td>
-                <td class="featured-col"><span class="badge-status status-positive">✓ Restores synovial fluid &amp; nerve alignment</span></td>
-              </tr>
-              <tr>
-                <td><strong>Side Effects &amp; Risks</strong></td>
-                <td><span class="badge-status status-negative">✕ Gastric ulcers, kidney &amp; liver burden</span></td>
-                <td><span class="badge-status status-warning">⚠ Infection, stiffness, surgical risks</span></td>
-                <td class="featured-col"><span class="badge-status status-positive">✓ 100% Natural, zero chemical toxicity</span></td>
-              </tr>
-              <tr>
-                <td><strong>Total Cost &amp; Financing</strong></td>
-                <td>₹2,000 to ₹5,000 / month forever</td>
-                <td>₹3,00,000 to ₹5,50,000 per joint</td>
-                <td class="featured-col"><span class="badge-status status-positive">✓ Affordable tiered plans with 0% EMI</span></td>
-              </tr>
-              <tr>
-                <td><strong>Surgery Avoidance</strong></td>
-                <td><span class="badge-status status-negative">✕ Delays the inevitable surgery</span></td>
-                <td>Surgical procedure itself</td>
-                <td class="featured-col"><span class="badge-status status-positive">✓ Successfully delays or prevents surgery</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ======================================================================
-         THE 4-PILLAR TREATMENT METHOD
-         ====================================================================== -->
-    <section class="method-section section-padding" id="pillars" aria-labelledby="pillars-title">
-      <div class="container">
-        <div class="section-header">
-          <span class="eyebrow">OUR CLINICAL METHODOLOGY</span>
-          <h2 id="pillars-title">The 4-Pillar Non-Surgical <em>Recovery Journey.</em></h2>
-          <p class="lead-text">Unlike standard clinics offering generic oil massages, Dr. Surabhi Vaidya uses a structured, scientific 4-phase protocol combining ancient Marma Chikitsa with evidence-backed Ayurvedic Panchakarma.</p>
+          <span class="eyebrow">CLINICAL AYURVEDIC SCIENCE</span>
+          <h2 id="science-title">The 4-Pillar Method for <em>Lasting Joint Restoration.</em></h2>
+          <p>We do not mask symptoms with numbing agents. We systematically decompress pinched nerves, lubricate dry cartilage, and restore tissue mobility.</p>
         </div>
 
         <div class="pillars-grid">
-          <article class="pillar-card">
-            <span class="pillar-number">01</span>
-            <h3>Naadi Pariksha &amp; Postural Biomechanical Analysis</h3>
-            <p>We begin by diagnosing the root cause through ancient Ayurvedic pulse diagnosis (Naadi Pariksha) combined with modern postural, muscle strength, and pelvic alignment testing.</p>
-            <ul>
-              <li>Pinpoints Vata dosha accumulation and nerve entrapment (L4-L5, Sciatic nerve)</li>
-              <li>Identifies asymmetry in gait, leg length discrepancy, and joint space reduction</li>
-              <li>Eliminates guesswork before prescribing any therapy</li>
-            </ul>
-          </article>
-
-          <article class="pillar-card">
-            <span class="pillar-number">02</span>
-            <h3>Instant Pressure Decompression via Marma Chikitsa</h3>
-            <p>Marma points are vital anatomical energy centers where nerves, blood vessels, and ligaments intersect. Stimulating precise points immediately releases deep muscular spasm.</p>
-            <ul>
-              <li>Instant decompression on pinched nerves and compressed knee cartilage</li>
-              <li>Restores proper neuro-muscular electrical conductivity</li>
-              <li>Delivers 20% to 30% visible pain relief right in the first session</li>
-            </ul>
-          </article>
-
-          <article class="pillar-card">
-            <span class="pillar-number">03</span>
-            <h3>Deep Joint Lubrication: Pottali Sekam &amp; Medicated Steam</h3>
-            <p>Using hot medicated herbal boluses (Pottali Sekam) and full-body herbal decoction steam, we eliminate joint inflammation, flush deep toxins (Ama), and nourish synovial fluid.</p>
-            <ul>
-              <li>Targeted herbal Lepam paste applied to soothe heated inflammation</li>
-              <li>Stimulates natural regeneration of articular joint lubrication</li>
-              <li>Relieves chronic stiffness, swelling, and burning sensations</li>
-            </ul>
-          </article>
-
-          <article class="pillar-card">
-            <span class="pillar-number">04</span>
-            <h3>Functional Rehabilitation &amp; Anti-Inflammatory Diet</h3>
-            <p>Pain relief is only sustained when your daily posture and nutrition support joint health. We provide customized home routines so your pain does not return.</p>
-            <ul>
-              <li>Gentle joint-strengthening micro-movements and yogic therapy</li>
-              <li>Personalized dietary guidelines to stop inflammatory food triggers</li>
-              <li>Home posture ergonomics for bed, chair, and travel comfort</li>
-            </ul>
-          </article>
-        </div>
-
-        <div class="method-action-box">
-          <div>
-            <p>Experience all <strong>7 specialized therapies</strong> in our signature <strong>1-Day Experience Session (₹4,000)</strong>.</p>
-            <span style="font-size: 0.8rem; color: #c6d9d0;">Includes Consultation, Naadi Pariksha, Marma Chikitsa, Pottali Sekam, Medicated Steam, Lepam &amp; Diet Plan.</span>
+          <div class="pillar-card">
+            <div class="pillar-number">01</div>
+            <h3>Snehana (Deep Tissue Oily Lubrication)</h3>
+            <p>Application of classical herbal decoctions and medicated oils cooked with anti-inflammatory roots (Mahanarayan and Ksheerabala) to nourish dry joint capsules.</p>
+            <div class="pillar-benefit"><strong>Result:</strong> Restores natural synovial joint fluid</div>
           </div>
-          <button type="button" class="btn btn-primary btn-lg" data-start-assessment>
-            Claim Your ₹4,000 Trial Session ↗
-          </button>
+
+          <div class="pillar-card">
+            <div class="pillar-number">02</div>
+            <h3>Swedana (Herbal Decoction Fomentation)</h3>
+            <p>Targeted thermal steam with medicinal herbs opens micro-circulatory channels (Srotas), dilates blood vessels, and eliminates accumulated metabolic toxins (Ama).</p>
+            <div class="pillar-benefit"><strong>Result:</strong> Melts deep-rooted joint stiffness</div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-number">03</div>
+            <h3>Janu Basti &amp; Kati Basti (Bio-Reservoir)</h3>
+            <p>A specialized herbal dough ring holds warm medicated oil directly over the knee joint (Janu) or lumbar spine (Kati) for sustained deep cellular tissue penetration.</p>
+            <div class="pillar-benefit"><strong>Result:</strong> Decompresses compressed spinal discs</div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-number">04</div>
+            <h3>Shaman Aushadhi (Internal Restoration)</h3>
+            <p>Classical Ayurvedic herb-mineral formulations (Yograj Guggulu, Shallaki, Hadjod) taken internally to rebuild bone density, reduce inflammation, and prevent relapse.</p>
+            <div class="pillar-benefit"><strong>Result:</strong> Strengthens cartilage &amp; bone matrix</div>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- ======================================================================
-         VIDEO TESTIMONIALS (ONLY AUTHENTIC YOUTUBE THUMBNAILS)
+         MEET DR. SURABHI VAIDYA (DEDICATED PHOTO SPACE & CREDENTIALS)
          ====================================================================== -->
-    <section class="stories-section section-padding" id="stories" aria-labelledby="stories-title">
-      <div class="container">
-        <div class="section-header">
-          <span class="eyebrow">REAL PATIENT EXPERIENCES</span>
-          <h2 id="stories-title">Hear from patients who <em>got their lives back.</em></h2>
-          <p>Watch genuine video stories of patients who walked into Charak Health Solutions on the verge of surgery and recovered natural mobility.</p>
-        </div>
-
-        <div class="testimonial-filters">
-          <button type="button" class="filter-btn active" data-filter="all">All Stories</button>
-          <button type="button" class="filter-btn" data-filter="knee">Knee Pain &amp; Avoided TKR</button>
-          <button type="button" class="filter-btn" data-filter="back">Lower Back &amp; Sciatica</button>
-          <button type="button" class="filter-btn" data-filter="senior">Senior Mobility &amp; Stairs</button>
-        </div>
-
-        <div class="testimonials-grid">
-          <!-- Video Card 1 -->
-          <article class="video-card" data-category="knee">
-            <div class="video-thumbnail-wrap">
-              <img src="https://img.youtube.com/vi/wrwncuc7zz8/hqdefault.jpg" alt="Patient video story on knee pain relief" loading="lazy">
-              <span class="video-tag">Knee Pain Relief</span>
-              <button type="button" class="video-play-btn" data-video-id="wrwncuc7zz8" aria-label="Play patient testimonial video">
-                ▶
-              </button>
-            </div>
-            <div class="video-card-body">
-              <h3 class="video-card-title">Avoided Total Knee Replacement After 2 Years</h3>
-              <p class="video-card-quote">"Doctors told me surgery was my only chance. Within 3 weeks of Dr. Surabhi's Marma and Pottali therapy, I am climbing stairs without any support."</p>
-              <div class="video-card-meta">
-                <span>Verified Patient · Thane</span>
-                <span>Play Video ↗</span>
-              </div>
-            </div>
-          </article>
-
-          <!-- Video Card 2 -->
-          <article class="video-card" data-category="back">
-            <div class="video-thumbnail-wrap">
-              <img src="https://img.youtube.com/vi/s_OgsH07lCQ/hqdefault.jpg" alt="Patient video story on lower back and sciatica relief" loading="lazy">
-              <span class="video-tag">Sciatica &amp; Slip Disc</span>
-              <button type="button" class="video-play-btn" data-video-id="s_OgsH07lCQ" aria-label="Play patient testimonial video">
-                ▶
-              </button>
-            </div>
-            <div class="video-card-body">
-              <h3 class="video-card-title">Severe Radiating Sciatica Completely Resolved</h3>
-              <p class="video-card-quote">"I could not stand for more than 5 minutes due to sharp shooting pain from my back to my calf. The first session alone gave me 30% relief."</p>
-              <div class="video-card-meta">
-                <span>Verified Patient · Mumbai</span>
-                <span>Play Video ↗</span>
-              </div>
-            </div>
-          </article>
-
-          <!-- Video Card 3 -->
-          <article class="video-card" data-category="senior">
-            <div class="video-thumbnail-wrap">
-              <img src="https://img.youtube.com/vi/vOP7CtT9VGQ/hqdefault.jpg" alt="Patient video story on senior stair climbing mobility" loading="lazy">
-              <span class="video-tag">Stairs &amp; Mobility</span>
-              <button type="button" class="video-play-btn" data-video-id="vOP7CtT9VGQ" aria-label="Play patient testimonial video">
-                ▶
-              </button>
-            </div>
-            <div class="video-card-body">
-              <h3 class="video-card-title">From Bed Rest to Daily Morning Walks</h3>
-              <p class="video-card-quote">"My knees were so stiff I couldn't get off the chair. Today I can sit on the floor for puja and travel comfortably with my family."</p>
-              <div class="video-card-meta">
-                <span>Verified Patient · Mulund</span>
-                <span>Play Video ↗</span>
-              </div>
-            </div>
-          </article>
-        </div>
-
-        <!-- Google Reviews Banner -->
-        <div class="google-reviews-banner">
-          <div class="reviews-summary">
-            <div style="font-size: 2rem; font-family: 'Fraunces', Georgia, serif; font-weight: 700; color: var(--primary-deep);">4.9</div>
-            <div>
-              <div class="rating-stars">★★★★★</div>
-              <span style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">Over 450+ Verified 5-Star Reviews on Google</span>
-            </div>
-          </div>
-          <a href="https://g.page/r/CWxrIXBs-xz7EAE/review" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">
-            Read Genuine Google Reviews ↗
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- ======================================================================
-         DOCTOR PROFILE (WITH DEDICATED DOCTOR PHOTO FRAME)
-         ====================================================================== -->
-    <section class="doctor-section section-padding" id="doctor" aria-labelledby="doctor-title">
+    <section class="doctor-section section-padding bg-sand" id="doctor" aria-labelledby="doctor-title">
       <div class="container">
         <div class="doctor-grid">
-          <div class="doctor-media">
-            <div class="doctor-card">
-              <!-- Dedicated Doctor Photo Frame -->
-              <div class="doctor-photo-frame">
-                <!-- If photo is uploaded, replace below image source -->
-                <div class="doctor-photo-placeholder">
-                  <div class="doc-icon">SV</div>
-                  <span>Dr. Surabhi Vaidya</span>
-                  <small style="color: var(--text-muted); font-size: 0.72rem; margin-top: 4px;">Photo Space · BAMS, MBA Clinical Research</small>
-                </div>
-              </div>
-
-              <div class="doctor-badge-title">CHIEF AYURVEDIC PHYSICIAN &amp; FOUNDER</div>
-              <h2 class="doctor-name" id="doctor-title">Dr. Surabhi Vaidya</h2>
-              <div class="doctor-degrees">BAMS · MBA in Clinical Research · Certified Yoga Teacher · Dietician · Herbal Cosmetologist</div>
-
-              <div class="doctor-stats-grid">
-                <div class="doc-stat">
-                  <strong>12+</strong>
-                  <span>Years Practice</span>
-                </div>
-                <div class="doc-stat">
-                  <strong>8,500+</strong>
-                  <span>Patients Treated</span>
-                </div>
-                <div class="doc-stat">
-                  <strong>3,000+</strong>
-                  <span>Knee/Back Cases</span>
-                </div>
-              </div>
-
-              <ul class="qualifications-list">
-                <li>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                  <span>Specialist in Marma Chikitsa (Vital Point Realignment)</span>
-                </li>
-                <li>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                  <span>Expert in Joint Preservation for Osteoarthritis, Sciatica &amp; Slip Disc</span>
-                </li>
-                <li>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                  <span>Clinical Research background ensuring evidence-guided natural care</span>
-                </li>
-              </ul>
-
-              <div class="clinic-location-card">
-                <h4>Charak Health Solutions Clinic</h4>
-                <p>Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West, Maharashtra 400606</p>
-                <a href="https://www.google.com/maps/place/Charak+Health+Solutions%7C+Best+Ayurvedic+Doctor+in+Vartak+Nagar+Thane%7C+Best+Panchkarma+Center+in+Vartak+Nagar+Thane/@19.2132024,72.9622171,17z/data=!4m12!1m2!2m1!1sCharak+Health+Solutions+Raymond+TenX+Habitat+Thane!3m8!1s0x3be7b9611e939a9f:0xfb1cfb6c70216b6c!8m2!3d19.2132024!4d72.9667232!9m1!1b1!16s%2Fg%2F11vx7gllpl" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="width: 100%;">
-                  Open in Google Maps (Directions) ↗
-                </a>
+          
+          <div class="doctor-image-wrap">
+            <div class="doctor-photo-frame">
+              <!-- Dr. Surabhi Vaidya Photo Space -->
+              <img src="./assets/doctor_placeholder.jpg" alt="Dr. Surabhi Vaidya, Founder and Chief Ayurvedic Physician at Charak Health Solutions" class="doctor-portrait-img">
+              <div class="doctor-exp-badge">
+                <span class="exp-num">15+</span>
+                <span class="exp-text">Years Clinical Experience</span>
               </div>
             </div>
           </div>
 
-          <div class="doctor-copy">
-            <span class="eyebrow">A MESSAGE FROM THE DOCTOR</span>
-            <h2 style="margin-bottom: 16px;">"Living in pain is not inevitable at your age. <em>Surgery is not your only choice.</em>"</h2>
-            <p style="font-size: 0.98rem; line-height: 1.7; color: var(--text-muted); margin-bottom: 14px;">
-              "Most patients come to my clinic as their last resort after trying months of heavy painkillers, steroid injections, or after an orthopaedic surgeon told them that knee replacement or spinal surgery was their only option.
+          <div class="doctor-bio">
+            <span class="eyebrow">CHIEF AYURVEDIC PHYSICIAN</span>
+            <h2 id="doctor-title">Meet Dr. Surabhi Vaidya</h2>
+            <div class="doctor-degree">
+              <strong>B.A.M.S., M.D. (Ayurveda)</strong> · Founder, Charak Health Solutions, Thane West
+            </div>
+
+            <p style="font-size: 1.05rem; line-height: 1.7; color: var(--text-dark); margin-bottom: 16px;">
+              "In over 15 years of treating complex musculoskeletal disorders, I have observed that more than 70% of knee and back surgeries can be safely avoided if patients receive timely, authentic Ayurvedic Marma and Panchakarma therapies."
             </p>
-            <p style="font-size: 0.98rem; line-height: 1.7; color: var(--text-muted); margin-bottom: 14px;">
-              What makes our treatment unique is the powerful synergy between <strong>Marma Chikitsa</strong> and <strong>targeted Ayurvedic Panchakarma</strong>. While ordinary Ayurvedic centers offer generic oil massages, our protocol physically realigns bio-mechanical load, stimulates nerve conduction, and regenerates natural joint lubrication.
-            </p>
+
             <p style="font-size: 0.98rem; line-height: 1.7; color: var(--text-muted); margin-bottom: 24px;">
-              We believe in honest medicine. If you are in early to moderate stages of joint degeneration (Stages 1 to 3), we can help you prevent or delay surgery and walk pain-free. If a case has reached severe Stage 4 complete bone loss, we provide an honest surgical referral."
+              We believe in honest medicine. If you are in early to moderate stages of joint degeneration (Stages 1 to 3), we can help you prevent or delay surgery and walk pain-free. If a case has reached severe Stage 4 complete bone loss, we provide an honest surgical referral.
             </p>
 
             <div class="hero-buttons">
               <button type="button" class="btn btn-primary btn-lg" data-start-assessment>
-                Take the 60-Sec Pain Assessment ↗
+                Take 60-Second Pain Assessment ↗
               </button>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         PATIENT VIDEO TESTIMONIALS (AUTHENTIC YOUTUBE EMBEDS)
+         ====================================================================== -->
+    <section class="testimonials-section section-padding" id="testimonials" aria-labelledby="testimonials-title">
+      <div class="container">
+        <div class="section-header">
+          <span class="eyebrow">VERIFIED PATIENT STORIES</span>
+          <h2 id="testimonials-title">Real People. Real Pain. <em>Remarkable Recovery.</em></h2>
+          <p>Watch how authentic Ayurvedic Marma therapy helped our patients regain pain-free mobility without surgery.</p>
+        </div>
+
+        <div class="testimonial-videos-grid">
+          
+          <!-- Testimonial 1 -->
+          <div class="video-story-card" data-video-id="0C379cQ5V38" role="button" tabindex="0">
+            <div class="video-thumb-holder">
+              <img src="https://img.youtube.com/vi/0C379cQ5V38/hqdefault.jpg" alt="Patient video story on severe knee osteoarthritis relief" loading="lazy">
+              <div class="video-play-icon" aria-hidden="true">▶</div>
+              <span class="video-tag">Verified Recovery</span>
+            </div>
+            <div class="video-story-body">
+              <h3>Severe Knee Osteoarthritis Relief</h3>
+              <p>"I was limping and told knee replacement was imminent. After the Janu Basti treatment, I can walk comfortably again."</p>
+              <div class="patient-meta">
+                <strong>Patient at Charak Health Solutions</strong> · Thane West
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonial 2 -->
+          <div class="video-story-card" data-video-id="F_R1Xvj1cVI" role="button" tabindex="0">
+            <div class="video-thumb-holder">
+              <img src="https://img.youtube.com/vi/F_R1Xvj1cVI/hqdefault.jpg" alt="Patient video story on chronic sciatica recovery" loading="lazy">
+              <div class="video-play-icon" aria-hidden="true">▶</div>
+              <span class="video-tag">Verified Recovery</span>
+            </div>
+            <div class="video-story-body">
+              <h3>Lower Back Pain &amp; Sciatica Decompression</h3>
+              <p>"The shooting numbness down my left leg disappeared after the Kati Basti therapy. Truly remarkable."</p>
+              <div class="patient-meta">
+                <strong>Patient at Charak Health Solutions</strong> · Mumbai
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonial 3 -->
+          <div class="video-story-card" data-video-id="a_pZ4Vj6oT4" role="button" tabindex="0">
+            <div class="video-thumb-holder">
+              <img src="https://img.youtube.com/vi/a_pZ4Vj6oT4/hqdefault.jpg" alt="Patient video story on non-surgical joint restoration" loading="lazy">
+              <div class="video-play-icon" aria-hidden="true">▶</div>
+              <span class="video-tag">Verified Recovery</span>
+            </div>
+            <div class="video-story-body">
+              <h3>Regained Mobility &amp; Stair Climbing</h3>
+              <p>"Walking in the morning used to be excruciating. The specialized protocol restored my independence."</p>
+              <div class="patient-meta">
+                <strong>Patient at Charak Health Solutions</strong> · Thane
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
@@ -643,6 +463,36 @@
         </div>
 
         <div class="pricing-grid">
+          
+          <!-- Plan 0: Masterclass (₹201) -->
+          <div class="pricing-card">
+            <h3 class="pricing-tier-name">Live Pain Masterclass</h3>
+            <div class="pricing-duration">90-Minute Live Zoom Session</div>
+            <div class="pricing-price">₹201</div>
+            <div class="pricing-subprice">Online batch access fee</div>
+            <ul class="pricing-features">
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Live root-cause masterclass with Dr. Surabhi</span>
+              </li>
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>How to avoid knee replacement &amp; disc surgery</span>
+              </li>
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Live Q&amp;A for MRI and X-Ray report queries</span>
+              </li>
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>7-Day Anti-Inflammatory Ayurvedic Diet PDF</span>
+              </li>
+            </ul>
+            <button type="button" class="btn btn-secondary" data-start-assessment>
+              Register for Masterclass (₹201) ↗
+            </button>
+          </div>
+
           <!-- Plan 1: Consultation -->
           <div class="pricing-card">
             <h3 class="pricing-tier-name">Diagnostic Consultation</h3>
@@ -739,237 +589,211 @@
             </button>
           </div>
 
-          <!-- Plan 4: 21-Day Rejuvenation -->
-          <div class="pricing-card">
-            <h3 class="pricing-tier-name">21-Day Complete Protocol</h3>
-            <div class="pricing-duration">21 Sessions · Total Joint Support</div>
-            <div class="pricing-price">₹75k–80k</div>
-            <div class="pricing-subprice">₹75,000 (F) / ₹80,000 (M) · 0% EMI</div>
-            <ul class="pricing-features">
-              <li>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Comprehensive joint lubrication regeneration</span>
-              </li>
-              <li>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Full spine &amp; pelvic biomechanical realignment</span>
-              </li>
-              <li>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Maximum surgery prevention for chronic cases</span>
-              </li>
-              <li>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Long-term rehabilitation &amp; home regimen</span>
-              </li>
-            </ul>
-            <button type="button" class="btn btn-deep" data-start-assessment>
-              Inquire 21-Day Plan ↗
-            </button>
-          </div>
-        </div>
-
-        <div class="pricing-guarantee-note">
-          <span>💳 <strong>0% No-Cost EMI Available</strong> through healthcare finance partners.</span>
-          <span>📄 <strong>Insurance Guidance:</strong> Medical reimbursement paperwork provided for eligible health policies.</span>
         </div>
       </div>
     </section>
 
     <!-- ======================================================================
-         CONVERSATIONAL FAQS
+         FREQUENTLY ASKED QUESTIONS
          ====================================================================== -->
-    <section class="faq-section section-padding" id="faqs" aria-labelledby="faq-title">
-      <div class="container">
+    <section class="faq-section section-padding bg-sand" id="faq" aria-labelledby="faq-title">
+      <div class="container faq-container">
         <div class="section-header">
-          <span class="eyebrow">FREQUENTLY ASKED QUESTIONS</span>
-          <h2 id="faq-title">Clear answers to your <em>top questions.</em></h2>
-          <p>Everything you need to know about our techniques, pricing, duration, and results before visiting the clinic.</p>
+          <span class="eyebrow">CLEAR ANSWERS</span>
+          <h2 id="faq-title">Frequently Asked Questions</h2>
+          <p>Everything you need to know about our treatments, timeline, and results.</p>
         </div>
 
-        <div class="faq-container">
+        <div class="faq-accordion" role="region" aria-label="FAQ Accordion">
+          
           <div class="faq-item active">
-            <button type="button" class="faq-question">
-              <span>Can this Ayurvedic treatment truly help me avoid Knee Replacement or Spine Surgery?</span>
-              <span class="faq-icon">+</span>
+            <button type="button" class="faq-question" aria-expanded="true">
+              <span>How soon can I expect pain relief?</span>
+              <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="faq-answer">
-              <p>Yes. If you have been diagnosed with Osteoarthritis (Stages 1, 2, or 3), Sciatica, Lumbar/Cervical Spondylosis, or a Slip Disc, our combination of Marma Chikitsa and Panchakarma is specifically designed to decompress nerve roots, reduce severe inflammation, and stimulate natural synovial joint fluid. Over 90% of our consulted patients who undergo the protocol avoid or significantly delay surgical intervention.</p>
+              <p>Most patients experience a 20% to 30% reduction in pain intensity and noticeable easing of stiffness within their very first session. For lasting structural correction, our complete 7-day or 21-day protocols provide lasting joint regeneration.</p>
             </div>
           </div>
 
           <div class="faq-item">
-            <button type="button" class="faq-question">
-              <span>Is Ayurveda too slow for severe, acute joint pain?</span>
-              <span class="faq-icon">+</span>
+            <button type="button" class="faq-question" aria-expanded="false">
+              <span>Can Ayurvedic treatment really prevent surgery?</span>
+              <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="faq-answer">
-              <p>That is a common myth with standard powdered medicines. In our clinic, because we integrate <strong>Marma Chikitsa (instant vital energy point stimulation)</strong> with hot Pottali Sekam and medicated steam, patients experience <strong>20% to 30% measurable pain relief right on the very first day</strong> of their treatment. Mobility begins improving immediately.</p>
+              <p>For Stage 1, 2, and 3 Knee Osteoarthritis, Lumbar Spondylosis, and Sciatic nerve compression, clinical Marma and Panchakarma therapies have helped thousands avoid surgical intervention. During your consultation, Dr. Surabhi Vaidya will review your X-Rays or MRI to give you an honest appraisal.</p>
             </div>
           </div>
 
           <div class="faq-item">
-            <button type="button" class="faq-question">
-              <span>What exactly happens in the ₹4,000 First Experience Session?</span>
-              <span class="faq-icon">+</span>
+            <button type="button" class="faq-question" aria-expanded="false">
+              <span>How do I attend the Live Masterclass (₹201)?</span>
+              <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="faq-answer">
-              <p>The Experience Session is a comprehensive clinical session including 7 integrated treatments: (1) Full Doctor Consultation &amp; History, (2) Naadi Pariksha &amp; Postural Analysis, (3) Targeted Marma Chikitsa realignment, (4) Pottali Sekam herbal bolus fomentation, (5) Medicated herbal steam bath, (6) Specialized Lepam paste application, and (7) Dietary and movement guidance.</p>
+              <p>Once you register for the ₹201 Live Masterclass, you will receive the Zoom access link and calendar invitation via SMS. You can join directly from your smartphone or computer.</p>
             </div>
           </div>
 
           <div class="faq-item">
-            <button type="button" class="faq-question">
-              <span>Who is NOT an ideal candidate for this treatment? (Honest Exclusion)</span>
-              <span class="faq-icon">+</span>
+            <button type="button" class="faq-question" aria-expanded="false">
+              <span>Are the Ayurvedic medicines safe for diabetes &amp; hypertension patients?</span>
+              <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="faq-answer">
-              <p>We practice strictly ethical medicine. Patients with <strong>Stage 4 Osteoarthritis</strong> where the joint space is 100% destroyed (complete bone-on-bone friction with severe bony deformities) are generally not candidates for natural cartilage reversal and will be given an honest recommendation for surgical evaluation.</p>
+              <p>Yes, 100%. All internal herbal medicines are standardized, heavy-metal tested, and customized specifically according to your medical history and co-morbidities.</p>
             </div>
           </div>
 
           <div class="faq-item">
-            <button type="button" class="faq-question">
-              <span>I live in Mumbai, Navi Mumbai, Borivali, or Panvel. How do sessions work?</span>
-              <span class="faq-icon">+</span>
+            <button type="button" class="faq-question" aria-expanded="false">
+              <span>Where is your clinic located and how do I reach?</span>
+              <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="faq-answer">
-              <p>Over 40% of our patients travel from across Greater Mumbai, Navi Mumbai, Mira Road, Panvel, and Mulund to our clinic at Raymond TenX Habitat on Pokharan Road No. 2, Thane West. The clinic is easily accessible via the Eastern Express Highway and Ghodbunder Road with ample visitor parking and elevator access.</p>
+              <p>Our clinic is located at Shop No 5, Panchsheel Shopping Centre, Near Hari Om Dhaba, Gladys Alwares Road, Thane West 400610. The clinic is easily accessible from Ghodbunder Road, Majiwada, and Thane Station.</p>
             </div>
           </div>
 
-          <div class="faq-item">
-            <button type="button" class="faq-question">
-              <span>Is health insurance reimbursement or 0% interest EMI available?</span>
-              <span class="faq-icon">+</span>
-            </button>
-            <div class="faq-answer">
-              <p>Yes. While direct cashless insurance is subject to specific Ayurvedic hospital tie-ups, medical reimbursement is possible with most health insurance providers, and our clinic provides all required itemized medical certificates and bills. Additionally, we provide <strong>0% interest equal monthly installment (EMI) facility</strong> through an app for patients with satisfactory credit scores.</p>
-            </div>
-          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         FINAL CALL TO ACTION SECTION
+         ====================================================================== -->
+    <section class="cta-section section-padding" aria-labelledby="cta-title">
+      <div class="container text-center">
+        <span class="eyebrow" style="color: var(--accent-gold);">START YOUR HEALING TODAY</span>
+        <h2 id="cta-title" style="color: var(--text-light); max-width: 700px; margin: 0 auto 16px;">
+          Take the first step toward walking pain-free again.
+        </h2>
+        <p style="color: rgba(255, 255, 255, 0.85); max-width: 600px; margin: 0 auto 32px; font-size: 1.05rem;">
+          Get your customized non-surgical treatment plan in less than 60 seconds.
+        </p>
+
+        <div style="display: flex; justify-content: center;">
+          <button type="button" class="btn btn-primary btn-lg" data-start-assessment style="padding: 1.2rem 2.2rem; font-size: 1.15rem;">
+            Take 60-Second Pain Assessment ↗
+          </button>
+        </div>
+
+        <div style="margin-top: 24px; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">
+          Or call our direct clinic desk at <strong style="color: #fff;">+91 81085 00200</strong>
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- ========================================================================
+  <!-- ======================================================================
        SITE FOOTER
-       ======================================================================== -->
-  <footer>
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <h3>Charak Health Solutions</h3>
-          <p>Specialized Ayurvedic Pain Management &amp; Joint Preservation Clinic led by Dr. Surabhi Vaidya (BAMS, MBA Clinical Research). Restoring natural mobility and avoiding surgery without lifelong painkillers.</p>
-          <div style="font-size: 0.85rem; color: #e5b367; font-weight: 600;">
-            ★ 4.9 Rating on Google · 3,000+ Cases Relieved
-          </div>
+       ====================================================================== -->
+  <footer class="footer" role="contentinfo">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <div class="brand-link" style="margin-bottom: 12px;">
+          <span class="brand-logo" aria-hidden="true">🌿</span>
+          <span class="brand-name" style="color: #fff;">Charak Health Solutions</span>
         </div>
-
-        <div class="footer-links">
-          <h4>Quick Links</h4>
-          <ul>
-            <li><a href="#flow">Patient Pathways</a></li>
-            <li><a href="#familiar">Everyday Pain Recognition</a></li>
-            <li><a href="#comparison">Ayurveda vs Surgery</a></li>
-            <li><a href="#pillars">The 4-Pillar Method</a></li>
-            <li><a href="#stories">Video Testimonials</a></li>
-            <li><a href="#doctor">Meet Dr. Surabhi</a></li>
-            <li><a href="#pricing">Pricing &amp; 0% EMI</a></li>
-            <li><a href="#faqs">Common Questions</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-contact">
-          <h4>Clinic Location &amp; Contact</h4>
-          <p><strong>Charak Health Solutions</strong><br>
-          Cura 304, Raymond TenX Habitat,<br>
-          Pokharan Road No. 2, Vartak Nagar,<br>
-          Thane West, Maharashtra 400606</p>
-          <p><strong>Official Websites:</strong><br>
-          <a href="https://www.kneeandbackpainclinic.com" target="_blank" rel="noopener noreferrer">kneeandbackpainclinic.com</a> · <a href="https://www.vaidyaparampara.com" target="_blank" rel="noopener noreferrer">vaidyaparampara.com</a></p>
-          <a href="https://www.google.com/maps/place/Charak+Health+Solutions%7C+Best+Ayurvedic+Doctor+in+Vartak+Nagar+Thane%7C+Best+Panchkarma+Center+in+Vartak+Nagar+Thane/@19.2132024,72.9622171,17z/data=!4m12!1m2!2m1!1sCharak+Health+Solutions+Raymond+TenX+Habitat+Thane!3m8!1s0x3be7b9611e939a9f:0xfb1cfb6c70216b6c!8m2!3d19.2132024!4d72.9667232!9m1!1b1!16s%2Fg%2F11vx7gllpl" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="margin-top: 8px;">
-            Get Google Maps Directions ↗
-          </a>
+        <p style="font-size: 0.85rem; line-height: 1.6; color: #a0aec0; margin-bottom: 16px;">
+          Specialized Ayurvedic Pain Management &amp; Non-Surgical Joint Preservation Clinic led by Dr. Surabhi Vaidya (MD Ayurveda).
+        </p>
+        <div style="font-size: 0.85rem; color: #cbd5e0;">
+          <div>📍 Shop No 5, Panchsheel Shopping Centre, Gladys Alwares Road, Thane West 400610</div>
+          <div style="margin-top: 6px;">📞 +91 81085 00200 / +91 91374 44577</div>
         </div>
       </div>
 
-      <div class="footer-bottom">
-        <span>&copy; 2026 Charak Health Solutions. All rights reserved. Vartak Nagar, Thane West.</span>
-        <span>Disclaimer: Information provided is for educational purposes and does not substitute medical diagnosis. Clinical results may vary based on condition chronicity and stage.</span>
+      <div class="footer-col">
+        <h4>Key Treatment Areas</h4>
+        <ul class="footer-links">
+          <li>Knee Osteoarthritis (Sandhivata)</li>
+          <li>Sciatica &amp; Lumbar Disc Herniation (Gridhrasi)</li>
+          <li>Cervical Spondylosis &amp; Neck Pain (Manyastambha)</li>
+          <li>Frozen Shoulder (Apabahuka)</li>
+          <li>Chronic Low Back Pain (Kati Shoola)</li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Clinic Hours &amp; Intake</h4>
+        <div style="font-size: 0.85rem; line-height: 1.8; color: #cbd5e0;">
+          <div>Monday – Saturday: 9:00 AM – 8:00 PM</div>
+          <div>Sunday: 10:00 AM – 2:00 PM</div>
+          <div style="margin-top: 12px; color: var(--accent-gold); font-weight: 600;">
+            Advance Appointment Required for Diagnosis
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <div style="font-size: 0.78rem; color: #718096; line-height: 1.6;">
+        © 2026 Charak Health Solutions. All Rights Reserved. Medical Disclaimer: Ayurvedic therapies are tailored according to individual Prakriti (body constitution). Relief timelines may vary based on clinical severity.
       </div>
     </div>
   </footer>
 
-  <!-- ========================================================================
-       STICKY BOTTOM ACTION BAR (MOBILE COMPACT SINGLE CTA)
-       ======================================================================== -->
-  <div class="sticky-bar" id="sticky-bar" role="region" aria-label="Quick Booking Bar">
-    <div class="sticky-bar-inner">
-      <div class="sticky-bar-copy">
-        <strong>Avoid Surgery &amp; Walk Pain-Free</strong>
-        <span>Get 20% to 30% relief in your very first session</span>
+  <!-- ======================================================================
+       MOBILE STICKY BOTTOM ACTION BAR (SINGLE CTA)
+       ====================================================================== -->
+  <div class="sticky-bottom-bar" id="sticky-bar">
+    <div class="sticky-inner">
+      <div class="sticky-info">
+        <span class="sticky-tag">DAY 1 PAIN RELIEF</span>
+        <span class="sticky-price">₹1,000 / ₹4,000 Trial</span>
       </div>
-      <div class="sticky-bar-actions">
-        <button type="button" class="btn btn-primary btn-sm" data-start-assessment style="width: 100%;">
-          Find Your Single Recommended Step ↗
-        </button>
+      <button type="button" class="btn btn-primary btn-sm" data-start-assessment style="flex: 1; max-width: 220px; justify-content: center;">
+        Start Assessment ↗
+      </button>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       VIDEO MODAL PLAYER
+       ====================================================================== -->
+  <div class="video-modal-backdrop" id="video-modal" role="dialog" aria-modal="true" aria-hidden="true" style="display: none;">
+    <div class="video-modal-container">
+      <div class="video-modal-header">
+        <span id="modal-video-title">Dr. Surabhi Vaidya · Clinical Presentation</span>
+        <button type="button" class="video-modal-close" id="modal-close-btn" aria-label="Close video player">✕</button>
+      </div>
+      <div class="video-iframe-wrap">
+        <iframe id="modal-iframe" src="" title="Video Player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
     </div>
   </div>
 
-  <!-- ========================================================================
-       INTERACTIVE ASSESSMENT MODAL (STRICT SINGLE-OPTION ENGINE)
-       ======================================================================== -->
-  <dialog id="quiz-modal" aria-labelledby="quiz-title">
-    <div class="quiz-shell">
-      <div class="quiz-header">
-        <div class="quiz-brand-tag">KNEE &amp; BACK MOBILITY ASSESSMENT</div>
-        <button type="button" class="quiz-close" id="quiz-modal-close" aria-label="Close Assessment">&times;</button>
+  <!-- ======================================================================
+       QUESTIONNAIRE / CLINICAL DECISION MODAL (SINGLE OPTION RECOMMENDATION)
+       ====================================================================== -->
+  <div class="quiz-modal-backdrop" id="quiz-modal" role="dialog" aria-modal="true" aria-hidden="true" style="display: none;">
+    <div class="quiz-modal-container">
+      <div class="quiz-modal-header">
+        <div class="quiz-header-left">
+          <span class="brand-logo" style="font-size: 1.2rem;">🌿</span>
+          <div>
+            <h3 style="font-size: 1rem; margin: 0; color: var(--primary-deep); font-family: var(--font-heading);">60-Second Pain Assessment</h3>
+            <span style="font-size: 0.72rem; color: var(--text-muted);">Personalized Clinical Pathway Recommendation</span>
+          </div>
+        </div>
+        <button type="button" class="quiz-modal-close" id="quiz-close-btn" aria-label="Close assessment">✕</button>
       </div>
+
       <div class="quiz-progress-bar-wrap">
-        <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+        <div class="quiz-progress-bar" id="quiz-progress" style="width: 20%;"></div>
       </div>
-      <div id="quiz-body">
-        <!-- Dynamically rendered with single recommended option by script.js -->
+
+      <div class="quiz-modal-body" id="quiz-body">
+        <!-- Injected via script.js -->
       </div>
     </div>
-  </dialog>
+  </div>
 
-  <!-- ========================================================================
-       VIDEO PLAYER MODAL
-       ======================================================================== -->
-  <dialog id="video-modal" aria-label="Patient Testimonial Video Player">
-    <div style="position: relative;">
-      <button type="button" class="video-modal-close" id="video-modal-close" aria-label="Close Video Player">&times;</button>
-      <div class="video-modal-inner">
-        <iframe id="video-modal-frame" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-      </div>
-    </div>
-  </dialog>
-
-  <!-- ========================================================================
-       EXIT-INTENT MODAL
-       ======================================================================== -->
-  <dialog id="exit-modal" aria-labelledby="exit-modal-title">
-    <div class="exit-modal-content">
-      <button type="button" class="exit-close" id="exit-modal-close" aria-label="Close">&times;</button>
-      <span class="eyebrow" style="margin-bottom: 6px;">BEFORE YOU LEAVE</span>
-      <h2 id="exit-modal-title" style="font-size: 1.45rem; margin-bottom: 10px;">Still living with daily knee or back stiffness?</h2>
-      <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 18px;">
-        You don't have to accept pain as your normal or jump straight to surgery. Take our 60-second assessment to see the single recommended treatment path for your condition.
-      </p>
-      <div style="display: grid; gap: 10px;">
-        <button type="button" class="btn btn-primary btn-lg" data-start-assessment onclick="document.querySelector('#exit-modal').close();">
-          Take 60-Second Assessment ↗
-        </button>
-      </div>
-    </div>
-  </dialog>
-
-  <!-- Scripts -->
-  <script src="./booking-links.js"></script>
-  <script src="./script.js"></script>
+  <!-- JavaScript Files -->
+  <script src="booking-links.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

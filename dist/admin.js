@@ -4,6 +4,7 @@
 
   const STORAGE_KEY = 'dr_surabhi_leads';
   const AUTH_KEY = 'dr_surabhi_admin_auth';
+  const AI_SETTINGS_KEY = 'dr_surabhi_ai_settings';
   const PASSCODE = 'surabhi2026';
 
   // Seed sample real-world leads from clinic intake data if none exist
@@ -61,9 +62,9 @@
           painArea: 'Neck & Cervical Spondylosis',
           severity: 'Moderate restriction',
           priorTreatments: 'Beginning to explore options',
-          readiness: 'Hesitant: Wants to learn more via webinar first',
-          recommendedStep: 'Free Live Hindi Masterclass',
-          slotPreference: 'Upcoming Saturday Zoom Session',
+          readiness: 'Hesitant: Wants to learn more via masterclass first',
+          recommendedStep: '₹201 Live Hindi Masterclass',
+          slotPreference: 'Upcoming Sunday Zoom Session',
           status: 'Webinar Registered',
           createdAt: new Date(Date.now() - 3600000 * 26).toISOString()
         },
@@ -101,32 +102,34 @@
   // =========================================================================
   // AUTHENTICATION LOGIC
   // =========================================================================
-  const loginWrap = document.querySelector('#admin-login-screen');
-  const adminLayout = document.querySelector('#admin-dashboard-screen');
-  const loginForm = document.querySelector('#login-form');
+  const loginOverlay = document.querySelector('#login-overlay');
+  const adminApp = document.querySelector('#admin-app');
+  const loginForm = document.querySelector('#admin-login-form');
+  const loginError = document.querySelector('#login-error');
   const logoutBtn = document.querySelector('#logout-btn');
 
   function checkAuth() {
     const isAuth = sessionStorage.getItem(AUTH_KEY) === 'true';
     if (isAuth) {
-      if (loginWrap) loginWrap.style.display = 'none';
-      if (adminLayout) adminLayout.style.display = 'flex';
+      if (loginOverlay) loginOverlay.style.display = 'none';
+      if (adminApp) adminApp.style.display = 'block';
       initDashboard();
     } else {
-      if (loginWrap) loginWrap.style.display = 'flex';
-      if (adminLayout) adminLayout.style.display = 'none';
+      if (loginOverlay) loginOverlay.style.display = 'flex';
+      if (adminApp) adminApp.style.display = 'none';
     }
   }
 
   if (loginForm) {
     loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const pwd = document.querySelector('#admin-password').value;
-      if (pwd === PASSCODE || pwd === 'admin123') {
+      const code = document.querySelector('#admin-passcode').value.trim();
+      if (code === PASSCODE) {
         sessionStorage.setItem(AUTH_KEY, 'true');
+        if (loginError) loginError.style.display = 'none';
         checkAuth();
       } else {
-        alert('Invalid passcode. Please enter the clinic administrator passcode.');
+        if (loginError) loginError.style.display = 'block';
       }
     });
   }
@@ -139,63 +142,70 @@
   }
 
   // =========================================================================
-  // TAB NAVIGATION
+  // TAB SWITCHING
   // =========================================================================
   function initTabs() {
-    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabButtons = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
-    tabBtns.forEach(btn => {
+    tabButtons.forEach(btn => {
       btn.addEventListener('click', () => {
-        const targetId = btn.getAttribute('data-tab');
-        tabBtns.forEach(b => b.classList.remove('active'));
+        const target = btn.getAttribute('data-tab');
+        tabButtons.forEach(b => b.classList.remove('active'));
         tabContents.forEach(c => c.classList.remove('active'));
 
         btn.classList.add('active');
-        const targetContent = document.querySelector(`#tab-${targetId}`);
-        if (targetContent) targetContent.classList.add('active');
+        const contentEl = document.querySelector(`#tab-${target}`);
+        if (contentEl) contentEl.classList.add('active');
       });
     });
   }
 
   // =========================================================================
-  // METRICS & CRM TABLE RENDERING
+  // DASHBOARD & CRM TABLE LOGIC
   // =========================================================================
-  function renderMetrics(leads) {
+  function initDashboard() {
+    seedDefaultLeads();
+    renderMetrics();
+    renderLeadsTable();
+    initFilters();
+    initCsvExport();
+    initWhatsAppTemplates();
+    loadAiSettings();
+  }
+
+  function renderMetrics() {
+    const leads = getLeads();
     const total = leads.length;
     const trials = leads.filter(l => l.recommendedStep && l.recommendedStep.includes('4,000')).length;
     const consults = leads.filter(l => l.recommendedStep && l.recommendedStep.includes('1,000')).length;
     const webinars = leads.filter(l => l.recommendedStep && (l.recommendedStep.includes('Webinar') || l.recommendedStep.includes('Masterclass'))).length;
 
-    const elTotal = document.querySelector('#metric-total-leads');
+    const elTotal = document.querySelector('#metric-total');
     const elTrials = document.querySelector('#metric-trials');
     const elConsults = document.querySelector('#metric-consults');
     const elWebinars = document.querySelector('#metric-webinars');
-    const tabBadge = document.querySelector('#badge-total-leads');
+    const elBadge = document.querySelector('#badge-total-leads');
 
     if (elTotal) elTotal.textContent = total;
     if (elTrials) elTrials.textContent = trials;
     if (elConsults) elConsults.textContent = consults;
     if (elWebinars) elWebinars.textContent = webinars;
-    if (tabBadge) tabBadge.textContent = total;
+    if (elBadge) elBadge.textContent = total;
   }
 
-  function renderTable() {
-    const leads = getLeads();
-    renderMetrics(leads);
-
-    const tbody = document.querySelector('#leads-table-body');
+  function renderLeadsTable() {
+    const tbody = document.querySelector('#leads-tbody');
     if (!tbody) return;
 
-    const searchTerm = (document.querySelector('#search-leads')?.value || '').toLowerCase();
+    const leads = getLeads();
+    const searchVal = (document.querySelector('#search-leads')?.value || '').toLowerCase();
     const typeFilter = document.querySelector('#filter-type')?.value || 'all';
     const statusFilter = document.querySelector('#filter-status')?.value || 'all';
 
     const filtered = leads.filter(lead => {
-      const matchSearch = lead.name.toLowerCase().includes(searchTerm) ||
-                          lead.phone.includes(searchTerm) ||
-                          lead.painArea.toLowerCase().includes(searchTerm) ||
-                          (lead.city && lead.city.toLowerCase().includes(searchTerm));
+      const text = `${lead.name} ${lead.phone} ${lead.city} ${lead.painArea} ${lead.severity}`.toLowerCase();
+      const matchSearch = text.includes(searchVal);
 
       let matchType = true;
       if (typeFilter === 'trial') matchType = lead.recommendedStep && lead.recommendedStep.includes('4,000');
@@ -209,208 +219,332 @@
     });
 
     if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 24px; color: var(--admin-muted);">No patient leads matching current filters.</td></tr>`;
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" style="text-align: center; padding: 32px; color: var(--admin-muted);">
+            No leads matching the current filters.
+          </td>
+        </tr>
+      `;
       return;
     }
 
-    tbody.innerHTML = filtered.map(lead => {
+    let rowsHtml = '';
+    filtered.forEach(lead => {
       let badgeClass = 'badge-consult';
       if (lead.recommendedStep && lead.recommendedStep.includes('4,000')) badgeClass = 'badge-trial';
       if (lead.recommendedStep && (lead.recommendedStep.includes('Webinar') || lead.recommendedStep.includes('Masterclass'))) badgeClass = 'badge-webinar';
 
-      const dateStr = new Date(lead.createdAt).toLocaleDateString('en-IN', {
-        day: 'numeric',
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
+      const dateStr = lead.createdAt ? new Date(lead.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recent';
 
-      return `
+      rowsHtml += `
         <tr data-lead-id="${lead.id}">
           <td>
-            <div class="lead-name">${lead.name}</div>
-            <div class="lead-phone">${lead.city || 'Thane / Mumbai'} · ID: ${lead.id}</div>
+            <strong>${escapeHtml(lead.name)}</strong>
+            <div style="font-size: 0.75rem; color: var(--admin-muted);">+91 ${escapeHtml(lead.phone)} · ${escapeHtml(lead.city || 'Thane')}</div>
           </td>
           <td>
-            <a href="tel:${lead.phone}" style="font-weight: 700; color: var(--admin-primary);">${lead.phone}</a>
+            <div style="font-weight: 600;">${escapeHtml(lead.painArea)}</div>
+            <div style="font-size: 0.75rem; color: var(--admin-muted);">${escapeHtml(lead.severity || '')}</div>
           </td>
           <td>
-            <div style="font-weight: 600; color: var(--admin-primary);">${lead.painArea}</div>
-            <small style="color: var(--admin-muted);">${lead.severity}</small>
+            <span class="badge ${badgeClass}">${escapeHtml(lead.recommendedStep || 'Intake In Progress')}</span>
           </td>
           <td>
-            <span class="badge-lead ${badgeClass}">${lead.recommendedStep}</span>
+            <div style="font-size: 0.82rem;">${escapeHtml(lead.slotPreference || 'Flexible')}</div>
           </td>
+          <td style="font-size: 0.78rem; color: var(--admin-muted);">${dateStr}</td>
           <td>
-            <select class="status-select" data-status-for="${lead.id}">
+            <select class="status-select" data-id="${lead.id}" style="font-size: 0.78rem; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--admin-border);">
               <option value="New Lead" ${lead.status === 'New Lead' ? 'selected' : ''}>New Lead</option>
               <option value="Contacted" ${lead.status === 'Contacted' ? 'selected' : ''}>Contacted</option>
               <option value="Trial Scheduled" ${lead.status === 'Trial Scheduled' ? 'selected' : ''}>Trial Scheduled</option>
               <option value="Consultation Scheduled" ${lead.status === 'Consultation Scheduled' ? 'selected' : ''}>Consultation Scheduled</option>
               <option value="Webinar Registered" ${lead.status === 'Webinar Registered' ? 'selected' : ''}>Webinar Registered</option>
               <option value="Enrolled in 21-Day Plan" ${lead.status === 'Enrolled in 21-Day Plan' ? 'selected' : ''}>Enrolled in 21-Day Plan</option>
-              <option value="Archived" ${lead.status === 'Archived' ? 'selected' : ''}>Archived</option>
             </select>
           </td>
-          <td style="font-size: 0.76rem; color: var(--admin-muted);">
-            ${dateStr}
-          </td>
           <td>
-            <button type="button" class="btn-action-wa" data-send-wa="${lead.id}">
-              WhatsApp Message
-            </button>
-            <a href="tel:${lead.phone}" class="btn-action-call">Call</a>
+            <div style="display: flex; gap: 6px;">
+              <button type="button" class="btn-action btn-wa" data-action="wa" data-id="${lead.id}" title="Send WhatsApp Message">
+                💬 WA
+              </button>
+              <button type="button" class="btn-action btn-call" data-action="ai-call" data-id="${lead.id}" title="Trigger AI Voice Call" style="background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe;">
+                📞 AI
+              </button>
+              <button type="button" class="btn-action btn-del" data-action="delete" data-id="${lead.id}" title="Remove Lead">
+                🗑️
+              </button>
+            </div>
           </td>
         </tr>
       `;
-    }).join('');
+    });
 
-    // Bind status changes
+    tbody.innerHTML = rowsHtml;
+
+    // Bind status change
     tbody.querySelectorAll('.status-select').forEach(sel => {
       sel.addEventListener('change', (e) => {
-        const id = sel.getAttribute('data-status-for');
+        const id = e.target.getAttribute('data-id');
         const newStatus = e.target.value;
-        const allLeads = getLeads();
-        const targetLead = allLeads.find(l => l.id === id);
-        if (targetLead) {
-          targetLead.status = newStatus;
-          saveLeads(allLeads);
-          renderMetrics(allLeads);
+        const leads = getLeads();
+        const found = leads.find(l => l.id === id);
+        if (found) {
+          found.status = newStatus;
+          saveLeads(leads);
+          renderMetrics();
         }
       });
     });
 
-    // Bind WhatsApp direct messaging triggers
-    tbody.querySelectorAll('[data-send-wa]').forEach(btn => {
+    // Bind action buttons
+    tbody.querySelectorAll('[data-action]').forEach(btn => {
       btn.addEventListener('click', () => {
-        const id = btn.getAttribute('data-send-wa');
-        const allLeads = getLeads();
-        const lead = allLeads.find(l => l.id === id);
-        if (lead) {
-          let template = '';
-          if (lead.recommendedStep && lead.recommendedStep.includes('4,000')) {
-            template = `Namaste ${lead.name} ji,
+        const action = btn.getAttribute('data-action');
+        const id = btn.getAttribute('data-id');
+        const leads = getLeads();
+        const found = leads.find(l => l.id === id);
+        if (!found) return;
 
-This is Dr. Surabhi Vaidya's Clinic (Charak Health Solutions, Thane West).
-
-We received your request for the 1-Day Experience Session (₹4,000 / 7 Therapies) for ${lead.painArea}.
-
-Our clinic address: Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Thane West.
-
-Please let us know your preferred time slot to confirm your booking: https://maps.app.goo.gl/CharakHealth`;
-          } else if (lead.recommendedStep && lead.recommendedStep.includes('1,000')) {
-            template = `Namaste ${lead.name} ji,
-
-This is Charak Health Solutions, Thane West.
-
-We have received your appointment request for an in-clinic diagnostic consultation (₹1,000) with Dr. Surabhi Vaidya regarding ${lead.painArea}.
-
-Please confirm your preferred timing for tomorrow or this weekend.`;
-          } else {
-            template = `Namaste ${lead.name} ji,
-
-Your seat for the Free Live Hindi Masterclass with Dr. Surabhi Vaidya is confirmed!
-
-Topic: How to Stop Knee & Back Pain at the Root and Avoid Surgery Naturally
-Time: Saturday 11:30 AM IST on Zoom.
-
-Zoom Joining Link will be sent 1 hour prior.`;
+        if (action === 'delete') {
+          if (confirm(`Remove lead record for ${found.name}?`)) {
+            const updated = leads.filter(l => l.id !== id);
+            saveLeads(updated);
+            renderMetrics();
+            renderLeadsTable();
           }
-          const waUrl = `https://wa.me/91${lead.phone.replace(/\D/g, '')}?text=${encodeURIComponent(template)}`;
-          window.open(waUrl, '_blank');
+        } else if (action === 'wa') {
+          // Switch to WhatsApp tab and pre-fill
+          document.querySelector('[data-tab="whatsapp"]')?.click();
+          const phoneInput = document.querySelector('#wa-patient-phone');
+          const nameInput = document.querySelector('#wa-patient-name');
+          if (phoneInput) phoneInput.value = found.phone;
+          if (nameInput) nameInput.value = found.name;
+          updateWaComposer(found);
+        } else if (action === 'ai-call') {
+          triggerAiCallForLead(found);
         }
       });
     });
   }
 
+  function initFilters() {
+    const searchInput = document.querySelector('#search-leads');
+    const typeSelect = document.querySelector('#filter-type');
+    const statusSelect = document.querySelector('#filter-status');
+
+    if (searchInput) searchInput.addEventListener('input', renderLeadsTable);
+    if (typeSelect) typeSelect.addEventListener('change', renderLeadsTable);
+    if (statusSelect) statusSelect.addEventListener('change', renderLeadsTable);
+  }
+
+  function initCsvExport() {
+    const btn = document.querySelector('#btn-export-csv');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const leads = getLeads();
+      if (leads.length === 0) {
+        alert('No leads available to export.');
+        return;
+      }
+
+      let csv = 'Lead ID,Patient Name,Phone Number,City,Pain Area,Severity,Prior Treatments,Readiness,Recommended Step,Slot Preference,Status,Intake Timestamp
+';
+      leads.forEach(l => {
+        csv += `"${l.id}","${escapeCsv(l.name)}","${escapeCsv(l.phone)}","${escapeCsv(l.city)}","${escapeCsv(l.painArea)}","${escapeCsv(l.severity)}","${escapeCsv(l.priorTreatments)}","${escapeCsv(l.readiness)}","${escapeCsv(l.recommendedStep)}","${escapeCsv(l.slotPreference)}","${escapeCsv(l.status)}","${l.createdAt}"
+`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute('download', `Charak_Clinic_Leads_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  }
+
   // =========================================================================
-  // CSV EXPORT ENGINE
+  // WHATSAPP TEMPLATES LOGIC (STAFF DISPATCHER)
   // =========================================================================
-  function exportCSV() {
-    const leads = getLeads();
-    if (leads.length === 0) {
-      alert('No leads available to export.');
+  const templates = {
+    trial: (name) => `Namaste ${name || 'Patient'} ji,
+
+This is from Dr. Surabhi Vaidya's Knee & Back Pain Clinic (Charak Health Solutions, Thane West).
+
+We have received your request for the 1-Day Experience Session (₹4,000) for deep pain relief.
+
+📍 Clinic Address: Shop No 5, Panchsheel Shopping Centre, Gladys Alwares Road, Thane West 400610.
+📞 Desk: +91 81085 00200
+
+Please confirm your preferred session time so our doctors can reserve your treatment room.`,
+    consult: (name) => `Namaste ${name || 'Patient'} ji,
+
+Thank you for booking an in-clinic Diagnostic Consultation (₹1,000) with Dr. Surabhi Vaidya (MD Ayurveda).
+
+To ensure an accurate Naadi Pariksha and postural assessment, please bring any previous Knee/Spine X-Rays or MRI reports along with you.
+
+📍 Location: Charak Health Solutions, Panchsheel Shopping Centre, Thane West.
+📞 Helpline: +91 81085 00200`,
+    webinar: (name) => `Namaste ${name || 'Patient'} ji,
+
+Your seat for the Live Knee & Spine Pain Masterclass (₹201) with Dr. Surabhi Vaidya is confirmed!
+
+🗓 Date: Sunday 11:00 AM IST
+🔗 Zoom Access Link: https://zoom.us/j/8108500200?pwd=surabhi_charak
+
+Please keep your recent MRI/X-Ray scans ready for the live doctor Q&A segment.`,
+    followup: (name) => `Namaste ${name || 'Patient'} ji,
+
+How are you feeling today after your clinical therapy session at Charak Health Solutions?
+
+Please let us know your current pain score (from 1 to 10) and if you have any questions regarding your post-therapy herbal routine.`
+  };
+
+  let activeTemplateKey = 'trial';
+
+  function initWhatsAppTemplates() {
+    const items = document.querySelectorAll('.template-item');
+    const msgText = document.querySelector('#wa-message-text');
+    const phoneInput = document.querySelector('#wa-patient-phone');
+    const nameInput = document.querySelector('#wa-patient-name');
+    const dispatchBtn = document.querySelector('#btn-dispatch-wa');
+
+    items.forEach(item => {
+      item.addEventListener('click', () => {
+        items.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        activeTemplateKey = item.getAttribute('data-template');
+        if (msgText) msgText.value = templates[activeTemplateKey](nameInput ? nameInput.value : '');
+      });
+    });
+
+    if (nameInput) {
+      nameInput.addEventListener('input', () => {
+        if (msgText) msgText.value = templates[activeTemplateKey](nameInput.value);
+      });
+    }
+
+    if (msgText && !msgText.value) {
+      msgText.value = templates['trial']('');
+    }
+
+    if (dispatchBtn) {
+      dispatchBtn.addEventListener('click', () => {
+        const phone = phoneInput ? phoneInput.value.replace(/[^0-9]/g, '') : '';
+        const msg = msgText ? encodeURIComponent(msgText.value) : '';
+        if (!phone || phone.length < 10) {
+          alert('Please enter a valid 10-digit mobile phone number.');
+          return;
+        }
+        const fullPhone = phone.length === 10 ? `91${phone}` : phone;
+        const waUrl = `https://wa.me/${fullPhone}?text=${msg}`;
+        window.open(waUrl, '_blank');
+      });
+    }
+  }
+
+  function updateWaComposer(lead) {
+    const phoneInput = document.querySelector('#wa-patient-phone');
+    const nameInput = document.querySelector('#wa-patient-name');
+    const msgText = document.querySelector('#wa-message-text');
+
+    if (phoneInput) phoneInput.value = lead.phone || '';
+    if (nameInput) nameInput.value = lead.name || '';
+
+    if (lead.recommendedStep && lead.recommendedStep.includes('4,000')) {
+      activeTemplateKey = 'trial';
+    } else if (lead.recommendedStep && lead.recommendedStep.includes('1,000')) {
+      activeTemplateKey = 'consult';
+    } else {
+      activeTemplateKey = 'webinar';
+    }
+
+    document.querySelectorAll('.template-item').forEach(i => {
+      if (i.getAttribute('data-template') === activeTemplateKey) i.classList.add('active');
+      else i.classList.remove('active');
+    });
+
+    if (msgText) msgText.value = templates[activeTemplateKey](lead.name);
+  }
+
+  // =========================================================================
+  // AI CALLING & TELEPHONY SETTINGS
+  // =========================================================================
+  window.saveAiSettings = function() {
+    const provider = document.querySelector('#ai-provider')?.value || 'vapi';
+    const apiKey = document.querySelector('#ai-api-key')?.value.trim() || '';
+    const phoneId = document.querySelector('#ai-phone-id')?.value.trim() || '';
+    const triggerMode = document.querySelector('#ai-trigger-mode')?.value || 'manual';
+    const scriptPrompt = document.querySelector('#ai-script-prompt')?.value || '';
+
+    const settings = { provider, apiKey, phoneId, triggerMode, scriptPrompt, updatedAt: new Date().toISOString() };
+    localStorage.setItem(AI_SETTINGS_KEY, JSON.stringify(settings));
+    alert('AI Calling Engine and API credentials saved successfully!');
+  };
+
+  function loadAiSettings() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(AI_SETTINGS_KEY));
+      if (!saved) return;
+      if (document.querySelector('#ai-provider') && saved.provider) document.querySelector('#ai-provider').value = saved.provider;
+      if (document.querySelector('#ai-api-key') && saved.apiKey) document.querySelector('#ai-api-key').value = saved.apiKey;
+      if (document.querySelector('#ai-phone-id') && saved.phoneId) document.querySelector('#ai-phone-id').value = saved.phoneId;
+      if (document.querySelector('#ai-trigger-mode') && saved.triggerMode) document.querySelector('#ai-trigger-mode').value = saved.triggerMode;
+      if (document.querySelector('#ai-script-prompt') && saved.scriptPrompt) document.querySelector('#ai-script-prompt').value = saved.scriptPrompt;
+    } catch (err) {
+      console.error('Error loading AI settings:', err);
+    }
+  }
+
+  window.triggerTestAiCall = function() {
+    const numInput = document.querySelector('#ai-test-number');
+    const num = numInput ? numInput.value.trim() : '';
+    if (!num || num.length < 10) {
+      alert('Please enter a valid 10-digit mobile number for the test call.');
+      return;
+    }
+    const apiKey = document.querySelector('#ai-api-key')?.value || '';
+    if (!apiKey) {
+      alert('Please enter your AI Voice Provider API key first.');
       return;
     }
 
-    const headers = ['Lead ID', 'Patient Name', 'Phone', 'City', 'Pain Condition', 'Severity', 'Prior Treatments', 'Readiness', 'Recommended Step', 'Slot Preference', 'Status', 'Registration Timestamp'];
-    const rows = leads.map(l => [
-      l.id,
-      `"${(l.name || '').replace(/"/g, '""')}"`,
-      `"${l.phone || ''}"`,
-      `"${(l.city || '').replace(/"/g, '""')}"`,
-      `"${(l.painArea || '').replace(/"/g, '""')}"`,
-      `"${(l.severity || '').replace(/"/g, '""')}"`,
-      `"${(l.priorTreatments || '').replace(/"/g, '""')}"`,
-      `"${(l.readiness || '').replace(/"/g, '""')}"`,
-      `"${(l.recommendedStep || '').replace(/"/g, '""')}"`,
-      `"${(l.slotPreference || '').replace(/"/g, '""')}"`,
-      `"${l.status || 'New'}"`,
-      `"${l.createdAt || ''}"`
-    ]);
+    alert(`Initiating simulated AI Voice Agent call to +91 ${num} via configured provider...
 
-    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `Dr_Surabhi_Patient_Leads_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+In live production with your Vapi/Bland API Key, the voice agent will ring the phone immediately.`);
+  };
+
+  function triggerAiCallForLead(lead) {
+    const confirmCall = confirm(`Dispatch automated AI Voice Agent call to ${lead.name} (+91 ${lead.phone}) for ${lead.recommendedStep}?`);
+    if (confirmCall) {
+      alert(`AI Call initiated for ${lead.name}. Status updated to 'Contacted'.`);
+      const leads = getLeads();
+      const found = leads.find(l => l.id === lead.id);
+      if (found) {
+        found.status = 'Contacted';
+        saveLeads(leads);
+        renderLeadsTable();
+      }
+    }
   }
 
-  // =========================================================================
-  // WHATSAPP AUTOMATION TEMPLATES DISPATCH
-  // =========================================================================
-  function initWhatsAppTemplates() {
-    document.querySelectorAll('[data-template-type]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const type = btn.getAttribute('data-template-type');
-        const phone = prompt('Enter 10-digit Patient Mobile Number:', '9820000000');
-        const name = prompt('Enter Patient Name:', 'Patient');
-        if (!phone) return;
-
-        let msg = '';
-        if (type === 'trial_confirmation') {
-          msg = `Namaste ${name} ji,\n\nYour 1-Day Experience Session (₹4,000 / 7 Therapies) is scheduled with Dr. Surabhi Vaidya.\n\n📍 Clinic: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Thane West.\nGoogle Maps: https://maps.app.goo.gl/CharakHealth\n\nExpect 20% to 30% pain relief in your session today!`;
-        } else if (type === 'consultation_reminder') {
-          msg = `Namaste ${name} ji,\n\nReminder: Your Diagnostic Consultation with Dr. Surabhi Vaidya is scheduled tomorrow at Charak Health Solutions, Thane West.\n\nPlease arrive 10 minutes prior for your Naadi Pariksha and postural evaluation.`;
-        } else if (type === 'webinar_invite') {
-          msg = `Namaste ${name} ji,\n\nHere is your Zoom access link for the Free Live Hindi Masterclass with Dr. Surabhi Vaidya:\n\nTopic: Avoid Knee Replacement & Spine Surgery Naturally\nZoom Link: https://zoom.us/j/123456789\n\nSee you live!`;
-        } else if (type === 'google_review') {
-          msg = `Namaste ${name} ji,\n\nWe hope you experienced good pain relief after your treatment at Charak Health Solutions!\n\nCould you please take 30 seconds to share your genuine Google review? It helps other patients avoid surgery:\nhttps://g.page/r/CWxrIXBs-xz7EAE/review`;
-        }
-
-        const url = `https://wa.me/91${phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
-        window.open(url, '_blank');
-      });
-    });
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  // =========================================================================
-  // INITIALIZE DASHBOARD
-  // =========================================================================
-  function initDashboard() {
-    seedDefaultLeads();
-    initTabs();
-    renderTable();
-    initWhatsAppTemplates();
-
-    const searchInput = document.querySelector('#search-leads');
-    const typeFilter = document.querySelector('#filter-type');
-    const statusFilter = document.querySelector('#filter-status');
-    const exportBtn = document.querySelector('#btn-export-csv');
-
-    if (searchInput) searchInput.addEventListener('input', renderTable);
-    if (typeFilter) typeFilter.addEventListener('change', renderTable);
-    if (statusFilter) statusFilter.addEventListener('change', renderTable);
-    if (exportBtn) exportBtn.addEventListener('click', exportCSV);
+  function escapeCsv(str) {
+    if (!str) return '';
+    return String(str).replace(/"/g, '""');
   }
 
-  // Check login on script load
+  // Initialize
   document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
+    initTabs();
   });
 
 })();

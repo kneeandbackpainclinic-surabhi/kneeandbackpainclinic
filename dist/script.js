@@ -2,61 +2,96 @@
 (function() {
   'use strict';
 
-  const links = window.BOOKING_LINKS || {};
-
   // =========================================================================
-  // 1. LIVE COUNTDOWN TIMER (TOP ANNOUNCEMENT BAR)
+  // 1. DYNAMIC VSL SLUG & VIDEO INITIALIZER
   // =========================================================================
-  function initCountdown() {
-    const timerEl = document.querySelector('#countdown-display');
-    if (!timerEl) return;
+  function initVslSlug() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const vslParam = urlParams.get('vsl');
+    const defaultVsl = document.body.getAttribute('data-default-vsl') || 'consultation';
+    const activeVsl = vslParam ? vslParam.toLowerCase() : defaultVsl;
 
-    let target = links.webinarStartIso ? new Date(links.webinarStartIso) : null;
-    if (!target || isNaN(target.getTime()) || target < new Date()) {
-      target = new Date();
-      target.setDate(target.getDate() + ((7 - target.getDay() + 7) % 7 || 7));
-      target.setHours(11, 30, 0, 0);
-    }
+    const vslHeader = document.querySelector('#vsl-header-text');
+    const vslDuration = document.querySelector('#vsl-duration-text');
+    const vslWrap = document.querySelector('#vsl-trigger-wrap');
+    const vslPoster = document.querySelector('#vsl-poster-img');
+    const vslTitle = document.querySelector('#vsl-caption-title');
+    const vslDesc = document.querySelector('#vsl-caption-desc');
 
-    function updateTimer() {
-      const now = new Date();
-      const diff = target - now;
+    if (!vslWrap) return;
 
-      if (diff <= 0) {
-        timerEl.textContent = "Registration open for upcoming batch";
-        return;
-      }
-
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const mins = Math.floor((diff / 1000 / 60) % 60);
-      const secs = Math.floor((diff / 1000) % 60);
-
-      if (days > 0) {
-        timerEl.textContent = `${days}d ${hours}h ${mins}m ${secs}s`;
-      } else {
-        timerEl.textContent = `${String(hours).padStart(2, '0')}h ${String(mins).padStart(2, '0')}m ${String(secs).padStart(2, '0')}s`;
-      }
-    }
-
-    updateTimer();
-    setInterval(updateTimer, 1000);
-
-    const closeBtn = document.querySelector('.announcement-close');
-    const bar = document.querySelector('.top-announcement');
-    if (closeBtn && bar) {
-      closeBtn.addEventListener('click', () => {
-        bar.style.display = 'none';
-      });
+    if (activeVsl === 'webinar') {
+      const videoId = 's_OgsH07lCQ';
+      if (vslHeader) vslHeader.textContent = 'MASTERCLASS VIDEO PRESENTATION';
+      if (vslDuration) vslDuration.textContent = '3 MIN MASTERCLASS INVITATION';
+      if (vslWrap) vslWrap.setAttribute('data-video-id', videoId);
+      if (vslPoster) vslPoster.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+      if (vslTitle) vslTitle.innerHTML = 'Sunday Masterclass Invitation (₹201) · Joint Restoration Blueprint';
+      if (vslDesc) vslDesc.innerHTML = 'Watch Dr. Surabhi Vaidya preview what will be revealed in the 90-minute live interactive Zoom masterclass.';
+    } else {
+      const videoId = 'wrwncuc7zz8';
+      if (vslHeader) vslHeader.textContent = 'DOCTOR VIDEO PRESENTATION';
+      if (vslDuration) vslDuration.textContent = '5 MIN CLINICAL OVERVIEW';
+      if (vslWrap) vslWrap.setAttribute('data-video-id', videoId);
+      if (vslPoster) vslPoster.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+      if (vslTitle) vslTitle.innerHTML = 'How We Decompress Pinched Nerves &amp; Prevent Joint Surgery';
+      if (vslDesc) vslDesc.innerHTML = 'Watch Dr. Surabhi Vaidya explain our 4-pillar Marma &amp; Panchakarma protocol in simple patient language.';
     }
   }
 
   // =========================================================================
-  // 2. QUESTIONNAIRE WITH STRICT SINGLE-OPTION RECOMMENDATION ENGINE & CRM SYNC
+  // 2. VIDEO MODAL PLAYER
   // =========================================================================
-  const quizDialog = document.querySelector('#quiz-modal');
+  const videoModal = document.querySelector('#video-modal');
+  const modalIframe = document.querySelector('#modal-iframe');
+  const modalTitle = document.querySelector('#modal-video-title');
+  const modalCloseBtn = document.querySelector('#modal-close-btn');
+
+  function openVideoModal(videoId, title) {
+    if (!videoModal || !modalIframe) return;
+    if (modalTitle && title) modalTitle.textContent = title;
+    modalIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+    videoModal.style.display = 'flex';
+    videoModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeVideoModal() {
+    if (!videoModal || !modalIframe) return;
+    modalIframe.src = '';
+    videoModal.style.display = 'none';
+    videoModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  if (modalCloseBtn) {
+    modalCloseBtn.addEventListener('click', closeVideoModal);
+  }
+
+  if (videoModal) {
+    videoModal.addEventListener('click', (e) => {
+      if (e.target === videoModal) closeVideoModal();
+    });
+  }
+
+  // Bind VSL & Testimonial cards
+  document.addEventListener('click', (e) => {
+    const card = e.target.closest('[data-video-id]');
+    if (card) {
+      e.preventDefault();
+      const videoId = card.getAttribute('data-video-id');
+      const title = card.querySelector('h3, h4, .vsl-caption-bar h3')?.textContent || 'Dr. Surabhi Vaidya · Video Story';
+      openVideoModal(videoId, title);
+    }
+  });
+
+  // =========================================================================
+  // 3. QUESTIONNAIRE WITH STRICT SINGLE-OPTION RECOMMENDATION ENGINE & CRM
+  // =========================================================================
+  const quizModal = document.querySelector('#quiz-modal');
   const quizBody = document.querySelector('#quiz-body');
-  const quizProgress = document.querySelector('#quiz-progress-fill');
+  const quizProgress = document.querySelector('#quiz-progress');
+  const quizCloseBtn = document.querySelector('#quiz-close-btn');
 
   const quizQuestions = [
     {
@@ -108,18 +143,38 @@
     currentStep = 0;
     userAnswers = [];
     renderQuiz();
-    if (quizDialog) {
-      quizDialog.showModal();
+    if (quizModal) {
+      quizModal.style.display = 'flex';
+      quizModal.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
     }
   }
 
   function closeQuiz() {
-    if (quizDialog) {
-      quizDialog.close();
+    if (quizModal) {
+      quizModal.style.display = 'none';
+      quizModal.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
     }
   }
+
+  if (quizCloseBtn) {
+    quizCloseBtn.addEventListener('click', closeQuiz);
+  }
+
+  if (quizModal) {
+    quizModal.addEventListener('click', (e) => {
+      if (e.target === quizModal) closeQuiz();
+    });
+  }
+
+  // Bind all CTA buttons with data-start-assessment
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-start-assessment]')) {
+      e.preventDefault();
+      openQuiz();
+    }
+  });
 
   function renderQuiz() {
     if (!quizBody || !quizProgress) return;
@@ -137,43 +192,48 @@
 
       let branch = 'consultation';
 
+      // RULE 1: Severe distress, surgery advised, or ready to begin -> Recommend ONLY ₹4,000 Trial
       if (qReadiness === 0 || qSeverity === 0 || qPrior === 0) {
         branch = 'trial';
-      } else if (qReadiness === 2 || qReadiness === 3) {
+      }
+      // RULE 2: Hesitant, skeptical, just exploring -> Recommend ONLY ₹201 Webinar Masterclass
+      else if (qReadiness === 2 || qReadiness === 3 || qPrior === 3) {
         branch = 'webinar';
-      } else {
+      }
+      // RULE 3: Fairly ready, moderate/advanced stage -> Recommend ONLY ₹1,000 Consultation
+      else {
         branch = 'consultation';
       }
 
       let resultHtml = '';
 
-      // BRANCH 1: ONLY RS 4,000 1-DAY TRIAL SESSION
+      // BRANCH 1: ONLY ₹4,000 1-DAY EXPERIENCE SESSION
       if (branch === 'trial') {
         resultHtml = `
-          <div class="quiz-result-single">
+          <div class="quiz-result-single" style="border-color: var(--accent-terracotta);">
             <div style="font-size: 0.72rem; font-weight: 700; color: var(--accent-terracotta); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">
               SINGLE RECOMMENDED NEXT STEP
             </div>
-            <h3 style="font-size: 1.3rem; color: var(--primary-deep); margin-bottom: 8px;">
-              1-Day Comprehensive Experience Session (₹4,000)
+            <h3 style="font-size: 1.35rem; color: var(--primary-deep); margin-bottom: 8px;">
+              Direct 1-Day Experience Session (₹4,000)
             </h3>
             <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 12px;">
-              Because you are experiencing severe distress or ready to prevent surgery for <strong>${painArea}</strong>, a standard talk is not enough. You need immediate physical decompression. In this single-day session, you receive 7 targeted therapies and can expect <strong>20% to 30% pain relief on Day 1</strong>.
+              Based on your reported pain severity for <strong>${painArea}</strong>, an initial consultation alone may delay needed relief. We strongly recommend experiencing our <strong>1-Day Intensive Session (7 comprehensive treatments)</strong> to achieve 20% to 30% measurable pain relief on Day 1.
             </p>
 
             <div class="quiz-flow-indicator">
               <div class="flow-node">1. Assessment ✓</div>
-              <div class="flow-node active-node">2. ★ 1-Day Experience Session (₹4,000)</div>
-              <div class="flow-node">3. Recovery Protocol</div>
+              <div class="flow-node active-node">2. ★ 1-Day Trial (₹4k)</div>
+              <div class="flow-node">3. Long-Term Recovery</div>
             </div>
 
             <div style="background: var(--bg-sand); padding: 12px 14px; border-radius: 6px; font-size: 0.82rem; color: var(--primary-deep); margin-bottom: 16px;">
-              <strong>What is included:</strong> Full doctor consultation + Naadi Pariksha + Marma point alignment + Pottali Sekam + Medicated steam + Herbal Lepam + Diet plan.
+              <strong>What is included:</strong> Full doctor diagnosis + Janu/Kati Basti + Marma stimulation + Pottali Sekam + Medicated Herbal Steam.
             </div>
 
             <form id="quiz-booking-form">
               <div class="form-field">
-                <label for="booking-name">Patient Full Name *</label>
+                <label for="booking-name">Your Full Name *</label>
                 <input type="text" id="booking-name" required placeholder="Enter full name" minlength="2">
               </div>
               <div class="form-field">
@@ -181,84 +241,92 @@
                 <input type="tel" id="booking-phone" required placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" maxlength="10">
               </div>
               <div class="form-field">
-                <label for="booking-time">Preferred Day / Slot *</label>
+                <label for="booking-time">Preferred Session Slot *</label>
                 <select id="booking-time" required>
-                  <option value="">Select preferred day</option>
-                  <option value="Tomorrow Morning (10:00 AM - 1:00 PM)">Tomorrow Morning (10:00 AM - 1:00 PM)</option>
-                  <option value="Tomorrow Afternoon (3:00 PM - 7:00 PM)">Tomorrow Afternoon (3:00 PM - 7:00 PM)</option>
-                  <option value="This Weekend (Saturday / Sunday)">This Weekend (Saturday / Sunday)</option>
-                  <option value="Next Week">Next Week</option>
+                  <option value="Tomorrow Morning (9:30 AM)">Tomorrow Morning (9:30 AM)</option>
+                  <option value="Tomorrow Afternoon (2:30 PM)">Tomorrow Afternoon (2:30 PM)</option>
+                  <option value="This Weekend (Saturday)">This Weekend (Saturday)</option>
+                  <option value="This Weekend (Sunday)">This Weekend (Sunday)</option>
                 </select>
               </div>
               <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 10px;">
-                Request ₹4,000 Experience Session Booking ↗
+                Confirm Trial Request (₹4,000) ↗
               </button>
             </form>
           </div>
         `;
       }
-      // BRANCH 2: ONLY RS 1,000 DIAGNOSTIC CONSULTATION
+      // BRANCH 2: ONLY ₹1,000 DIAGNOSTIC CONSULTATION
       else if (branch === 'consultation') {
         resultHtml = `
-          <div class="quiz-result-single">
+          <div class="quiz-result-single" style="border-color: var(--accent-gold);">
             <div style="font-size: 0.72rem; font-weight: 700; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">
               SINGLE RECOMMENDED NEXT STEP
             </div>
-            <h3 style="font-size: 1.3rem; color: var(--primary-deep); margin-bottom: 8px;">
+            <h3 style="font-size: 1.35rem; color: var(--primary-deep); margin-bottom: 8px;">
               In-Clinic Diagnostic Consultation (₹1,000)
             </h3>
             <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 12px;">
-              Based on your condition stage for <strong>${painArea}</strong>, your most effective starting point is an in-depth 45-minute clinical consultation with Dr. Surabhi Vaidya to analyze your posture, pulse (Naadi Pariksha), and exact root causes before selecting treatments.
+              You are at a suitable stage to get an in-depth 45-minute clinical assessment with Dr. Surabhi Vaidya for your <strong>${painArea}</strong>. She will perform Ayurvedic Naadi Pariksha (pulse analysis), evaluate your MRI / X-Rays, and map your surgical prevention plan.
             </p>
 
             <div class="quiz-flow-indicator">
               <div class="flow-node">1. Assessment ✓</div>
-              <div class="flow-node active-node">2. ★ Diagnostic Consultation (₹1,000)</div>
-              <div class="flow-node">3. Recommended Protocol</div>
+              <div class="flow-node active-node">2. ★ Diagnosis (₹1,000)</div>
+              <div class="flow-node">3. Targeted Protocol</div>
             </div>
 
             <div style="background: var(--bg-sand); padding: 12px 14px; border-radius: 6px; font-size: 0.82rem; color: var(--primary-deep); margin-bottom: 16px;">
-              <strong>What is included:</strong> Medical history review + Naadi Pariksha pulse diagnosis + Posture & joint space evaluation + Personalized recovery roadmap.
+              <strong>Clinic Location:</strong> Shop No 5, Panchsheel Shopping Centre, Gladys Alwares Road, Thane West.
             </div>
 
             <form id="quiz-booking-form">
               <div class="form-field">
-                <label for="booking-name">Patient Full Name *</label>
+                <label for="booking-name">Your Full Name *</label>
                 <input type="text" id="booking-name" required placeholder="Enter full name" minlength="2">
               </div>
               <div class="form-field">
                 <label for="booking-phone">Mobile Phone Number *</label>
                 <input type="tel" id="booking-phone" required placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" maxlength="10">
               </div>
+              <div class="form-field">
+                <label for="booking-time">Preferred Appointment Day *</label>
+                <select id="booking-time" required>
+                  <option value="Earliest Available Slot">Earliest Available Slot</option>
+                  <option value="Tomorrow (Weekday)">Tomorrow (Weekday)</option>
+                  <option value="This Saturday">This Saturday</option>
+                  <option value="This Sunday">This Sunday</option>
+                </select>
+              </div>
               <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 10px;">
-                Confirm In-Clinic Consultation (₹1,000) ↗
+                Schedule Consultation (₹1,000) ↗
               </button>
             </form>
           </div>
         `;
       }
-      // BRANCH 3: ONLY FREE LIVE HINDI WEBINAR
+      // BRANCH 3: ONLY LIVE HINDI WEBINAR MASTERCLASS (₹201)
       else {
         resultHtml = `
           <div class="quiz-result-single" style="border-color: var(--primary-sage);">
             <div style="font-size: 0.72rem; font-weight: 700; color: var(--primary-sage); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">
               SINGLE RECOMMENDED NEXT STEP
             </div>
-            <h3 style="font-size: 1.3rem; color: var(--primary-deep); margin-bottom: 8px;">
-              Attend Free Live Hindi Masterclass on Zoom
+            <h3 style="font-size: 1.35rem; color: var(--primary-deep); margin-bottom: 8px;">
+              Attend Live Hindi Masterclass on Zoom (₹201)
             </h3>
             <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 12px;">
-              Since you are currently exploring or looking to understand how Ayurveda compares with surgery for <strong>${painArea}</strong>, we recommend starting with our live online session with Dr. Surabhi Vaidya. Learn root cause analysis and discover practical ways to protect your joints without visiting the clinic yet.
+              Since you are currently exploring or looking to understand how Ayurveda compares with surgery for <strong>${painArea}</strong>, we recommend starting with our 90-minute live online session with Dr. Surabhi Vaidya. Learn root-cause analysis and discover practical ways to protect your joints without visiting the clinic yet.
             </p>
 
             <div class="quiz-flow-indicator">
               <div class="flow-node">1. Assessment ✓</div>
-              <div class="flow-node active-node">2. ★ Free Live Masterclass</div>
-              <div class="flow-node">3. In-Clinic Diagnosis</div>
+              <div class="flow-node active-node">2. ★ Live Masterclass (₹201)</div>
+              <div class="flow-node">3. In-Clinic Care</div>
             </div>
 
             <div style="background: var(--bg-sand); padding: 12px 14px; border-radius: 6px; font-size: 0.82rem; color: var(--primary-deep); margin-bottom: 16px;">
-              <strong>Topic:</strong> Root Causes of Knee & Back Pain, Common Misconceptions, and How to Prevent Surgery Naturally.
+              <strong>Includes:</strong> 90-Min Live Interactive Zoom Session + Live Doctor Q&A + Anti-Inflammatory Ayurvedic Diet Guide.
             </div>
 
             <form id="quiz-booking-form">
@@ -272,10 +340,10 @@
               </div>
               <div class="form-field">
                 <label for="booking-city">City / Area *</label>
-                <input type="text" id="booking-city" required placeholder="e.g. Thane / Mumbai">
+                <input type="text" id="booking-city" required placeholder="e.g. Thane / Mumbai / Pune">
               </div>
               <button type="submit" class="btn btn-deep btn-lg" style="width: 100%; margin-top: 10px;">
-                Register for Free Webinar Place ↗
+                Register for Masterclass (₹201) ↗
               </button>
             </form>
           </div>
@@ -314,26 +382,31 @@
               severity: quizQuestions[1].options[userAnswers[1]] || '',
               priorTreatments: quizQuestions[2].options[userAnswers[2]] || '',
               readiness: quizQuestions[3].options[userAnswers[3]] || '',
-              recommendedStep: branch === 'trial' ? '₹4,000 1-Day Experience Session' : (branch === 'consultation' ? '₹1,000 Diagnostic Consultation' : 'Free Live Hindi Masterclass'),
+              recommendedStep: branch === 'trial' ? '₹4,000 1-Day Experience Session' : (branch === 'consultation' ? '₹1,000 Diagnostic Consultation' : '₹201 Live Hindi Masterclass'),
               slotPreference: slot,
               status: 'New Lead',
               createdAt: new Date().toISOString()
             };
             existing.unshift(newLead);
             localStorage.setItem('dr_surabhi_leads', JSON.stringify(existing));
-          } catch(err) {
-            console.error('CRM sync error:', err);
+          } catch (err) {
+            console.error('Lead sync err:', err);
           }
 
           quizBody.innerHTML = `
-            <div class="quiz-result-single" style="text-align: center; border-color: var(--primary-sage);">
-              <div style="font-size: 2.2rem; margin-bottom: 10px;">✓</div>
-              <h3 style="font-size: 1.3rem; margin-bottom: 8px;">Request Received, ${name}</h3>
-              <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 18px;">
-                Thank you. Our clinic appointment desk at Charak Health Solutions, Thane West has logged your request for <strong>${painArea}</strong>. Our care coordinator will call you shortly on <strong>${phone}</strong> to confirm your slot.
+            <div style="text-align: center; padding: 24px 10px;">
+              <div style="font-size: 3rem; margin-bottom: 12px;">✅</div>
+              <h3 style="font-size: 1.4rem; color: var(--primary-deep); margin-bottom: 8px;">
+                Request Confirmed!
+              </h3>
+              <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
+                Thank you, <strong>${name}</strong>. Our clinical coordinator will call you at <strong>${phone}</strong> within 15 minutes to confirm your scheduled slot and provide intake instructions.
               </p>
-              <button class="btn btn-deep" type="button" onclick="document.querySelector('#quiz-modal').close();">
-                Close
+              <div style="background: var(--bg-sand); padding: 14px; border-radius: 8px; font-size: 0.85rem; color: var(--primary-deep);">
+                <strong>Clinic Desk:</strong> Shop No 5, Panchsheel Shopping Centre, Gladys Alwares Road, Thane West · Tel: +91 81085 00200
+              </div>
+              <button type="button" class="btn btn-secondary" style="margin-top: 20px;" onclick="document.querySelector('#quiz-modal').style.display='none'; document.body.style.overflow='';">
+                Done &amp; Return
               </button>
             </div>
           `;
@@ -342,46 +415,44 @@
 
       const restartBtn = quizBody.querySelector('#quiz-restart-btn');
       if (restartBtn) {
-        restartBtn.addEventListener('click', () => {
-          currentStep = 0;
-          userAnswers = [];
-          renderQuiz();
-        });
+        restartBtn.addEventListener('click', openQuiz);
       }
       return;
     }
 
     // REGULAR QUESTION STEP
     const q = quizQuestions[currentStep];
-    let optionsHtml = q.options.map((opt, idx) => {
-      const isSelected = userAnswers[currentStep] === idx;
-      return `
-        <button type="button" class="quiz-option-btn${isSelected ? ' selected' : ''}" data-index="${idx}">
-          <span>${opt}</span>
-          <span style="font-weight: 700; color: var(--accent-terracotta); font-size: 1rem;">→</span>
+    let optionsHtml = '';
+    q.options.forEach((opt, idx) => {
+      optionsHtml += `
+        <button type="button" class="quiz-option-btn" data-option-idx="${idx}">
+          <span class="quiz-option-radio"></span>
+          <span class="quiz-option-text">${opt}</span>
         </button>
       `;
-    }).join('');
+    });
 
     quizBody.innerHTML = `
-      <div style="font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; color: var(--accent-terracotta); text-transform: uppercase; margin-bottom: 6px;">
-        QUESTION ${String(currentStep + 1).padStart(2, '0')} OF ${String(total).padStart(2, '0')}
+      <div class="quiz-step-header">
+        <span class="quiz-step-counter">STEP ${currentStep + 1} OF ${total}</span>
+        <h3 class="quiz-step-title">${q.title}</h3>
+        <p class="quiz-step-subtitle">${q.subtitle}</p>
       </div>
-      <h2 class="quiz-step-title" id="quiz-title">${q.title}</h2>
-      <p class="quiz-step-subtitle">${q.subtitle}</p>
-      <div class="quiz-options-grid">${optionsHtml}</div>
+      <div class="quiz-options-list">
+        ${optionsHtml}
+      </div>
       <div class="quiz-footer">
-        <button type="button" class="quiz-back-btn" id="quiz-prev-btn">
-          ${currentStep > 0 ? '← Previous Question' : 'Cancel & Close'}
-        </button>
-        <span style="font-size: 0.74rem; color: var(--text-light); font-weight: 600;">60-Sec Screening</span>
+        ${currentStep > 0 ? `<button class="quiz-back-btn" type="button" id="quiz-prev-btn">← Back</button>` : `<span></span>`}
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Select one to continue</span>
       </div>
     `;
 
-    quizBody.querySelectorAll('[data-index]').forEach(btn => {
+    // Bind option selections
+    const optButtons = quizBody.querySelectorAll('.quiz-option-btn');
+    optButtons.forEach(btn => {
       btn.addEventListener('click', () => {
-        const index = parseInt(btn.getAttribute('data-index'), 10);
-        userAnswers[currentStep] = index;
+        const idx = parseInt(btn.getAttribute('data-option-idx'), 10);
+        userAnswers[currentStep] = idx;
         currentStep++;
         renderQuiz();
       });
@@ -390,140 +461,57 @@
     const prevBtn = quizBody.querySelector('#quiz-prev-btn');
     if (prevBtn) {
       prevBtn.addEventListener('click', () => {
-        if (currentStep > 0) {
-          currentStep--;
-          renderQuiz();
-        } else {
-          closeQuiz();
-        }
+        currentStep--;
+        renderQuiz();
       });
     }
-  }
-
-  // Bind trigger buttons for assessment
-  document.querySelectorAll('[data-start-assessment]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      openQuiz();
-    });
-  });
-
-  const quizCloseBtn = document.querySelector('#quiz-modal-close');
-  if (quizCloseBtn) {
-    quizCloseBtn.addEventListener('click', closeQuiz);
-  }
-
-  if (quizDialog) {
-    quizDialog.addEventListener('close', () => {
-      document.body.style.overflow = '';
-    });
-  }
-
-  // =========================================================================
-  // 3. VIDEO TESTIMONIAL MODAL & FILTERING
-  // =========================================================================
-  const filterBtns = document.querySelectorAll('.filter-btn');
-  const videoCards = document.querySelectorAll('.video-card');
-  const videoModal = document.querySelector('#video-modal');
-  const videoFrame = document.querySelector('#video-modal-frame');
-  const videoModalClose = document.querySelector('#video-modal-close');
-
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      filterBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      const filter = btn.getAttribute('data-filter');
-      videoCards.forEach(card => {
-        const cat = card.getAttribute('data-category');
-        if (filter === 'all' || cat === filter) {
-          card.style.display = 'flex';
-        } else {
-          card.style.display = 'none';
-        }
-      });
-    });
-  });
-
-  document.querySelectorAll('[data-video-id]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const videoId = btn.getAttribute('data-video-id');
-      if (videoFrame && videoModal && videoId) {
-        videoFrame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-        videoModal.showModal();
-        document.body.style.overflow = 'hidden';
-      }
-    });
-  });
-
-  function closeVideoModal() {
-    if (videoModal && videoFrame) {
-      videoFrame.src = '';
-      videoModal.close();
-      document.body.style.overflow = '';
-    }
-  }
-
-  if (videoModalClose) {
-    videoModalClose.addEventListener('click', closeVideoModal);
-  }
-
-  if (videoModal) {
-    videoModal.addEventListener('close', closeVideoModal);
   }
 
   // =========================================================================
   // 4. FAQ ACCORDION
   // =========================================================================
-  document.querySelectorAll('.faq-question').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const item = btn.closest('.faq-item');
-      const isActive = item.classList.contains('active');
-
-      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
-      if (!isActive) {
-        item.classList.add('active');
-      }
+  function initFaq() {
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+      const btn = item.querySelector('.faq-question');
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        const isActive = item.classList.contains('active');
+        faqItems.forEach(el => {
+          el.classList.remove('active');
+          const b = el.querySelector('.faq-question');
+          if (b) b.setAttribute('aria-expanded', 'false');
+        });
+        if (!isActive) {
+          item.classList.add('active');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
     });
-  });
+  }
 
   // =========================================================================
-  // 5. STICKY BOTTOM BAR ON SCROLL
+  // 5. MOBILE STICKY BAR VISIBILITY
   // =========================================================================
-  const stickyBar = document.querySelector('#sticky-bar');
-  if (stickyBar) {
+  function initStickyBar() {
+    const bar = document.querySelector('#sticky-bar');
+    if (!bar) return;
     window.addEventListener('scroll', () => {
-      if (window.scrollY > 450) {
-        stickyBar.classList.add('visible');
+      if (window.scrollY > 400) {
+        bar.style.opacity = '1';
+        bar.style.pointerEvents = 'auto';
       } else {
-        stickyBar.classList.remove('visible');
+        bar.style.opacity = '0';
+        bar.style.pointerEvents = 'none';
       }
-    }, { passive: true });
-  }
-
-  // =========================================================================
-  // 6. EXIT INTENT DETECTION
-  // =========================================================================
-  const exitModal = document.querySelector('#exit-modal');
-  const exitClose = document.querySelector('#exit-modal-close');
-  let exitShown = false;
-
-  document.addEventListener('mouseleave', (e) => {
-    if (e.clientY <= 0 && !exitShown && exitModal) {
-      exitShown = true;
-      exitModal.showModal();
-    }
-  });
-
-  if (exitClose && exitModal) {
-    exitClose.addEventListener('click', () => {
-      exitModal.close();
     });
   }
 
-  // Initialize on load
+  // INITIALIZATION ON DOM READY
   document.addEventListener('DOMContentLoaded', () => {
-    initCountdown();
+    initVslSlug();
+    initFaq();
+    initStickyBar();
   });
 
 })();
