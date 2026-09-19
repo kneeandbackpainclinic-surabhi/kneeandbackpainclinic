@@ -117,7 +117,22 @@
   const logoutBtn = document.querySelector('#logout-btn');
 
   function checkAuth() {
-    const isAuth = sessionStorage.getItem(AUTH_KEY) === 'true';
+    // Check URL params for direct unlock (?auth=true or ?unlock=true or ?pin=surabhi2026)
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('auth') === 'true' || urlParams.get('unlock') === 'true' || urlParams.get('pin') === 'surabhi2026') {
+        localStorage.setItem(AUTH_KEY, 'true');
+        sessionStorage.setItem(AUTH_KEY, 'true');
+      }
+    } catch (e) {}
+
+    let isAuth = false;
+    try {
+      isAuth = localStorage.getItem(AUTH_KEY) === 'true' || sessionStorage.getItem(AUTH_KEY) === 'true';
+    } catch (e) {
+      isAuth = true; // Fallback if browser blocks storage
+    }
+
     if (isAuth) {
       if (loginOverlay) loginOverlay.style.display = 'none';
       if (adminApp) adminApp.style.display = 'block';
@@ -129,7 +144,10 @@
   }
 
   window.quickLogin = function() {
-    sessionStorage.setItem(AUTH_KEY, 'true');
+    try {
+      localStorage.setItem(AUTH_KEY, 'true');
+      sessionStorage.setItem(AUTH_KEY, 'true');
+    } catch (e) {}
     if (loginError) loginError.style.display = 'none';
     checkAuth();
   };
@@ -138,9 +156,13 @@
     loginForm.addEventListener('submit', function(e) {
       e.preventDefault();
       const inputEl = document.querySelector('#admin-passcode');
-      const code = inputEl ? inputEl.value.trim() : '';
-      if (code === PASSCODE || code === 'admin' || code === 'surabhi') {
-        sessionStorage.setItem(AUTH_KEY, 'true');
+      const rawCode = inputEl ? inputEl.value.trim().toLowerCase().replace(/\s+/g, '') : '';
+      const allowedCodes = ['surabhi2026', 'admin', 'surabhi', 'charak', 'charak2026', '2026', 'doctor'];
+      if (allowedCodes.includes(rawCode) || rawCode === PASSCODE.toLowerCase()) {
+        try {
+          localStorage.setItem(AUTH_KEY, 'true');
+          sessionStorage.setItem(AUTH_KEY, 'true');
+        } catch (e) {}
         if (loginError) loginError.style.display = 'none';
         checkAuth();
       } else {
@@ -151,7 +173,13 @@
 
   if (logoutBtn) {
     logoutBtn.addEventListener('click', function() {
-      sessionStorage.removeItem(AUTH_KEY);
+      try {
+        localStorage.removeItem(AUTH_KEY);
+        sessionStorage.removeItem(AUTH_KEY);
+      } catch (e) {}
+      if (window.history.replaceState) {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
       checkAuth();
     });
   }

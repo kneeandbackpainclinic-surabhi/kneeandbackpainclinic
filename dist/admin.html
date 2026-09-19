@@ -25,17 +25,17 @@
 
       <form id="admin-login-form">
         <div class="form-field">
-          <label for="admin-passcode">Enter Staff Passcode</label>
-          <input type="password" id="admin-passcode" placeholder="Enter PIN (Default: surabhi2026)" required autofocus autocomplete="current-password">
+          <label for="admin-passcode">Staff Passcode (Pre-filled below)</label>
+          <input type="text" id="admin-passcode" placeholder="PIN: surabhi2026" value="surabhi2026" required autofocus autocomplete="off">
         </div>
-        <button type="submit" class="btn-login" id="login-submit-btn">
+        <button type="submit" class="btn-login" id="login-submit-btn" style="font-size: 1rem; font-weight: 700;">
           Unlock Admin Portal ↗
         </button>
-        <button type="button" class="btn-login" style="margin-top: 10px; background: var(--admin-sage);" onclick="quickLogin()">
-          ⚡ Quick 1-Click Unlock (Staff Demo)
+        <button type="button" class="btn-login" style="margin-top: 10px; background: #2e5a44; color: #ffffff; font-size: 0.95rem; font-weight: 700;" onclick="quickLogin()">
+          ⚡ Quick 1-Click Unlock (No PIN Needed)
         </button>
         <div id="login-error" class="login-error-msg" style="display: none; color: #dc2626; margin-top: 10px; font-size: 0.85rem; font-weight: 600;">
-          Incorrect passcode. Enter surabhi2026 or click 1-Click Unlock.
+          Incorrect passcode. Click the 1-Click Unlock button above to enter immediately.
         </div>
       </form>
     </div>
