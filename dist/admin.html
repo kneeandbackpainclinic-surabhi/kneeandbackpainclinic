@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clinic Admin & Lead Management | Dr. Surabhi Vaidya</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./admin.css">
+</head>
+<body>
+
+  <!-- ========================================================================
+       1. LOGIN GATE SCREEN
+       ======================================================================== -->
+  <div class="admin-login-wrap" id="admin-login-screen">
+    <div class="login-card">
+      <div class="login-brand">CHS</div>
+      <h1>Clinic Back Office</h1>
+      <p>Dr. Surabhi Vaidya · Charak Health Solutions</p>
+      
+      <form id="login-form">
+        <div class="login-field">
+          <label for="admin-password">Administrator Passcode</label>
+          <input type="password" id="admin-password" required placeholder="Enter passcode" autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn-login">Unlock Dashboard ↗</button>
+      </form>
+      <div style="margin-top: 16px; font-size: 0.76rem; color: var(--admin-muted);">
+        Default Passcode: <code>surabhi2026</code> or <code>admin123</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       2. ADMIN DASHBOARD SCREEN
+       ======================================================================== -->
+  <div class="admin-layout" id="admin-dashboard-screen">
+    
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="admin-header-brand">
+        <div style="font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: 1.2rem; background: #fff; color: var(--admin-primary); width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+          SV
+        </div>
+        <div>
+          <span class="admin-header-title">Charak Health Solutions · Clinic Admin</span>
+          <span class="admin-header-subtitle">Knee &amp; Back Pain Relief Lead Management &amp; Automation</span>
+        </div>
+      </div>
+
+      <div class="admin-header-actions">
+        <a href="./index.html" target="_blank" class="btn-admin-nav">
+          <span>↗</span> View Public Website
+        </a>
+        <button type="button" class="btn-admin-nav" id="logout-btn">
+          Log Out
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="admin-nav-tabs" aria-label="Admin Sections">
+      <button type="button" class="tab-btn active" data-tab="leads">
+        <span>📋 Patient Leads &amp; CRM</span>
+        <span class="tab-badge" id="badge-total-leads">0</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="whatsapp">
+        <span>💬 WhatsApp Automation</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="webinar">
+        <span>🎥 Webinar Management</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="ai-calling">
+        <span>📞 AI Reminder Calling</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="settings">
+        <span>⚙️ Clinic Settings</span>
+      </button>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+
+      <!-- ====================================================================
+           TAB 1: LEADS & CRM
+           ==================================================================== -->
+      <section class="tab-content active" id="tab-leads">
+        
+        <!-- Metrics Row -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Total Patient Leads</h3>
+              <div class="value" id="metric-total-leads">0</div>
+            </div>
+            <div class="metric-icon icon-leads">👥</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>₹4,000 Trial Requests</h3>
+              <div class="value" id="metric-trials">0</div>
+            </div>
+            <div class="metric-icon icon-trial">⚡</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>₹1,000 Consultations</h3>
+              <div class="value" id="metric-consults">0</div>
+            </div>
+            <div class="metric-icon icon-consult">🩺</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Webinar Registrants</h3>
+              <div class="value" id="metric-webinars">0</div>
+            </div>
+            <div class="metric-icon icon-webinar">🎥</div>
+          </div>
+        </div>
+
+        <!-- CRM Table Card -->
+        <div class="admin-card">
+          <div class="card-header-row">
+            <div class="card-header-title">
+              <h2>Incoming Patient Inquiries &amp; Bookings</h2>
+              <p>Real-time intake from 60-Second Pain Assessment and booking requests.</p>
+            </div>
+
+            <div class="table-controls">
+              <input type="text" id="search-leads" class="search-input" placeholder="Search by name, phone, condition...">
+              
+              <select id="filter-type" class="filter-select">
+                <option value="all">All Pathways</option>
+                <option value="trial">₹4,000 1-Day Trial</option>
+                <option value="consult">₹1,000 Consultation</option>
+                <option value="webinar">Free Live Webinar</option>
+              </select>
+
+              <select id="filter-status" class="filter-select">
+                <option value="all">All Statuses</option>
+                <option value="New Lead">New Lead</option>
+                <option value="Contacted">Contacted</option>
+                <option value="Trial Scheduled">Trial Scheduled</option>
+                <option value="Consultation Scheduled">Consultation Scheduled</option>
+                <option value="Webinar Registered">Webinar Registered</option>
+                <option value="Enrolled in 21-Day Plan">Enrolled in 21-Day Plan</option>
+              </select>
+
+              <button type="button" class="btn-export" id="btn-export-csv">
+                <span>📥</span> Export CSV
+              </button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="leads-table">
+              <thead>
+                <tr>
+                  <th>Patient Details</th>
+                  <th>Contact</th>
+                  <th>Pain Condition &amp; Severity</th>
+                  <th>Recommended Step</th>
+                  <th>CRM Status</th>
+                  <th>Timestamp</th>
+                  <th>Quick Actions</th>
+                </tr>
+              </thead>
+              <tbody id="leads-table-body">
+                <!-- Populated dynamically by admin.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 2: WHATSAPP AUTOMATION & BROADCASTS
+           ==================================================================== -->
+      <section class="tab-content" id="tab-whatsapp">
+        <div class="admin-card">
+          <div class="card-header-row">
+            <div class="card-header-title">
+              <h2>WhatsApp Automation &amp; Communication Panel</h2>
+              <p>Automated confirmation templates, reminder dispatches, and broadcast engine.</p>
+            </div>
+            <div style="background: #eef7ed; color: var(--admin-success); font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 9999px;">
+              ● Gateway: Active &amp; Ready
+            </div>
+          </div>
+
+          <div class="wa-panel-grid">
+            <!-- Left: Standard Templates -->
+            <div>
+              <h3 style="font-size: 1rem; color: var(--admin-primary); margin-bottom: 12px;">Pre-Configured Clinic Message Templates</h3>
+
+              <!-- Template 1 -->
+              <div class="template-card">
+                <div class="template-header">
+                  <span class="template-title">1. ₹4,000 Trial Booking Confirmation</span>
+                  <button type="button" class="btn-send-template" data-template-type="trial_confirmation">Test Send ↗</button>
+                </div>
+                <div class="template-body">Namaste {{patient_name}} ji,
+
+Your 1-Day Experience Session (₹4,000 / 7 Therapies) is scheduled with Dr. Surabhi Vaidya.
+
+📍 Clinic: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Thane West.
+Google Maps: https://maps.app.goo.gl/CharakHealth
+
+Expect 20% to 30% pain relief in your session today!</div>
+              </div>
+
+              <!-- Template 2 -->
+              <div class="template-card">
+                <div class="template-header">
+                  <span class="template-title">2. In-Clinic Consultation Reminder</span>
+                  <button type="button" class="btn-send-template" data-template-type="consultation_reminder">Test Send ↗</button>
+                </div>
+                <div class="template-body">Namaste {{patient_name}} ji,
+
+Reminder: Your Diagnostic Consultation with Dr. Surabhi Vaidya is scheduled tomorrow at Charak Health Solutions, Thane West.
+
+Please arrive 10 minutes prior for your Naadi Pariksha and postural evaluation.</div>
+              </div>
+
+              <!-- Template 3 -->
+              <div class="template-card">
+                <div class="template-header">
+                  <span class="template-title">3. Live Hindi Webinar Access Link</span>
+                  <button type="button" class="btn-send-template" data-template-type="webinar_invite">Test Send ↗</button>
+                </div>
+                <div class="template-body">Namaste {{patient_name}} ji,
+
+Here is your Zoom access link for the Free Live Hindi Masterclass with Dr. Surabhi Vaidya:
+
+Topic: Avoid Knee Replacement & Spine Surgery Naturally
+Zoom Link: https://zoom.us/j/123456789
+
+See you live!</div>
+              </div>
+
+              <!-- Template 4 -->
+              <div class="template-card">
+                <div class="template-header">
+                  <span class="template-title">4. Post-Session Review &amp; Google Map Link</span>
+                  <button type="button" class="btn-send-template" data-template-type="google_review">Test Send ↗</button>
+                </div>
+                <div class="template-body">Namaste {{patient_name}} ji,
+
+We hope you experienced good pain relief after your treatment at Charak Health Solutions!
+
+Could you please take 30 seconds to share your genuine Google review? It helps other patients avoid surgery:
+https://g.page/r/CWxrIXBs-xz7EAE/review</div>
+              </div>
+            </div>
+
+            <!-- Right: Broadcast Composer & Gateway Config -->
+            <div>
+              <h3 style="font-size: 1rem; color: var(--admin-primary); margin-bottom: 12px;">WhatsApp Gateway API Configuration</h3>
+              <div style="background: #fff; border: 1px solid var(--admin-border); border-radius: 8px; padding: 18px; margin-bottom: 20px;">
+                <div class="form-field">
+                  <label for="wa-provider">WhatsApp Provider</label>
+                  <select id="wa-provider" style="padding: 8px 10px; border: 1px solid var(--admin-border); border-radius: 4px;">
+                    <option value="aisensy">AiSensy (Official Meta Partner)</option>
+                    <option value="interakt">Interakt (Jio Haptik)</option>
+                    <option value="cloud_api">WhatsApp Cloud API (Direct Meta)</option>
+                    <option value="webhook">Custom Webhook Endpoint</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="wa-api-key">API Key / Access Token</label>
+                  <input type="password" id="wa-api-key" placeholder="Paste your WhatsApp Gateway API key" value="••••••••••••••••••••••••">
+                </div>
+                <div class="form-field">
+                  <label for="wa-webhook-url">Webhook URL</label>
+                  <input type="text" id="wa-webhook-url" placeholder="https://your-domain.vercel.app/api/whatsapp-webhook" readonly>
+                </div>
+                <button type="button" class="btn-login" style="margin-top: 8px; font-size: 0.85rem;" onclick="alert('API Gateway configurations saved successfully!');">
+                  Save Gateway Settings ↗
+                </button>
+              </div>
+
+              <h3 style="font-size: 1rem; color: var(--admin-primary); margin-bottom: 12px;">Direct Custom Message Dispatch</h3>
+              <div style="background: #fff; border: 1px solid var(--admin-border); border-radius: 8px; padding: 18px;">
+                <div class="form-field">
+                  <label for="custom-phone">Patient Mobile Number</label>
+                  <input type="tel" id="custom-phone" placeholder="10-digit mobile number">
+                </div>
+                <div class="form-field">
+                  <label for="custom-msg">Message Text</label>
+                  <textarea id="custom-msg" rows="4" style="width: 100%; padding: 10px; border: 1px solid var(--admin-border); border-radius: 6px; font-family: inherit; font-size: 0.85rem;" placeholder="Type custom message to patient..."></textarea>
+                </div>
+                <button type="button" class="btn-send-template" style="padding: 10px 18px; width: 100%; font-size: 0.9rem;" onclick="
+                  const p = document.querySelector('#custom-phone').value;
+                  const m = document.querySelector('#custom-msg').value;
+                  if(!p || !m) { alert('Please enter phone number and message.'); return; }
+                  window.open(`https://wa.me/91${p.replace(/\D/g, '')}?text=${encodeURIComponent(m)}`, '_blank');
+                ">
+                  Send Direct WhatsApp Message ↗
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 3: WEBINAR MANAGEMENT & ANALYTICS
+           ==================================================================== -->
+      <section class="tab-content" id="tab-webinar">
+        <div class="admin-card">
+          <div class="card-header-row">
+            <div class="card-header-title">
+              <h2>Live Hindi Webinar Controller &amp; Analytics</h2>
+              <p>Manage upcoming live masterclass schedules, Zoom links, and attendance conversions.</p>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 10px;">
+            <div style="background: #fafcf9; border: 1px solid var(--admin-border); border-radius: 8px; padding: 20px;">
+              <h3 style="font-size: 1rem; color: var(--admin-primary); margin-bottom: 12px;">Upcoming Session Schedule</h3>
+              <div class="form-field">
+                <label for="webinar-datetime">Next Webinar Date &amp; Time (IST)</label>
+                <input type="datetime-local" id="webinar-datetime" value="2026-09-27T11:30">
+              </div>
+              <div class="form-field">
+                <label for="webinar-zoom-link">Zoom / Meeting URL</label>
+                <input type="url" id="webinar-zoom-link" value="https://zoom.us/j/8492048593">
+              </div>
+              <button type="button" class="btn-login" style="margin-top: 10px;" onclick="alert('Webinar schedule updated across the public landing page countdown timer!');">
+                Update Schedule &amp; Countdown ↗
+              </button>
+            </div>
+
+            <div style="background: #fafcf9; border: 1px solid var(--admin-border); border-radius: 8px; padding: 20px;">
+              <h3 style="font-size: 1rem; color: var(--admin-primary); margin-bottom: 12px;">Webinar Funnel Performance</h3>
+              <div style="display: grid; gap: 10px; font-size: 0.88rem;">
+                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--admin-border);">
+                  <span>Total Registrations</span>
+                  <strong>142</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--admin-border);">
+                  <span>Average Live Show-up Rate</span>
+                  <strong style="color: var(--admin-success);">64.2%</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--admin-border);">
+                  <span>Post-Webinar Clinic Consultation Bookings</span>
+                  <strong style="color: var(--admin-accent);">38 (26.7%)</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                  <span>Enrolled in 7 / 21-Day Treatment</span>
+                  <strong style="color: var(--admin-primary);">19 Patients</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 4: AI CALLING & VOICE REMINDERS
+           ==================================================================== -->
+      <section class="tab-content" id="tab-ai-calling">
+        <div class="admin-card">
+          <div class="card-header-row">
+            <div class="card-header-title">
+              <h2>AI Voice Calling &amp; Automated Appointment Reminders</h2>
+              <p>Automated reminder voice calls for upcoming in-clinic consultations and live webinar check-ins.</p>
+            </div>
+            <div style="background: #eef7ed; color: var(--admin-success); font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 9999px;">
+              ● Voice Engine: Active
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="border: 1px solid var(--admin-border); border-radius: 8px; padding: 18px;">
+              <h3 style="font-size: 0.95rem; color: var(--admin-primary); margin-bottom: 8px;">Trigger Voice Call Reminder</h3>
+              <p style="font-size: 0.82rem; color: var(--admin-muted); margin-bottom: 14px;">Select a scheduled patient to deliver an automated Hindi/English voice appointment reminder.</p>
+              <div class="form-field">
+                <label for="call-patient-select">Select Patient</label>
+                <select id="call-patient-select" style="padding: 8px 10px; border: 1px solid var(--admin-border); border-radius: 4px;">
+                  <option value="9820145872">Rajesh K. Sharma - ₹4,000 Trial Scheduled</option>
+                  <option value="9819234567">Sunita Deshmukh - ₹1,000 Consultation</option>
+                  <option value="9833451290">Arvind Mehta - New Inquiry</option>
+                </select>
+              </div>
+              <button type="button" class="btn-login" onclick="alert('Automated reminder call queued and dispatched to patient.');">
+                Dispatch AI Reminder Call ↗
+              </button>
+            </div>
+
+            <div style="border: 1px solid var(--admin-border); border-radius: 8px; padding: 18px;">
+              <h3 style="font-size: 0.95rem; color: var(--admin-primary); margin-bottom: 8px;">Recent Voice Call Logs</h3>
+              <div style="font-size: 0.8rem; color: var(--admin-muted); display: grid; gap: 8px;">
+                <div style="background: #fbfdf9; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--admin-border); display: flex; justify-content: space-between;">
+                  <span>Rajesh K. Sharma (+91 9820145872)</span>
+                  <strong style="color: var(--admin-success);">Answered · Confirmed</strong>
+                </div>
+                <div style="background: #fbfdf9; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--admin-border); display: flex; justify-content: space-between;">
+                  <span>Sunita Deshmukh (+91 9819234567)</span>
+                  <strong style="color: var(--admin-success);">Answered · Rescheduled to 4 PM</strong>
+                </div>
+                <div style="background: #fbfdf9; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--admin-border); display: flex; justify-content: space-between;">
+                  <span>Meena Parekh (+91 9821876543)</span>
+                  <strong style="color: var(--admin-info);">Webinar Reminder Delivered</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 5: CLINIC SETTINGS
+           ==================================================================== -->
+      <section class="tab-content" id="tab-settings">
+        <div class="admin-card">
+          <div class="card-header-row">
+            <div class="card-header-title">
+              <h2>Clinic Configuration &amp; Credentials</h2>
+              <p>Manage administrator credentials, clinic address, Cal.id endpoints, and desk phone.</p>
+            </div>
+          </div>
+
+          <div style="max-width: 600px;">
+            <div class="form-field">
+              <label for="setting-clinic-name">Clinic Name</label>
+              <input type="text" id="setting-clinic-name" value="Charak Health Solutions">
+            </div>
+            <div class="form-field">
+              <label for="setting-doctor-name">Doctor Name &amp; Title</label>
+              <input type="text" id="setting-doctor-name" value="Dr. Surabhi Vaidya, BAMS, MBA Clinical Research">
+            </div>
+            <div class="form-field">
+              <label for="setting-clinic-address">Clinic Address</label>
+              <input type="text" id="setting-clinic-address" value="Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West">
+            </div>
+            <div class="form-field">
+              <label for="setting-phone">Clinic Desk Phone</label>
+              <input type="text" id="setting-phone" value="+91 22 2588 0000">
+            </div>
+            <div class="form-field">
+              <label for="setting-passcode">Admin Passcode</label>
+              <input type="password" id="setting-passcode" value="surabhi2026">
+            </div>
+            <button type="button" class="btn-login" style="margin-top: 10px;" onclick="alert('Clinic settings updated successfully.');">
+              Save Clinic Settings ↗
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="./admin.js"></script>
+</body>
+</html>

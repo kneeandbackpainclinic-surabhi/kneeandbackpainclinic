@@ -52,7 +52,7 @@
   }
 
   // =========================================================================
-  // 2. QUESTIONNAIRE WITH STRICT SINGLE-OPTION RECOMMENDATION ENGINE
+  // 2. QUESTIONNAIRE WITH STRICT SINGLE-OPTION RECOMMENDATION ENGINE & CRM SYNC
   // =========================================================================
   const quizDialog = document.querySelector('#quiz-modal');
   const quizBody = document.querySelector('#quiz-body');
@@ -135,12 +135,7 @@
       const qPrior = userAnswers[2];
       const qReadiness = userAnswers[3];
 
-      // Branching logic:
-      // 1. Ready or severe distress or surgery advised -> Recommend ONLY the Rs 4,000 1-Day Trial Option
-      // 2. Fairly ready & advanced stage -> Recommend ONLY the Rs 1,000 Consultation Option
-      // 3. Not ready / skeptical / just exploring -> Recommend ONLY the Free Webinar Option
-
-      let branch = 'consultation'; // default
+      let branch = 'consultation';
 
       if (qReadiness === 0 || qSeverity === 0 || qPrior === 0) {
         branch = 'trial';
@@ -166,7 +161,6 @@
               Because you are experiencing severe distress or ready to prevent surgery for <strong>${painArea}</strong>, a standard talk is not enough. You need immediate physical decompression. In this single-day session, you receive 7 targeted therapies and can expect <strong>20% to 30% pain relief on Day 1</strong>.
             </p>
 
-            <!-- Flow Diagram -->
             <div class="quiz-flow-indicator">
               <div class="flow-node">1. Assessment ✓</div>
               <div class="flow-node active-node">2. ★ 1-Day Experience Session (₹4,000)</div>
@@ -217,7 +211,6 @@
               Based on your condition stage for <strong>${painArea}</strong>, your most effective starting point is an in-depth 45-minute clinical consultation with Dr. Surabhi Vaidya to analyze your posture, pulse (Naadi Pariksha), and exact root causes before selecting treatments.
             </p>
 
-            <!-- Flow Diagram -->
             <div class="quiz-flow-indicator">
               <div class="flow-node">1. Assessment ✓</div>
               <div class="flow-node active-node">2. ★ Diagnostic Consultation (₹1,000)</div>
@@ -258,7 +251,6 @@
               Since you are currently exploring or looking to understand how Ayurveda compares with surgery for <strong>${painArea}</strong>, we recommend starting with our live online session with Dr. Surabhi Vaidya. Learn root cause analysis and discover practical ways to protect your joints without visiting the clinic yet.
             </p>
 
-            <!-- Flow Diagram -->
             <div class="quiz-flow-indicator">
               <div class="flow-node">1. Assessment ✓</div>
               <div class="flow-node active-node">2. ★ Free Live Masterclass</div>
@@ -297,15 +289,41 @@
         </div>
       `;
 
-      // Wire submit form
+      // Wire submit form & save lead to CRM
       const form = quizBody.querySelector('#quiz-booking-form');
       if (form) {
         form.addEventListener('submit', (e) => {
           e.preventDefault();
           const nameInput = form.querySelector('#booking-name');
           const phoneInput = form.querySelector('#booking-phone');
+          const slotInput = form.querySelector('#booking-time');
+          const cityInput = form.querySelector('#booking-city');
           const name = nameInput ? nameInput.value.trim() : 'Patient';
           const phone = phoneInput ? phoneInput.value.trim() : '';
+          const slot = slotInput ? slotInput.value : (cityInput ? cityInput.value : 'Immediate Intake');
+
+          // Save into CRM Leads
+          try {
+            const existing = JSON.parse(localStorage.getItem('dr_surabhi_leads')) || [];
+            const newLead = {
+              id: 'LEAD-' + Math.floor(100 + Math.random() * 900),
+              name: name,
+              phone: phone,
+              city: cityInput ? cityInput.value : 'Thane / Mumbai',
+              painArea: painArea,
+              severity: quizQuestions[1].options[userAnswers[1]] || '',
+              priorTreatments: quizQuestions[2].options[userAnswers[2]] || '',
+              readiness: quizQuestions[3].options[userAnswers[3]] || '',
+              recommendedStep: branch === 'trial' ? '₹4,000 1-Day Experience Session' : (branch === 'consultation' ? '₹1,000 Diagnostic Consultation' : 'Free Live Hindi Masterclass'),
+              slotPreference: slot,
+              status: 'New Lead',
+              createdAt: new Date().toISOString()
+            };
+            existing.unshift(newLead);
+            localStorage.setItem('dr_surabhi_leads', JSON.stringify(existing));
+          } catch(err) {
+            console.error('CRM sync error:', err);
+          }
 
           quizBody.innerHTML = `
             <div class="quiz-result-single" style="text-align: center; border-color: var(--primary-sage);">
@@ -402,7 +420,7 @@
   }
 
   // =========================================================================
-  // 3. VIDEO TESTIMONIAL MODAL & FILTERING (AUTHENTIC YOUTUBE THUMBNAILS ONLY)
+  // 3. VIDEO TESTIMONIAL MODAL & FILTERING
   // =========================================================================
   const filterBtns = document.querySelectorAll('.filter-btn');
   const videoCards = document.querySelectorAll('.video-card');
