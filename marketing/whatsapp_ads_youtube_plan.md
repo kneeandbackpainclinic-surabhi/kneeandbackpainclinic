@@ -180,9 +180,31 @@ Example: `{{1}} landing-page URL`.
 
 Examples: `{{1}} 8:00 PM IST`, `{{2}} registration URL`.
 
+### 12. Google review request after an experience
+
+**Name:** `post_experience_google_review_v1`
+**Category:** Marketing
+**Trigger:** Send shortly after a consultation, attended webinar or completed treatment visit
+**Button:** `Leave Google review`
+**Button URL:** `https://g.page/r/CWxrIXBs-xz7EAE/review`
+
+> Hello {{1}}, thank you for spending time with Charak Health Solutions today.
+>
+> We hope your experience was clear and helpful. If you would like to share feedback, please leave an honest Google review. Your review can help other people understand what to expect when they contact the clinic.
+>
+> Please share only information that you are comfortable making public.
+>
+> Reply STOP to opt out.
+
+Example: `{{1}} Meena`.
+
+**Submission note:** Submit this as Marketing because it asks the recipient to take a public promotional action. Do not offer a reward, discount or treatment benefit in exchange for a review. Send it only to people who opted in to WhatsApp communication.
+
 ## Recommended sequences
 
 **Registered participant:** confirmation immediately; joining details when ready; reminders 24 hours and one hour before.
+
+**After consultation, webinar attendance or treatment visit:** send Template 12 shortly after the experience is complete. Do not send it after a cancelled or missed booking.
 
 **Opted-in lead who has not registered:** invitation on day 0; assessment education on day 2; movement education on day 5; patient story on day 8; final invitation on day 10. Stop Marketing messages when the person registers or opts out.
 
