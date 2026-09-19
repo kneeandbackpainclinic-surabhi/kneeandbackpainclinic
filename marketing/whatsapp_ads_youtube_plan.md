@@ -85,7 +85,8 @@ Examples: `{{1}} Meena`, `{{2}} webinar URL`.
 >
 > Date: {{2}}  
 > Time: {{3}}  
-> Location: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Thane West.
+> Location: Shop No 5, Panchsheel Shopping Centre, Gladys Alwares Road, Thane West 400610.
+> Phone: +91 81085 00200 / +91 91374 44577
 >
 > Please arrive 10 minutes early. Bring relevant reports and a current list of medicines, if available.
 
