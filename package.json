@@ -1,0 +1,10 @@
+{
+  "name": "dr-surabhi-knee-and-back-pain-relief",
+  "version": "1.0.0",
+  "private": true,
+  "description": "High-converting landing page for Dr. Surabhi Vaidya Knee & Back Pain Clinic, Thane",
+  "scripts": {
+    "dev": "python -m http.server 8080 --directory dist",
+    "start": "python -m http.server 8080 --directory dist"
+  }
+}
