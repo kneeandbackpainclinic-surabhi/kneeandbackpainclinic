@@ -1,4 +1,4 @@
-# Dr. Surabhi Vaidya — WhatsApp, Video Ads and YouTube Content Plan
+# Dr. Surabhi Vaidya : WhatsApp, Video Ads and YouTube Content Plan
 
 Prepared for Charak Health Solutions. Clinic review is required before use.
 
@@ -18,7 +18,7 @@ Prepared for Charak Health Solutions. Clinic review is required before use.
 **Name:** `webinar_registration_confirmation_v1`  
 **Category:** Utility  
 **Trigger:** Immediately after registration  
-**Button:** `View details`
+**Button:** `Join webinar`
 
 > Hello {{1}}, your registration request for the live Hindi session, “Understanding Knee Pain: What to Consider Before Choosing a Treatment Path”, has been received.
 >
@@ -35,7 +35,7 @@ Examples: `{{1}} Meena`, `{{2}} Sunday, 18 October 2026`, `{{3}} 11:00 AM IST`.
 **Name:** `webinar_joining_details_v1`  
 **Category:** Utility  
 **Trigger:** After registration, when the URL is ready  
-**Button:** `Join live session` → `{{4}}`
+**Button:** `Join webinar` → `{{4}}`
 
 > Hello {{1}}, here are the joining details for your registered live Hindi session with Dr. Surabhi Vaidya.
 >
@@ -46,12 +46,12 @@ Examples: `{{1}} Meena`, `{{2}} Sunday, 18 October 2026`, `{{3}} 11:00 AM IST`.
 
 Examples: `{{1}} Meena`, `{{2}} Sunday, 18 October 2026`, `{{3}} 11:00 AM IST`, `{{4}} https://zoom.us/j/123456789`.
 
-### 3. Webinar reminder — one day
+### 3. Webinar reminder : one day
 
 **Name:** `webinar_reminder_1_day_v1`  
 **Category:** Utility  
 **Trigger:** About 24 hours before the registered session  
-**Button:** `View session details`
+**Button:** `Join webinar`
 
 > Reminder for {{1}}: the live Hindi session with Dr. Surabhi Vaidya is tomorrow at {{2}}.
 >
@@ -61,12 +61,12 @@ Examples: `{{1}} Meena`, `{{2}} Sunday, 18 October 2026`, `{{3}} 11:00 AM IST`, 
 
 Examples: `{{1}} Meena`, `{{2}} 11:00 AM IST`, `{{3}} webinar URL`.
 
-### 4. Webinar reminder — one hour
+### 4. Webinar reminder : one hour
 
 **Name:** `webinar_reminder_1_hour_v1`  
 **Category:** Utility  
 **Trigger:** About one hour before the registered session  
-**Button:** `Join live session` → `{{2}}`
+**Button:** `Join webinar` → `{{2}}`
 
 > Hello {{1}}, the live Hindi session with Dr. Surabhi Vaidya begins in one hour.
 >
@@ -79,7 +79,7 @@ Examples: `{{1}} Meena`, `{{2}} webinar URL`.
 **Name:** `consultation_booking_confirmation_v1`  
 **Category:** Utility  
 **Trigger:** After booking through Cal.id  
-**Buttons:** `View booking`, `Open clinic location`
+**Button:** `Book appointment`
 
 > Hello {{1}}, your consultation with Dr. Surabhi Vaidya is confirmed.
 >
@@ -95,7 +95,7 @@ Examples: `{{1}} Meena`, `{{2}} Tuesday, 20 October 2026`, `{{3}} 4:30 PM IST`.
 
 **Name:** `knee_pain_webinar_invitation_v1`  
 **Category:** Marketing  
-**Buttons:** `Register`, `Not interested`
+**Button:** `Join webinar`
 
 > Charak Health Solutions is hosting a live Hindi session with Dr. Surabhi Vaidya on understanding knee pain and the questions worth asking before choosing a treatment path.
 >
@@ -110,46 +110,46 @@ Examples: `{{1}} Meena`, `{{2}} Tuesday, 20 October 2026`, `{{3}} 4:30 PM IST`.
 
 Examples: `{{1}} Sunday, 18 October 2026`, `{{2}} 11:00 AM IST`, `{{3}} registration URL`.
 
-### 7. Nurture — assessment first
+### 7. Nurture : assessment first
 
 **Name:** `knee_care_assessment_education_v1`  
 **Category:** Marketing
 
 > Knee pain can have different causes, so the same plan may not suit everyone. A useful assessment looks at symptoms, health history, daily movement, previous treatment and personal goals before options are discussed.
 >
-> Dr. Surabhi Vaidya explains this assessment-first approach here: {{1}}
+> Dr. Surabhi Vaidya explains this assessment-first approach in her live Hindi session. Join the webinar: {{1}}
 >
 > This is general education and not a diagnosis. Reply STOP to opt out.
 
 Example: `{{1}} video or landing-page URL`.
 
-### 8. Nurture — movement and exercise
+### 8. Nurture : movement and exercise
 
 **Name:** `knee_care_movement_education_v1`  
 **Category:** Marketing
 
 > With many common knee conditions, appropriately selected movement and strengthening can support function. The right starting point depends on the person and the cause of the symptoms.
 >
-> Watch Dr. Surabhi explain what to consider before beginning an exercise routine: {{1}}
+> Join Dr. Surabhi's live Hindi webinar to understand what to consider before beginning an exercise routine: {{1}}
 >
 > Seek medical advice for severe swelling, injury, inability to bear weight or rapidly worsening symptoms. Reply STOP to opt out.
 
 Example: `{{1}} YouTube URL`.
 
-### 9. Nurture — patient story
+### 9. Nurture : patient story
 
 **Name:** `patient_experience_story_v1`  
 **Category:** Marketing
 
 > Every person’s condition and response to care can be different. In this video, a Charak Health Solutions patient shares their own experience of seeking help for knee pain.
 >
-> Watch the story: {{1}}
+> To discuss an individual starting point with Dr. Surabhi, book an appointment: {{1}}
 >
 > Individual results vary. A consultation is needed to discuss suitable options. Reply STOP to opt out.
 
 Example: `{{1}} patient-story page URL`.
 
-### 10. Nurture — meet Dr. Surabhi
+### 10. Nurture : meet Dr. Surabhi
 
 **Name:** `meet_dr_surabhi_v1`  
 **Category:** Marketing
@@ -158,7 +158,7 @@ Example: `{{1}} patient-story page URL`.
 >
 > Her consultation process begins with health history, current difficulties and assessment before suitable next steps are discussed.
 >
-> Learn more or take the short questionnaire: {{1}}
+> Book an appointment: {{1}}
 >
 > Reply STOP to opt out.
 
@@ -168,7 +168,7 @@ Example: `{{1}} landing-page URL`.
 
 **Name:** `webinar_invitation_closing_v1`  
 **Category:** Marketing  
-**Buttons:** `Register`, `Not interested`
+**Button:** `Join webinar`
 
 > Registrations for Dr. Surabhi Vaidya’s next live Hindi session close at {{1}} today.
 >
@@ -180,74 +180,60 @@ Example: `{{1}} landing-page URL`.
 
 Examples: `{{1}} 8:00 PM IST`, `{{2}} registration URL`.
 
-### 12. Webinar feedback
-
-**Name:** `webinar_feedback_request_v1`  
-**Category:** Utility if it only asks about the attended session; Marketing if consultation is promoted  
-**Button:** `Share feedback`
-
-> Thank you for attending today’s session with Dr. Surabhi Vaidya, {{1}}.
->
-> Please share your feedback here: {{2}}
->
-> Your response helps us improve future educational sessions.
-
-Examples: `{{1}} Meena`, `{{2}} feedback form URL`.
-
 ## Recommended sequences
 
-**Registered participant:** confirmation immediately; joining details when ready; reminders 24 hours and one hour before; feedback two to four hours afterward.
+**Registered participant:** confirmation immediately; joining details when ready; reminders 24 hours and one hour before.
 
 **Opted-in lead who has not registered:** invitation on day 0; assessment education on day 2; movement education on day 5; patient story on day 8; final invitation on day 10. Stop Marketing messages when the person registers or opts out.
 
 ## Video ad recording scripts
 
-Record vertically in 9:16. Keep Dr. Surabhi at eye level, use soft front light, add large subtitles and keep the clinic name visible. Send the CTA to the two-minute questionnaire or webinar form.
+Record vertically in 9:16. Keep Dr. Surabhi at eye level, use soft front light, add large subtitles and keep the clinic name visible. Every recording must end with only one of these CTAs: **Book appointment** or **Join webinar**.
 
-### Ad 1 — The chair moment (30 seconds)
+### Ad 1 : The chair moment (50 to 60 seconds)
 
 **Visual:** A senior adult starts to stand from a garden chair, pauses and uses the armrest. Cut to Dr. Surabhi.
 
-> “Sometimes knee discomfort first shows up in ordinary moments — standing after sitting, taking the stairs, or joining the family for a walk. These changes deserve a closer look. I’m Dr. Surabhi Vaidya from Charak Health Solutions in Thane. My process begins with the person’s history, movement and goals before suitable next steps are discussed. Start with our short questionnaire to understand which conversation may be useful.”
+> “Sometimes knee discomfort first becomes noticeable during very ordinary moments. It may be while standing after sitting for a long time, climbing the stairs, getting out of a car, or joining the family for an evening walk. It is easy to ignore these changes or assume that they are simply part of getting older. However, knee discomfort can have different causes, and the same advice may not be suitable for every person. I am Dr. Surabhi Vaidya from Charak Health Solutions in Thane. During a consultation, I begin by understanding the person's history, daily difficulties, previous treatment and movement. I then assess the individual before discussing a suitable way forward. If knee discomfort is beginning to affect everyday movement, book an appointment for a personal assessment.”
 
-**Text:** `Understand the next step · 2-minute questionnaire`  
-**CTA:** `Learn More`
+**Text:** `Understand the cause before choosing the next step`  
+**CTA:** `Book appointment`
 
-### Ad 2 — Assessment comes first (40 seconds)
+### Ad 2 : Assessment comes first (50 to 60 seconds)
 
-> “Knee pain is a symptom, not a complete diagnosis. Two people can describe similar discomfort and still need different advice. In a consultation, I first understand the health history, daily difficulties, earlier treatments and movement. I then use my clinical and Ayurvedic assessment to discuss an individual plan. If you are comparing options and want a structured place to begin, take our short questionnaire.”
+> “Knee pain is a symptom, not a complete diagnosis. Two people may describe similar pain while walking or climbing stairs, but the reason behind their discomfort and the support they need can be different. That is why I do not begin with a standard treatment package. I first understand the person's health history, daily routine, previous treatment, current limitations and personal goals. I also look at posture, movement and other relevant findings, along with my clinical and Ayurvedic assessment. Only after this do I discuss which options may be appropriate and what expectations are realistic. If you want a structured discussion about your individual situation, book an appointment with me at Charak Health Solutions in Thane.”
 
 **Text:** `History · Assessment · Individual plan`  
-**CTA:** `Find a Starting Point`
+**CTA:** `Book appointment`
 
-### Ad 3 — Live Hindi webinar (30 seconds)
+### Ad 3 : Live Hindi webinar (50 to 60 seconds)
 
-> “There is a great deal of confusing information about knee pain — exercises, medicines, injections, therapies and surgery. I’m hosting a live Hindi session to explain the questions that matter before choosing a treatment path. We’ll discuss common causes, the role of movement and lifestyle, and when an individual assessment is important. Register to receive the joining details on WhatsApp.”
+> “There is a great deal of confusing information about knee pain. One person recommends complete rest, another recommends exercise, and someone else may suggest medicines, injections, therapies or surgery. How does a person know what information is relevant? I am Dr. Surabhi Vaidya, and I am hosting a live Hindi webinar to make these decisions easier to understand. We will discuss common reasons for knee discomfort, why assessment matters, how movement and lifestyle fit into care, and when a personal consultation may be useful. This session is educational and will help you prepare better questions before choosing a treatment path. Join the webinar and receive the session details directly on WhatsApp.”
 
 **Text:** `Live Hindi session · Educational · Ask questions`  
-**CTA:** `Register on WhatsApp`
+**CTA:** `Join webinar`
 
-### Ad 4 — Three questions (35 seconds)
+### Ad 4 : Three questions (50 to 60 seconds)
 
-> “Before choosing any knee-pain treatment, ask three questions. First: what is likely causing the symptoms? Second: how is movement and daily function affected? Third: what result is realistic for this individual? Good decisions begin with assessment and clear expectations. In my live Hindi session, I explain these questions in simple language.”
+> “Before choosing any knee-pain treatment, begin with three questions. First, what may be causing the symptoms? Knee discomfort can arise for different reasons, so the name of a treatment alone is not enough. Second, how is movement and daily function affected? Walking, climbing stairs, standing from a chair and sleeping comfortably may each tell us something useful. Third, what result is realistic for this individual? A good plan should be based on assessment, personal goals and clear expectations. I will explain these three questions, along with other common doubts, in a live Hindi webinar. If you want to understand your options before making a decision, join the webinar.”
 
 **Text:** `Cause? Function? Realistic goal?`  
-**CTA:** `Reserve a Place`
+**CTA:** `Join webinar`
 
-### Ad 5 — Family and independence (30 seconds)
+### Ad 5 : Family and independence (50 to 60 seconds)
 
-> “Mobility is connected to everyday independence — visiting friends, travelling, shopping and spending time with family. When knee discomfort begins changing these routines, reliable information can make the next decision clearer. Charak Health Solutions offers a short questionnaire that guides people toward either an educational webinar or a personal consultation.”
+> “Mobility is closely connected to everyday independence. It can mean walking to the nearby shop, visiting friends, travelling with family, attending a function, or simply standing up without needing someone else's help. When knee discomfort begins to change these routines, the concern is often about more than pain. It is also about confidence and freedom. At Charak Health Solutions, the conversation begins by understanding the person, the activities that matter to them, and the changes they have noticed. An individual assessment can then help clarify which options are suitable and what goals are realistic. If everyday movement is becoming more difficult, book an appointment with Dr. Surabhi Vaidya in Thane.”
 
 **Text:** `A clearer next step for knee care`  
-**CTA:** `Start Questionnaire`
+**CTA:** `Book appointment`
 
-### Ad 6 — Patient story introduction (20 seconds)
+### Ad 6 : Patient story introduction (45 to 55 seconds)
 
-> “Clinical information matters, and lived experience can help people know what a care journey feels like. Here is one patient’s experience at Charak Health Solutions. Their story is personal, and results can differ for every individual.”
+> “When people explore care for knee pain, they often want to understand what the experience is like from another patient's point of view. Clinical information is important, and a patient story can also show how the consultation, assessment and follow-up felt in everyday life. In this video, one patient shares their personal experience at Charak Health Solutions. Their story represents only their own journey. The cause of knee pain, the treatment selected and the response to care can differ for every individual. A testimonial cannot predict another person's result. If you would like to discuss your own situation and understand which next steps may be suitable, book an appointment with Dr. Surabhi Vaidya.”
 
 Cut to an approved patient clip with written consent.  
 **Text:** `Patient experience · Individual results vary`  
-**CTA:** `Watch Their Story`
+**CTA:** `Book appointment`
 
 ## Advertising copy guardrails
 
@@ -264,7 +250,7 @@ Research on highly watched knee-osteoarthritis videos shows strong interest in t
 1. Knee Pain While Climbing Stairs: What It Can Mean | Hindi
 2. Knee Osteoarthritis Explained Simply: Symptoms, Stages and Assessment
 3. Morning Knee Stiffness: When Is It More Than Normal Ageing?
-4. Why the Knee Makes Cracking Sounds — and When to Get It Checked
+4. Why the Knee Makes Cracking Sounds : and When to Get It Checked
 5. Knee Swelling: Common Causes and Warning Signs
 6. When Is an X-ray or MRI Actually Needed for Knee Pain?
 7. Five Questions to Ask Before Starting Any Knee-Pain Treatment
@@ -311,7 +297,7 @@ Research on highly watched knee-osteoarthritis videos shows strong interest in t
 
 ## Publishing plan
 
-Publish one 6–10 minute video and two Shorts each week for eight weeks. Record in natural Hindi or Hinglish, with English titles and subtitles where useful. Use the webinar as the main CTA; offer a personal consultation for high-intent decision topics.
+Publish one 6–10 minute video and two Shorts each week for eight weeks. Record in natural Hindi or Hinglish, with English titles and subtitles where useful. Use only Join webinar or Book appointment. Use Join webinar for educational topics and Book appointment for high-intent decision topics.
 
 Record these first: knee pain on stairs; what happens during the first consultation; whether exercise can make knee pain worse; when knee replacement should be discussed.
 
