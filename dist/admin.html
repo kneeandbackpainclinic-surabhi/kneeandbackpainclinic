@@ -216,7 +216,7 @@
 
                 <button type="button" class="template-item" data-template="webinar">
                   <span class="template-title">3. ₹201 Live Hindi Masterclass Access Link</span>
-                  <span class="template-preview">Sends Zoom joining credentials and 7-day anti-inflammatory diet guide.</span>
+                  <span class="template-preview">Sends webinar.gg joining credentials and 7-day anti-inflammatory diet guide.</span>
                 </button>
 
                 <button type="button" class="template-item" data-template="followup">
@@ -261,8 +261,8 @@
         <div class="admin-card">
           <div class="card-header-row">
             <div class="card-header-title">
-              <h2>Live Hindi Webinar Controller &amp; Analytics</h2>
-              <p>Schedule upcoming Zoom batches, track attendee conversions, and update countdown timers.</p>
+              <h2>Live Hindi Webinar Controller &amp; Analytics (webinar.gg)</h2>
+              <p>Schedule upcoming webinar.gg batches, track attendee conversions, and update countdown timers.</p>
             </div>
           </div>
 
@@ -274,8 +274,8 @@
                 <input type="datetime-local" id="webinar-datetime" value="2026-09-27T11:00">
               </div>
               <div class="form-field">
-                <label for="webinar-zoom-link">Zoom Meeting Join Link</label>
-                <input type="url" id="webinar-zoom-link" value="https://zoom.us/j/8108500200?pwd=surabhi_charak">
+                <label for="webinar-zoom-link">Webinar.gg Room Join Link</label>
+                <input type="url" id="webinar-zoom-link" value="https://webinar.gg/charakhealth">
               </div>
               <button type="button" class="btn-login" style="margin-top: 10px;" onclick="alert('Webinar schedule updated across landing pages!');">
                 Update Schedule &amp; Sync Public Timer
@@ -425,7 +425,7 @@ Acknowledge the patient's condition ({painArea}), confirm their appointment requ
                     <td>+91 9833451290</td>
                     <td><span class="badge badge-webinar">₹201 Masterclass</span></td>
                     <td>58s</td>
-                    <td><strong style="color: var(--admin-success);">Zoom Link Verified</strong></td>
+                    <td><strong style="color: var(--admin-success);">Webinar.gg Link Verified</strong></td>
                     <td style="font-size: 0.82rem;">Confirmed receipt of SMS and will attend Sunday 11 AM session.</td>
                   </tr>
                 </tbody>
@@ -444,7 +444,7 @@ Acknowledge the patient's condition ({painArea}), confirm their appointment requ
           <div class="card-header-row">
             <div class="card-header-title">
               <h2>Clinic Configuration &amp; Credentials</h2>
-              <p>Manage administrator credentials, clinic address, and desk phone.</p>
+              <p>Manage administrator credentials, Cal.id scheduling, clinic address, and contact email.</p>
             </div>
           </div>
 
@@ -459,11 +459,19 @@ Acknowledge the patient's condition ({painArea}), confirm their appointment requ
             </div>
             <div class="form-field">
               <label for="setting-clinic-address">Clinic Address</label>
-              <input type="text" id="setting-clinic-address" value="Shop No 5, Panchsheel Shopping Centre, Gladys Alwares Road, Thane West 400610">
+              <input type="text" id="setting-clinic-address" value="Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West, Maharashtra 400606">
             </div>
             <div class="form-field">
               <label for="setting-phone">Clinic Desk Phone</label>
               <input type="text" id="setting-phone" value="+91 81085 00200">
+            </div>
+            <div class="form-field">
+              <label for="setting-email">Clinic Email / Cal.id Account</label>
+              <input type="email" id="setting-email" value="kneeandbackpainclinic@gmail.com">
+            </div>
+            <div class="form-field">
+              <label for="setting-cal-link">Cal.id Booking Calendar URL</label>
+              <input type="url" id="setting-cal-link" value="https://cal.id/charakhealth">
             </div>
             <div class="form-field">
               <label for="setting-passcode">Admin Passcode</label>

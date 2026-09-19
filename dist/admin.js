@@ -65,7 +65,7 @@
             priorTreatments: 'Beginning to explore options',
             readiness: 'Hesitant: Wants to learn more via masterclass first',
             recommendedStep: '₹201 Live Hindi Masterclass',
-            slotPreference: 'Upcoming Sunday Zoom Session',
+            slotPreference: 'Upcoming Sunday Webinar.gg Session',
             status: 'Webinar Registered',
             createdAt: new Date(Date.now() - 3600000 * 26).toISOString()
           },
@@ -408,13 +408,13 @@
   // =========================================================================
   const templates = {
     trial: function(name) {
-      return "Namaste " + (name || 'Patient') + " ji,\n\nThis is from Dr. Surabhi Vaidya's Knee & Back Pain Clinic (Charak Health Solutions, Thane West).\n\nWe have received your request for the 1-Day Experience Session (₹4,000) for deep pain relief.\n\n📍 Clinic Address: Shop No 5, Panchsheel Shopping Centre, Gladys Alwares Road, Thane West 400610.\n📞 Desk: +91 81085 00200\n\nPlease confirm your preferred session time so our doctors can reserve your treatment room.";
+      return "Namaste " + (name || 'Patient') + " ji,\n\nThis is from Dr. Surabhi Vaidya's Knee & Back Pain Clinic (Charak Health Solutions, Thane West).\n\nWe have received your request for the 1-Day Experience Session (₹4,000) for deep pain relief.\n\n📍 Clinic Address: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West.\n📅 Select Your Slot Online (Cal.id): https://cal.id/charakhealth\n📞 Desk: +91 81085 00200 | kneeandbackpainclinic@gmail.com\n\nPlease confirm your preferred session time so our doctors can reserve your treatment room.";
     },
     consult: function(name) {
-      return "Namaste " + (name || 'Patient') + " ji,\n\nThank you for booking an in-clinic Diagnostic Consultation (₹1,000) with Dr. Surabhi Vaidya (MD Ayurveda).\n\nTo ensure an accurate Naadi Pariksha and postural assessment, please bring any previous Knee/Spine X-Rays or MRI reports along with you.\n\n📍 Location: Charak Health Solutions, Panchsheel Shopping Centre, Thane West.\n📞 Helpline: +91 81085 00200";
+      return "Namaste " + (name || 'Patient') + " ji,\n\nThank you for booking an in-clinic Diagnostic Consultation (₹1,000) with Dr. Surabhi Vaidya (MD Ayurveda).\n\nTo ensure an accurate Naadi Pariksha and postural assessment, please bring any previous Knee/Spine X-Rays or MRI reports along with you.\n\n📍 Location: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West.\n📅 Reserve Your Slot Online (Cal.id): https://cal.id/charakhealth\n📞 Desk: +91 81085 00200 | kneeandbackpainclinic@gmail.com";
     },
     webinar: function(name) {
-      return "Namaste " + (name || 'Patient') + " ji,\n\nYour seat for the Live Knee & Spine Pain Masterclass (₹201) with Dr. Surabhi Vaidya is confirmed!\n\n🗓 Date: Sunday 11:00 AM IST\n🔗 Zoom Access Link: https://zoom.us/j/8108500200?pwd=surabhi_charak\n\nPlease keep your recent MRI/X-Ray scans ready for the live doctor Q&A segment.";
+      return "Namaste " + (name || 'Patient') + " ji,\n\nYour seat for the Live Knee & Spine Pain Masterclass (₹201) with Dr. Surabhi Vaidya is confirmed!\n\n🗓 Date: Sunday 11:00 AM IST\n🔗 Webinar.gg Room Access: https://webinar.gg/charakhealth\n\nPlease keep your recent MRI/X-Ray scans ready for the live doctor Q&A segment. Email: kneeandbackpainclinic@gmail.com";
     },
     followup: function(name) {
       return "Namaste " + (name || 'Patient') + " ji,\n\nHow are you feeling today after your clinical therapy session at Charak Health Solutions?\n\nPlease let us know your current pain score (from 1 to 10) and if you have any questions regarding your post-therapy herbal routine.";

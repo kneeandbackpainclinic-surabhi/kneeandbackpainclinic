@@ -44,7 +44,7 @@ Examples: `{{1}} Meena`, `{{2}} Sunday, 18 October 2026`, `{{3}} 11:00 AM IST`.
 >
 > Please join a few minutes early. This educational session does not replace an individual medical consultation.
 
-Examples: `{{1}} Meena`, `{{2}} Sunday, 18 October 2026`, `{{3}} 11:00 AM IST`, `{{4}} https://zoom.us/j/123456789`.
+Examples: `{{1}} Meena`, `{{2}} Sunday, 18 October 2026`, `{{3}} 11:00 AM IST`, `{{4}} https://webinar.gg/charakhealth`.
 
 ### 3. Webinar reminder : one day
 

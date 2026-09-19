@@ -27,7 +27,7 @@
       if (vslWrap) vslWrap.setAttribute('data-video-id', videoId);
       if (vslPoster) vslPoster.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
       if (vslTitle) vslTitle.innerHTML = 'Sunday Masterclass Invitation (₹201) · Joint Restoration Blueprint';
-      if (vslDesc) vslDesc.innerHTML = 'Watch Dr. Surabhi Vaidya preview what will be revealed in the 90-minute live interactive Zoom masterclass.';
+      if (vslDesc) vslDesc.innerHTML = 'Watch Dr. Surabhi Vaidya preview what will be revealed in the 90-minute live interactive webinar.gg masterclass.';
     } else {
       const videoId = 'wrwncuc7zz8';
       if (vslHeader) vslHeader.textContent = 'DOCTOR VIDEO PRESENTATION';
@@ -241,8 +241,9 @@
                 <input type="tel" id="booking-phone" required placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" maxlength="10">
               </div>
               <div class="form-field">
-                <label for="booking-time">Preferred Session Slot *</label>
-                <select id="booking-time" required>
+                <label for="booking-time">Preferred Session Slot</label>
+                <select id="booking-time">
+                  <option value="Pick on Live Cal.id Calendar">Pick exact slot on Cal.id Calendar (Recommended)</option>
                   <option value="Tomorrow Morning (9:30 AM)">Tomorrow Morning (9:30 AM)</option>
                   <option value="Tomorrow Afternoon (2:30 PM)">Tomorrow Afternoon (2:30 PM)</option>
                   <option value="This Weekend (Saturday)">This Weekend (Saturday)</option>
@@ -277,7 +278,7 @@
             </div>
 
             <div style="background: var(--bg-sand); padding: 12px 14px; border-radius: 6px; font-size: 0.82rem; color: var(--primary-deep); margin-bottom: 16px;">
-              <strong>Clinic Location:</strong> Shop No 5, Panchsheel Shopping Centre, Gladys Alwares Road, Thane West.
+              <strong>Clinic Location:</strong> Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West.
             </div>
 
             <form id="quiz-booking-form">
@@ -290,8 +291,9 @@
                 <input type="tel" id="booking-phone" required placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" maxlength="10">
               </div>
               <div class="form-field">
-                <label for="booking-time">Preferred Appointment Day *</label>
-                <select id="booking-time" required>
+                <label for="booking-time">Preferred Appointment Slot</label>
+                <select id="booking-time">
+                  <option value="Pick on Live Cal.id Calendar">Pick exact slot on Cal.id Calendar (Recommended)</option>
                   <option value="Earliest Available Slot">Earliest Available Slot</option>
                   <option value="Tomorrow (Weekday)">Tomorrow (Weekday)</option>
                   <option value="This Saturday">This Saturday</option>
@@ -313,10 +315,10 @@
               SINGLE RECOMMENDED NEXT STEP
             </div>
             <h3 style="font-size: 1.35rem; color: var(--primary-deep); margin-bottom: 8px;">
-              Attend Live Hindi Masterclass on Zoom (₹201)
+              Attend Live Hindi Masterclass on Webinar.gg (₹201)
             </h3>
             <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 12px;">
-              Since you are currently exploring or looking to understand how Ayurveda compares with surgery for <strong>${painArea}</strong>, we recommend starting with our 90-minute live online session with Dr. Surabhi Vaidya. Learn root-cause analysis and discover practical ways to protect your joints without visiting the clinic yet.
+              Since you are currently exploring or looking to understand how Ayurveda compares with surgery for <strong>${painArea}</strong>, we recommend starting with our 90-minute live online session with Dr. Surabhi Vaidya on our interactive <strong>Webinar.gg</strong> platform. Learn root-cause analysis and discover practical ways to protect your joints without visiting the clinic yet.
             </p>
 
             <div class="quiz-flow-indicator">
@@ -326,7 +328,7 @@
             </div>
 
             <div style="background: var(--bg-sand); padding: 12px 14px; border-radius: 6px; font-size: 0.82rem; color: var(--primary-deep); margin-bottom: 16px;">
-              <strong>Includes:</strong> 90-Min Live Interactive Zoom Session + Live Doctor Q&A + Anti-Inflammatory Ayurvedic Diet Guide.
+              <strong>Includes:</strong> 90-Min Live Interactive Webinar.gg Session + Live Doctor Q&amp;A + Anti-Inflammatory Ayurvedic Diet Guide.
             </div>
 
             <form id="quiz-booking-form">
@@ -400,23 +402,62 @@
             console.error('Lead sync err:', err);
           }
 
-          quizBody.innerHTML = `
-            <div style="text-align: center; padding: 24px 10px;">
-              <div style="font-size: 3rem; margin-bottom: 12px;">✅</div>
-              <h3 style="font-size: 1.4rem; color: var(--primary-deep); margin-bottom: 8px;">
-                Request Confirmed!
-              </h3>
-              <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
-                Thank you, <strong>${name}</strong>. Our clinical coordinator will call you at <strong>${phone}</strong> within 15 minutes to confirm your scheduled slot and provide intake instructions.
-              </p>
-              <div style="background: var(--bg-sand); padding: 14px; border-radius: 8px; font-size: 0.85rem; color: var(--primary-deep);">
-                <strong>Clinic Desk:</strong> Shop No 5, Panchsheel Shopping Centre, Gladys Alwares Road, Thane West · Tel: +91 81085 00200
+          if (branch === 'webinar') {
+            quizBody.innerHTML = `
+              <div style="text-align: center; padding: 24px 10px;">
+                <div style="font-size: 3rem; margin-bottom: 12px;">🎉</div>
+                <h3 style="font-size: 1.4rem; color: var(--primary-deep); margin-bottom: 8px;">
+                  Masterclass Seat Confirmed!
+                </h3>
+                <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
+                  Thank you, <strong>${name}</strong>. You are registered for Dr. Surabhi Vaidya's upcoming live session on <strong>webinar.gg</strong>.
+                </p>
+                <div style="background: var(--bg-sand); padding: 18px; border-radius: 8px; font-size: 0.9rem; color: var(--primary-deep); margin-bottom: 18px; text-align: left;">
+                  <div style="font-weight: 700; margin-bottom: 6px; color: var(--primary-deep);">🎥 Webinar Room Access:</div>
+                  <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">Access the live interactive session directly on webinar.gg:</p>
+                  <a href="https://webinar.gg/charakhealth" target="_blank" rel="noopener" class="btn btn-deep" style="width: 100%; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;">
+                    <span>🎥</span> Enter Masterclass on webinar.gg ↗
+                  </a>
+                </div>
+                <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">
+                  Confirmation has been logged for <strong>${phone}</strong>. Email: kneeandbackpainclinic@gmail.com
+                </p>
+                <button type="button" class="btn btn-secondary" style="margin-top: 10px;" onclick="document.querySelector('#quiz-modal').style.display='none'; document.body.style.overflow='';">
+                  Done &amp; Return
+                </button>
               </div>
-              <button type="button" class="btn btn-secondary" style="margin-top: 20px;" onclick="document.querySelector('#quiz-modal').style.display='none'; document.body.style.overflow='';">
-                Done &amp; Return
-              </button>
-            </div>
-          `;
+            `;
+          } else {
+            const isTrial = branch === 'trial';
+            const actionTitle = isTrial ? '1-Day Trial Session (₹4,000)' : 'Diagnostic Consultation (₹1,000)';
+            quizBody.innerHTML = `
+              <div style="text-align: center; padding: 24px 10px;">
+                <div style="font-size: 3rem; margin-bottom: 12px;">✅</div>
+                <h3 style="font-size: 1.4rem; color: var(--primary-deep); margin-bottom: 8px;">
+                  Request Confirmed!
+                </h3>
+                <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
+                  Thank you, <strong>${name}</strong>. Your ${actionTitle} request is registered.
+                </p>
+                <div style="background: var(--bg-sand); padding: 18px; border-radius: 8px; font-size: 0.9rem; color: var(--primary-deep); margin-bottom: 18px; text-align: left;">
+                  <div style="font-weight: 700; margin-bottom: 6px; color: ${isTrial ? 'var(--accent-terracotta)' : 'var(--primary-deep)'};">🗓 Step 2: Pick Your Exact Slot on Cal.id:</div>
+                  <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">Select your preferred date &amp; appointment time directly on our live calendar:</p>
+                  <a href="https://cal.id/charakhealth" target="_blank" rel="noopener" class="btn ${isTrial ? 'btn-primary' : 'btn-primary'}" style="width: 100%; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;">
+                    <span>📅</span> Choose Your Slot on Cal.id ↗
+                  </a>
+                </div>
+                <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">
+                  Our clinical coordinator will also call <strong>${phone}</strong> within 15 minutes to confirm. Desk: kneeandbackpainclinic@gmail.com
+                </p>
+                <div style="background: #faf8f5; border: 1px solid var(--border-light); padding: 10px; border-radius: 6px; font-size: 0.8rem; color: var(--text-muted);">
+                  <strong>Clinic Address:</strong> Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West.
+                </div>
+                <button type="button" class="btn btn-secondary" style="margin-top: 16px;" onclick="document.querySelector('#quiz-modal').style.display='none'; document.body.style.overflow='';">
+                  Done &amp; Return
+                </button>
+              </div>
+            `;
+          }
         });
       }
 
