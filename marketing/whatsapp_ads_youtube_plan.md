@@ -241,6 +241,148 @@ Use: “Knee pain can affect everyday movement”; “Learn what to consider bef
 
 Avoid: “Are you suffering from knee pain?”; “Your damaged knees can be cured”; “Avoid surgery in seven sessions”; “Regrow cartilage naturally”; “Guaranteed pain relief”; “Works for everyone.” Avoid dramatic before-and-after images, frightening surgical imagery and language that appears to know the viewer’s medical condition.
 
+## Landing page VSL script
+
+**Recommended length:** 6 to 8 minutes  
+**Primary CTA:** `Book appointment`  
+**Secondary CTA:** `Join webinar`  
+**Format:** Dr. Surabhi speaking to camera, supported by clinic footage, simple diagrams, patient activity shots and short consented testimonial excerpts.  
+**Placement:** Near the top of the landing page, after the main headline and before detailed treatment or pricing sections.
+
+### Scene 1: The everyday moment
+
+**Visuals:** A group of senior adults in a garden. One person places a hand on the knee and rises carefully from a chair. Show natural family and walking moments rather than dramatic pain acting.
+
+**Dr. Surabhi:**
+
+> “Knee and back discomfort often becomes noticeable through small changes in everyday life. Standing after sitting may take longer. Stairs may require more thought. A morning walk may become shorter. Travel, social visits, prayer, work and time with family may begin to feel more difficult.
+>
+> These changes can affect much more than movement. They can affect confidence, independence and the freedom to plan the day without constantly thinking about pain.
+>
+> If this sounds familiar, the most useful first step is not to assume that one treatment will suit every person. It is to understand what may be contributing to the problem and how it is affecting daily function.”
+
+**On-screen text:** `Understand the person. Assess the condition. Choose the next step.`
+
+### Scene 2: Meet Dr. Surabhi
+
+**Visuals:** Dr. Surabhi entering the clinic, speaking with a patient, reviewing notes and demonstrating an assessment. Show credentials on screen.
+
+**Dr. Surabhi:**
+
+> “I am Dr. Surabhi Vaidya, an Ayurvedic physician with a BAMS and an MBA in Clinical Research. At Charak Health Solutions in Thane, I work with people who are seeking help for knee pain, back pain, stiffness, sciatica and difficulty with everyday movement.
+>
+> Many people reach the clinic after trying several approaches. Some have used pain medicines for months. Some have tried exercise, physiotherapy, injections or different therapies. Others have been advised to consider surgery and want to understand whether any appropriate non-surgical options should be explored first.
+>
+> My role is to assess the individual carefully, explain what I find in understandable language and discuss realistic options. If a case requires another specialist or surgical opinion, that should also be explained honestly.”
+
+**On-screen text:** `Dr. Surabhi Vaidya | BAMS | MBA Clinical Research | Thane`
+
+### Scene 3: Why the same plan does not suit everyone
+
+**Visuals:** Split screen showing two different people with similar knee discomfort but different routines and movement patterns.
+
+**Dr. Surabhi:**
+
+> “Knee pain is a symptom. Back pain is a symptom. A symptom alone does not tell us the complete cause or the right treatment.
+>
+> Two people may both experience discomfort on the stairs, but their health history, posture, muscle strength, joint condition, activity level and personal goals may be very different. One person may want to return to a daily walk. Another may want to travel comfortably, sit for prayer or manage stairs independently.
+>
+> This is why treatment should begin with assessment rather than a fixed package. The aim is to understand the condition, identify the difficulties that matter most to the person and decide what type of care may be suitable.”
+
+**On-screen text:** `Similar symptoms can require different advice.`
+
+### Scene 4: What happens in the first consultation
+
+**Visuals:** Consultation desk, health-history discussion, posture observation, safe movement assessment and Naadi Pariksha. Avoid presenting any single assessment as a guaranteed diagnostic test.
+
+**Dr. Surabhi:**
+
+> “The first consultation begins with a detailed conversation. I ask about the current symptoms, how long they have been present, earlier injuries, medical conditions, medicines, reports and treatments already tried.
+>
+> We then discuss how movement is affected. This may include walking, standing from a chair, climbing stairs, bending, sleeping or travelling. I observe posture, alignment and relevant movements. I also use Naadi Pariksha as part of my Ayurvedic assessment.
+>
+> This process helps me understand whether care at our clinic may be appropriate, what the initial priorities should be and what expectations are realistic. It also gives the patient an opportunity to ask questions before making a decision.”
+
+**On-screen text:** `History | Movement | Posture | Ayurvedic assessment | Clear expectations`
+
+### Scene 5: How an individual plan may be built
+
+**Visuals:** Short, calm clips of Marma Chikitsa, Pottali Sekam, medicated steam, Lepam application, guided movement and diet discussion. Add labels for each technique.
+
+**Dr. Surabhi:**
+
+> “When treatment at the clinic is suitable, the plan may combine several elements. These can include Marma Chikitsa, selected Ayurvedic therapies such as Pottali Sekam, medicated steam or Lepam, and guidance on movement, diet, posture and home practices.
+>
+> These techniques are selected according to the assessment. Not every person requires every therapy, and the duration of care can differ. Progress should be reviewed through changes that matter in daily life, such as walking tolerance, stiffness, confidence on stairs or the ability to stand more comfortably.
+>
+> No responsible clinician can guarantee the same outcome for every patient. The condition, its stage, overall health, consistency with the plan and many other factors can influence the response.”
+
+**On-screen text:** `Individual selection. Monitored progress. Results can vary.`
+
+### Scene 6: Addressing the surgery question honestly
+
+**Visuals:** Dr. Surabhi speaking directly to camera. Use a simple decision-path graphic. Do not show frightening surgical images.
+
+**Dr. Surabhi:**
+
+> “A common question is whether surgery can be avoided. The honest answer is that this cannot be decided through an advertisement, a video or a questionnaire.
+>
+> Some people may have non-surgical options that are appropriate to explore. Some may be able to improve function or delay a procedure. Others may have advanced damage, urgent warning signs or another condition that requires orthopaedic or specialist care.
+>
+> The purpose of an assessment is to understand which situation applies to the individual. Surgery should not be used to frighten people, and non-surgical care should not be presented as a guarantee. The right decision is the one made after proper evaluation, clear information and realistic expectations.”
+
+**On-screen text:** `Assessment before decisions. Honest referral when required.`
+
+### Scene 7: Patient experience and trust
+
+**Visuals:** Brief approved patient clips, Google review screen, clinic reception and patient interaction. Show the text “Individual experience. Results vary.” throughout testimonials.
+
+**Dr. Surabhi:**
+
+> “Patient stories can help people understand what a care journey feels like. On this page, you can hear directly from people who have visited Charak Health Solutions and read reviews shared on Google.
+>
+> Each story belongs to that individual. It should not be treated as a promise of the same result for someone else. What it can show is the importance of being heard, receiving a structured assessment and having a plan connected to meaningful daily goals.”
+
+**On-screen text:** `Real experiences. Individual results vary.`
+
+### Scene 8: Choose one of two next steps
+
+**Visuals:** Two simple cards matching the landing page. Card one says Join webinar. Card two says Book appointment.
+
+**Dr. Surabhi:**
+
+> “There are two ways to take the next step.
+>
+> If you are still exploring and want to understand knee and back pain, common treatment questions and how different options are considered, join my free live Hindi webinar. It is an educational session designed to help you ask better questions before choosing a treatment path.
+>
+> If discomfort is significantly affecting daily movement, several treatments have already been tried, or a personal assessment is now needed, book an appointment at Charak Health Solutions in Thane. The consultation allows us to review the history, movement and suitable next steps in detail.
+>
+> Choose the option that matches where you are today. Join the webinar to learn, or book an appointment for an individual assessment.”
+
+**Final on-screen CTAs:** `Join webinar` and `Book appointment`
+
+### Suggested VSL chapter timings
+
+1. Everyday problem and emotional relevance: 0:00 to 0:45
+2. Doctor introduction and credibility: 0:45 to 1:35
+3. Why assessment matters: 1:35 to 2:20
+4. First consultation: 2:20 to 3:15
+5. Individual treatment approach: 3:15 to 4:25
+6. Honest surgery discussion: 4:25 to 5:20
+7. Patient trust signals: 5:20 to 6:00
+8. Webinar and appointment CTAs: 6:00 to 7:00
+
+### VSL production notes
+
+- Record one clean master take in horizontal 16:9 for the landing page.
+- Capture close-up and medium-angle B-roll vertically as well so sections can become Reels and Shorts.
+- Keep subtitles on screen and limit each subtitle block to two lines.
+- Use the clinic environment and real team rather than stock medical footage where possible.
+- Keep background music quiet under speech.
+- Display qualifications, clinic location and Google rating only when the exact facts are verified.
+- Obtain written permission before showing any identifiable patient, treatment footage or testimonial.
+- Do not include fixed pain-relief percentages, guaranteed outcomes, cartilage-regrowth promises or universal surgery-avoidance claims.
+
 ## YouTube research direction
 
 Research on highly watched knee-osteoarthritis videos shows strong interest in treatment, exercise and rehabilitation, condition education and symptoms. Search language used in India includes English and Hindi versions of “knee pain relief,” “osteoarthritis cure” and “joint pain home remedy.” These phrases reveal the question; the videos should correct unrealistic cure expectations rather than use them as promises.
