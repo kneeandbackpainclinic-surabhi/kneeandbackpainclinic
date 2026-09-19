@@ -278,7 +278,7 @@
             </div>
 
             <div style="background: var(--bg-sand); padding: 12px 14px; border-radius: 6px; font-size: 0.82rem; color: var(--primary-deep); margin-bottom: 16px;">
-              <strong>Clinic Location:</strong> Shop No 5, Panchsheel Shopping Centre, Gladys Alwares Road, Thane West 400610.
+              <strong>Clinic Location:</strong> Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West.
             </div>
 
             <form id="quiz-booking-form">
@@ -447,10 +447,10 @@
                   </a>
                 </div>
                 <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">
-                  Our clinical coordinator will also call <strong>${phone}</strong> within 15 minutes to confirm. Desk: +91 81085 00200 / +91 91374 44577 · kneeandbackpainclinic@gmail.com
+                  Our clinical coordinator will also call <strong>${phone}</strong> within 15 minutes to confirm. Desk: kneeandbackpainclinic@gmail.com
                 </p>
                 <div style="background: #faf8f5; border: 1px solid var(--border-light); padding: 10px; border-radius: 6px; font-size: 0.8rem; color: var(--text-muted);">
-                  <strong>Clinic Address:</strong> Shop No 5, Panchsheel Shopping Centre, Gladys Alwares Road, Thane West 400610.
+                  <strong>Clinic Address:</strong> Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West.
                 </div>
                 <button type="button" class="btn btn-secondary" style="margin-top: 16px;" onclick="document.querySelector('#quiz-modal').style.display='none'; document.body.style.overflow='';">
                   Done &amp; Return
