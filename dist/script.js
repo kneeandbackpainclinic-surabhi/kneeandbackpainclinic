@@ -389,6 +389,13 @@
             };
             existing.unshift(newLead);
             localStorage.setItem('dr_surabhi_leads', JSON.stringify(existing));
+
+            // Forward to secure Vercel serverless function (safe WhatsApp/Email/CRM dispatch)
+            fetch('/api/lead-intake', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(newLead)
+            }).catch(() => {});
           } catch (err) {
             console.error('Lead sync err:', err);
           }
