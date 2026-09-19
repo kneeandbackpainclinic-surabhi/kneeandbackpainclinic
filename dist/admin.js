@@ -187,6 +187,30 @@
     initCsvExport();
     initWhatsAppTemplates();
     loadAiSettings();
+    fetchSupabaseLeads();
+  }
+
+  async function fetchSupabaseLeads() {
+    try {
+      const resp = await fetch('/api/leads');
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.leads && data.leads.length > 0) {
+          const current = getLeads();
+          const merged = [...data.leads];
+          current.forEach(function(l) {
+            if (!merged.some(function(m) { return m.id === l.id; })) {
+              merged.push(l);
+            }
+          });
+          saveLeads(merged);
+          renderMetrics();
+          renderLeadsTable();
+        }
+      }
+    } catch (e) {
+      console.log('Local leads mode:', e.message);
+    }
   }
 
   function renderMetrics() {
@@ -303,6 +327,13 @@
           found.status = newStatus;
           saveLeads(leads);
           renderMetrics();
+
+          // Sync status with Supabase backend
+          fetch('/api/leads', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, status: newStatus })
+          }).catch(function() {});
         }
       });
     });
