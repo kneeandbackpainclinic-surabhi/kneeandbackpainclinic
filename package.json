@@ -6,5 +6,9 @@
   "scripts": {
     "dev": "python -m http.server 8080 --directory dist",
     "start": "python -m http.server 8080 --directory dist"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0"
   }
 }
