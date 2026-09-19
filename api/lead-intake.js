@@ -50,6 +50,8 @@ export default async function handler(req, res) {
             recommended_step: lead.recommendedStep || 'Assessment Completed',
             slot_preference: lead.slotPreference || 'Flexible',
             status: lead.status || 'New Lead',
+            delivered_message: lead.deliveredMessage || 'None',
+            payment_status: lead.paymentStatus || 'Unpaid',
             created_at: lead.createdAt || new Date().toISOString()
           })
         });

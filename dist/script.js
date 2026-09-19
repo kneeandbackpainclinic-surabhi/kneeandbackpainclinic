@@ -404,59 +404,146 @@
 
           if (branch === 'webinar') {
             quizBody.innerHTML = `
-              <div style="text-align: center; padding: 24px 10px;">
-                <div style="font-size: 3rem; margin-bottom: 12px;">🎉</div>
-                <h3 style="font-size: 1.4rem; color: var(--primary-deep); margin-bottom: 8px;">
-                  Masterclass Seat Confirmed!
+              <div style="text-align: center; padding: 16px 8px;">
+                <div style="font-size: 2.8rem; margin-bottom: 8px;">🎥</div>
+                <h3 style="font-size: 1.35rem; color: var(--primary-deep); margin-bottom: 6px;">
+                  Confirm Your Masterclass Seat (₹201)
                 </h3>
-                <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
-                  Thank you, <strong>${name}</strong>. You are registered for Dr. Surabhi Vaidya's upcoming live session on <strong>webinar.gg</strong>.
+                <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
+                  Thank you, <strong>${name}</strong>. Secure your seat via Cashfree Payment Gateway to get your direct <strong>Webinar.gg</strong> joining pass.
                 </p>
-                <div style="background: var(--bg-sand); padding: 18px; border-radius: 8px; font-size: 0.9rem; color: var(--primary-deep); margin-bottom: 18px; text-align: left;">
-                  <div style="font-weight: 700; margin-bottom: 6px; color: var(--primary-deep);">🎥 Webinar Room Access:</div>
-                  <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">Access the live interactive session directly on webinar.gg:</p>
-                  <a href="https://webinar.gg/charakhealth" target="_blank" rel="noopener" class="btn btn-deep" style="width: 100%; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;">
-                    <span>🎥</span> Enter Masterclass on webinar.gg ↗
+                <div style="background: var(--bg-sand); padding: 14px; border-radius: 8px; margin-bottom: 16px; text-align: left;">
+                  <div style="display: flex; justify-content: space-between; font-weight: 700; color: var(--primary-deep); margin-bottom: 4px;">
+                    <span>90-Min Live Masterclass Access</span>
+                    <span>₹201</span>
+                  </div>
+                  <div style="font-size: 0.78rem; color: var(--text-muted);">Includes Live Q&amp;A + Anti-Inflammatory Ayurvedic Nutrition Protocol</div>
+                </div>
+
+                <button type="button" id="pay-cashfree-webinar-btn" class="btn btn-deep btn-lg" style="width: 100%; margin-bottom: 14px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                  <span>💳</span> Pay ₹201 via Cashfree (UPI / Cards) ↗
+                </button>
+
+                <div id="webinar-access-box" style="display: none; background: #eef7ed; border: 1px solid #c7e8c6; padding: 16px; border-radius: 8px; margin-bottom: 16px; text-align: left;">
+                  <div style="font-weight: 700; color: #166534; margin-bottom: 6px;">🎉 Payment &amp; Registration Successful!</div>
+                  <p style="font-size: 0.85rem; color: #15803d; margin-bottom: 10px;">Your secure Webinar.gg join token has been issued for <strong>${phone}</strong>.</p>
+                  <a id="webinar-room-join-link" href="https://webinar.gg/charakhealth" target="_blank" rel="noopener" class="btn btn-primary" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;">
+                    <span>🎥</span> Enter Live Room on Webinar.gg ↗
                   </a>
                 </div>
-                <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">
-                  Confirmation has been logged for <strong>${phone}</strong>. Email: kneeandbackpainclinic@gmail.com
+
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">
+                  Clinic Desk: kneeandbackpainclinic@gmail.com · Raymond TenX Habitat, Pokharan Road No. 2, Thane West.
                 </p>
-                <button type="button" class="btn btn-secondary" style="margin-top: 10px;" onclick="document.querySelector('#quiz-modal').style.display='none'; document.body.style.overflow='';">
-                  Done &amp; Return
+                <button type="button" class="btn btn-secondary" style="margin-top: 6px;" onclick="document.querySelector('#quiz-modal').style.display='none'; document.body.style.overflow='';">
+                  Close &amp; Return
                 </button>
               </div>
             `;
+
+            const payBtn = quizBody.querySelector('#pay-cashfree-webinar-btn');
+            if (payBtn) {
+              payBtn.addEventListener('click', async function() {
+                payBtn.disabled = true;
+                payBtn.textContent = 'Opening Cashfree Secure Checkout...';
+                try {
+                  if (window.triggerCashfreeCheckout) {
+                    await window.triggerCashfreeCheckout({
+                      amount: 201,
+                      name: name,
+                      phone: phone,
+                      planType: '₹201 Live Masterclass',
+                      leadId: newLead.id
+                    });
+                  }
+                } catch (e) {
+                  console.warn('Checkout note:', e.message);
+                }
+
+                // Generate Webinar.gg token & display room access
+                try {
+                  const tokenResp = await fetch('/api/get-webinar-token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name, phone: phone })
+                  });
+                  const tokenData = await tokenResp.json();
+                  const accessBox = quizBody.querySelector('#webinar-access-box');
+                  const joinLink = quizBody.querySelector('#webinar-room-join-link');
+                  if (accessBox && joinLink) {
+                    if (tokenData.joinUrl) joinLink.href = tokenData.joinUrl;
+                    accessBox.style.display = 'block';
+                    payBtn.style.display = 'none';
+                  }
+                } catch (tokErr) {
+                  console.warn('Webinar token fetch:', tokErr);
+                }
+              });
+            }
+
           } else {
             const isTrial = branch === 'trial';
             const actionTitle = isTrial ? '1-Day Trial Session (₹4,000)' : 'Diagnostic Consultation (₹1,000)';
+            const orderFee = isTrial ? 4000 : 1000;
             quizBody.innerHTML = `
-              <div style="text-align: center; padding: 24px 10px;">
-                <div style="font-size: 3rem; margin-bottom: 12px;">✅</div>
-                <h3 style="font-size: 1.4rem; color: var(--primary-deep); margin-bottom: 8px;">
-                  Request Confirmed!
+              <div style="text-align: center; padding: 16px 8px;">
+                <div style="font-size: 2.8rem; margin-bottom: 6px;">✅</div>
+                <h3 style="font-size: 1.35rem; color: var(--primary-deep); margin-bottom: 6px;">
+                  Request Registered for ${name}!
                 </h3>
-                <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
-                  Thank you, <strong>${name}</strong>. Your ${actionTitle} request is registered.
+                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
+                  Select your exact appointment date &amp; time below on our live <strong>Cal.id</strong> clinic calendar:
                 </p>
-                <div style="background: var(--bg-sand); padding: 18px; border-radius: 8px; font-size: 0.9rem; color: var(--primary-deep); margin-bottom: 18px; text-align: left;">
-                  <div style="font-weight: 700; margin-bottom: 6px; color: ${isTrial ? 'var(--accent-terracotta)' : 'var(--primary-deep)'};">🗓 Step 2: Pick Your Exact Slot on Cal.id:</div>
-                  <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">Select your preferred date &amp; appointment time directly on our live calendar:</p>
-                  <a href="https://cal.id/charakhealth" target="_blank" rel="noopener" class="btn ${isTrial ? 'btn-primary' : 'btn-primary'}" style="width: 100%; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;">
-                    <span>📅</span> Choose Your Slot on Cal.id ↗
-                  </a>
+
+                <!-- Embedded Cal.id (No external redirection) -->
+                <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: 8px; overflow: hidden; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.04);">
+                  <div style="background: var(--bg-sand); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light);">
+                    <span style="font-size: 0.82rem; font-weight: 700; color: var(--primary-deep);">📅 Dr. Surabhi Vaidya Live Cal.id Calendar</span>
+                    <span style="font-size: 0.72rem; color: var(--primary-deep); background: #eef7ed; padding: 2px 8px; border-radius: 9999px; font-weight: 600;">● Online Slot Booking</span>
+                  </div>
+                  <iframe src="https://cal.id/charakhealth?embed=true&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}" style="width: 100%; height: 480px; border: none;" title="Cal.id Inline Booking"></iframe>
                 </div>
-                <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">
-                  Our clinical coordinator will also call <strong>${phone}</strong> within 15 minutes to confirm. Desk: kneeandbackpainclinic@gmail.com
-                </p>
-                <div style="background: #faf8f5; border: 1px solid var(--border-light); padding: 10px; border-radius: 6px; font-size: 0.8rem; color: var(--text-muted);">
-                  <strong>Clinic Address:</strong> Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West.
+
+                <!-- Cashfree PG Option or Pay at Clinic -->
+                <div style="background: var(--bg-sand); padding: 14px; border-radius: 8px; margin-bottom: 16px; text-align: left;">
+                  <div style="font-weight: 700; font-size: 0.88rem; color: var(--primary-deep); margin-bottom: 4px;">Payment Option:</div>
+                  <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">You may secure your slot now with Cashfree or pay upon arrival at clinic.</p>
+                  <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button type="button" id="pay-cashfree-slot-btn" class="btn btn-primary" style="flex: 1; min-width: 180px; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                      <span>💳</span> Pay ₹${orderFee.toLocaleString('en-IN')} via Cashfree
+                    </button>
+                    <button type="button" class="btn btn-secondary" style="flex: 1; min-width: 120px; font-size: 0.85rem;" onclick="document.querySelector('#quiz-modal').style.display='none'; document.body.style.overflow='';">
+                      Pay at Clinic
+                    </button>
+                  </div>
                 </div>
-                <button type="button" class="btn btn-secondary" style="margin-top: 16px;" onclick="document.querySelector('#quiz-modal').style.display='none'; document.body.style.overflow='';">
-                  Done &amp; Return
-                </button>
+
+                <div style="background: #faf8f5; border: 1px solid var(--border-light); padding: 10px; border-radius: 6px; font-size: 0.78rem; color: var(--text-muted); text-align: left;">
+                  <strong>Clinic Address:</strong> Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West, Maharashtra 400606. Desk: kneeandbackpainclinic@gmail.com
+                </div>
               </div>
             `;
+
+            const paySlotBtn = quizBody.querySelector('#pay-cashfree-slot-btn');
+            if (paySlotBtn) {
+              paySlotBtn.addEventListener('click', async function() {
+                paySlotBtn.disabled = true;
+                paySlotBtn.textContent = 'Opening Cashfree Gateway...';
+                try {
+                  if (window.triggerCashfreeCheckout) {
+                    await window.triggerCashfreeCheckout({
+                      amount: orderFee,
+                      name: name,
+                      phone: phone,
+                      planType: actionTitle,
+                      leadId: newLead.id
+                    });
+                  }
+                } catch (err) {
+                  console.warn('Slot checkout err:', err.message);
+                }
+              });
+            }
           }
         });
       }

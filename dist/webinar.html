@@ -839,6 +839,27 @@
     </div>
   </div>
 
+  <!-- Cal.id Inline Embedded Booking Modal (No Site Redirection) -->
+  <div id="cal-modal" class="quiz-modal-overlay" style="display: none; z-index: 99999; align-items: center; justify-content: center; position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);">
+    <div class="quiz-modal-card" style="max-width: 860px; width: 95%; max-height: 92vh; padding: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 12px; background: #ffffff; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: #faf8f5; border-bottom: 1px solid #e7dfd5;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.4rem;">📅</span>
+          <div>
+            <div id="cal-modal-title" style="font-weight: 700; color: #1e3a2f; font-size: 1.05rem;">Schedule Your In-Clinic Appointment</div>
+            <div style="font-size: 0.78rem; color: #556b60;">Dr. Surabhi Vaidya · Charak Health Solutions, Thane West</div>
+          </div>
+        </div>
+        <button type="button" id="close-cal-modal-btn" aria-label="Close Calendar" style="background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #556b60; line-height: 1; padding: 0 6px;">&times;</button>
+      </div>
+      <div style="flex: 1; min-height: 600px; height: 600px; background: #ffffff; position: relative;">
+        <iframe id="cal-inline-frame" src="https://cal.id/charakhealth?embed=true" style="width: 100%; height: 100%; border: none;" title="Cal.id Appointment Scheduling"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+  <script src="booking-links.js"></script>
   <script src="script.js"></script>
   <script>
     function openVideoPlayer(videoId, title) {

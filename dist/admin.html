@@ -157,6 +157,17 @@
                 <option value="Enrolled in 21-Day Plan">Enrolled in 21-Day Plan</option>
               </select>
 
+              <select id="filter-message" class="filter-select">
+                <option value="all">All Delivery States</option>
+                <option value="None">No Message Sent</option>
+                <option value="T1">T1: Trial Confirmed</option>
+                <option value="T2">T2: Consultation &amp; MRI</option>
+                <option value="T3">T3: Webinar Link</option>
+                <option value="R1">R1: 24h Reminder</option>
+                <option value="R2">R2: 1h Reminder</option>
+                <option value="F1">F1: Post-Session Check-in</option>
+              </select>
+
               <button type="button" class="btn-export" id="btn-export-csv">
                 <span>📥</span> Export CSV
               </button>
@@ -171,7 +182,8 @@
                   <th>Condition / Severity</th>
                   <th>Recommended Step</th>
                   <th>Preferred Slot</th>
-                  <th>Intake Date</th>
+                  <th>Payment Status</th>
+                  <th>Delivered Message</th>
                   <th>Lead Status</th>
                   <th>Staff Actions</th>
                 </tr>
@@ -283,25 +295,32 @@
             </div>
 
             <div style="border: 1px solid var(--admin-border); border-radius: 8px; padding: 20px;">
-              <h3 style="font-size: 1rem; color: var(--admin-primary); margin-bottom: 12px;">Webinar Funnel Performance</h3>
+              <h3 style="font-size: 1rem; color: var(--admin-primary); margin-bottom: 12px;">Webinar Funnel Performance (Live API Sync)</h3>
               <div style="display: grid; gap: 12px; font-size: 0.9rem;">
                 <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--admin-border);">
                   <span>Ticket Price:</span>
-                  <strong>₹201</strong>
+                  <strong>₹201 (Cashfree PG)</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--admin-border);">
                   <span>Total Registered Attendees:</span>
                   <strong id="stat-webinar-registered">142 Patients</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--admin-border);">
-                  <span>Attendance Rate:</span>
-                  <strong style="color: var(--admin-success);">68.4%</strong>
+                  <span>Peak Live Users:</span>
+                  <strong id="stat-webinar-peak" style="color: var(--admin-primary);">97 Attendees</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--admin-border);">
-                  <span>Post-Webinar Clinic Consultation Bookings:</span>
-                  <strong style="color: var(--admin-accent);">34 Consultations</strong>
+                  <span>Attendance Rate:</span>
+                  <strong id="stat-webinar-rate" style="color: var(--admin-success);">68.4%</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--admin-border);">
+                  <span>Post-Webinar Clinic Consultations:</span>
+                  <strong style="color: var(--admin-accent);">34 Bookings</strong>
                 </div>
               </div>
+              <button type="button" class="btn-export" style="margin-top: 14px; width: 100%; justify-content: center; background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe;" id="btn-sync-webinar-metrics">
+                🔄 Sync Live Webinar.gg API Metrics
+              </button>
             </div>
           </div>
         </div>

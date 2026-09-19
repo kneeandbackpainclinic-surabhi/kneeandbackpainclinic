@@ -216,6 +216,12 @@
     initWhatsAppTemplates();
     loadAiSettings();
     fetchSupabaseLeads();
+    syncWebinarMetrics();
+
+    const syncWebinarBtn = document.querySelector('#btn-sync-webinar-metrics');
+    if (syncWebinarBtn) {
+      syncWebinarBtn.addEventListener('click', syncWebinarMetrics);
+    }
   }
 
   async function fetchSupabaseLeads() {
@@ -269,6 +275,7 @@
     const searchVal = (document.querySelector('#search-leads')?.value || '').toLowerCase();
     const typeFilter = document.querySelector('#filter-type')?.value || 'all';
     const statusFilter = document.querySelector('#filter-status')?.value || 'all';
+    const messageFilter = document.querySelector('#filter-message')?.value || 'all';
 
     const filtered = leads.filter(lead => {
       const text = `${lead.name} ${lead.phone} ${lead.city} ${lead.painArea} ${lead.severity}`.toLowerCase();
@@ -282,11 +289,17 @@
       let matchStatus = true;
       if (statusFilter !== 'all') matchStatus = lead.status === statusFilter;
 
-      return matchSearch && matchType && matchStatus;
+      let matchMsg = true;
+      if (messageFilter !== 'all') {
+        if (messageFilter === 'None') matchMsg = !lead.deliveredMessage || lead.deliveredMessage === 'None';
+        else matchMsg = lead.deliveredMessage && lead.deliveredMessage.includes(messageFilter);
+      }
+
+      return matchSearch && matchType && matchStatus && matchMsg;
     });
 
     if (filtered.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 32px; color: var(--admin-muted);">No leads matching current filters.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 32px; color: var(--admin-muted);">No leads matching current filters.</td></tr>';
       return;
     }
 
@@ -297,6 +310,10 @@
       if (lead.recommendedStep && (lead.recommendedStep.includes('Webinar') || lead.recommendedStep.includes('Masterclass'))) badgeClass = 'badge-webinar';
 
       const dateStr = lead.createdAt ? new Date(lead.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recent';
+      const msgDelivered = lead.deliveredMessage || 'None';
+      const isDelivered = msgDelivered !== 'None';
+      const payStatus = lead.paymentStatus || 'Unpaid';
+      const isPaid = payStatus.includes('Paid');
 
       rowsHtml += `
         <tr data-lead-id="${lead.id}">
@@ -313,8 +330,28 @@
           </td>
           <td>
             <div style="font-size: 0.82rem;">${escapeHtml(lead.slotPreference || 'Flexible')}</div>
+            <div style="font-size: 0.7rem; color: var(--admin-muted);">${dateStr}</div>
           </td>
-          <td style="font-size: 0.78rem; color: var(--admin-muted);">${dateStr}</td>
+          <td>
+            <select class="pay-select" data-id="${lead.id}" style="font-size: 0.75rem; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--admin-border); font-weight: 600; background: ${isPaid ? '#eef7ed' : '#ffffff'}; color: ${isPaid ? '#15803d' : '#374151'};">
+              <option value="Unpaid" ${payStatus === 'Unpaid' ? 'selected' : ''}>Unpaid</option>
+              <option value="Paid (₹201)" ${payStatus === 'Paid (₹201)' ? 'selected' : ''}>Paid (₹201)</option>
+              <option value="Paid (₹1,000)" ${payStatus === 'Paid (₹1,000)' ? 'selected' : ''}>Paid (₹1,000)</option>
+              <option value="Paid (₹4,000)" ${payStatus === 'Paid (₹4,000)' ? 'selected' : ''}>Paid (₹4,000)</option>
+            </select>
+          </td>
+          <td>
+            <select class="msg-select" data-id="${lead.id}" style="font-size: 0.75rem; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--admin-border); font-weight: 600; background: ${isDelivered ? '#f0fdf4' : '#fafafa'}; color: ${isDelivered ? '#166534' : '#6b7280'};">
+              <option value="None" ${msgDelivered === 'None' ? 'selected' : ''}>⏳ None (Pending)</option>
+              <option value="T1: Trial Confirmed" ${msgDelivered.includes('T1') ? 'selected' : ''}>T1: Trial Confirmed</option>
+              <option value="T2: Consultation & MRI" ${msgDelivered.includes('T2') ? 'selected' : ''}>T2: Consult &amp; MRI</option>
+              <option value="T3: Webinar Link" ${msgDelivered.includes('T3') ? 'selected' : ''}>T3: Webinar Link</option>
+              <option value="R1: 24h Reminder" ${msgDelivered.includes('R1') ? 'selected' : ''}>R1: 24h Reminder</option>
+              <option value="R2: 1h Reminder" ${msgDelivered.includes('R2') ? 'selected' : ''}>R2: 1h Reminder</option>
+              <option value="F1: Post-Session Check-in" ${msgDelivered.includes('F1') ? 'selected' : ''}>F1: Post-Session</option>
+            </select>
+            ${lead.deliveredMessageTime ? `<div style="font-size: 0.68rem; color: var(--admin-muted); margin-top: 2px;">Sent: ${new Date(lead.deliveredMessageTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>` : ''}
+          </td>
           <td>
             <select class="status-select" data-id="${lead.id}" style="font-size: 0.78rem; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--admin-border);">
               <option value="New Lead" ${lead.status === 'New Lead' ? 'selected' : ''}>New Lead</option>
@@ -366,6 +403,54 @@
       });
     });
 
+    // Bind payment status change
+    tbody.querySelectorAll('.pay-select').forEach(sel => {
+      sel.addEventListener('change', (e) => {
+        const id = e.target.getAttribute('data-id');
+        const newPay = e.target.value;
+        const leads = getLeads();
+        const found = leads.find(l => l.id === id);
+        if (found) {
+          found.paymentStatus = newPay;
+          saveLeads(leads);
+          renderLeadsTable();
+
+          fetch('/api/leads', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, paymentStatus: newPay })
+          }).catch(function() {});
+        }
+      });
+    });
+
+    // Bind delivered message tag change
+    tbody.querySelectorAll('.msg-select').forEach(sel => {
+      sel.addEventListener('change', (e) => {
+        const id = e.target.getAttribute('data-id');
+        const newMsg = e.target.value;
+        const nowIso = new Date().toISOString();
+        const leads = getLeads();
+        const found = leads.find(l => l.id === id);
+        if (found) {
+          found.deliveredMessage = newMsg;
+          found.deliveredMessageTime = newMsg !== 'None' ? nowIso : null;
+          saveLeads(leads);
+          renderLeadsTable();
+
+          fetch('/api/leads', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: id,
+              deliveredMessage: newMsg,
+              deliveredMessageTime: found.deliveredMessageTime
+            })
+          }).catch(function() {});
+        }
+      });
+    });
+
     // Bind action buttons
     tbody.querySelectorAll('[data-action]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -400,10 +485,12 @@
     const searchInput = document.querySelector('#search-leads');
     const typeSelect = document.querySelector('#filter-type');
     const statusSelect = document.querySelector('#filter-status');
+    const messageSelect = document.querySelector('#filter-message');
 
     if (searchInput) searchInput.addEventListener('input', renderLeadsTable);
     if (typeSelect) typeSelect.addEventListener('change', renderLeadsTable);
     if (statusSelect) statusSelect.addEventListener('change', renderLeadsTable);
+    if (messageSelect) messageSelect.addEventListener('change', renderLeadsTable);
   }
 
   function initCsvExport() {
@@ -416,9 +503,9 @@
         return;
       }
 
-      let csv = 'Lead ID,Patient Name,Phone Number,City,Pain Area,Severity,Prior Treatments,Readiness,Recommended Step,Slot Preference,Status,Intake Timestamp\r\n';
+      let csv = 'Lead ID,Patient Name,Phone Number,City,Pain Area,Severity,Prior Treatments,Readiness,Recommended Step,Slot Preference,Payment Status,Delivered Message,Delivered Timestamp,Status,Intake Timestamp\r\n';
       leads.forEach(l => {
-        csv += '"' + l.id + '","' + escapeCsv(l.name) + '","' + escapeCsv(l.phone) + '","' + escapeCsv(l.city) + '","' + escapeCsv(l.painArea) + '","' + escapeCsv(l.severity) + '","' + escapeCsv(l.priorTreatments) + '","' + escapeCsv(l.readiness) + '","' + escapeCsv(l.recommendedStep) + '","' + escapeCsv(l.slotPreference) + '","' + escapeCsv(l.status) + '","' + l.createdAt + '"\r\n';
+        csv += '"' + l.id + '","' + escapeCsv(l.name) + '","' + escapeCsv(l.phone) + '","' + escapeCsv(l.city) + '","' + escapeCsv(l.painArea) + '","' + escapeCsv(l.severity) + '","' + escapeCsv(l.priorTreatments) + '","' + escapeCsv(l.readiness) + '","' + escapeCsv(l.recommendedStep) + '","' + escapeCsv(l.slotPreference) + '","' + escapeCsv(l.paymentStatus || 'Unpaid') + '","' + escapeCsv(l.deliveredMessage || 'None') + '","' + (l.deliveredMessageTime || '') + '","' + escapeCsv(l.status) + '","' + l.createdAt + '"\r\n';
       });
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -485,6 +572,34 @@
           alert('Please enter a valid 10-digit mobile phone number.');
           return;
         }
+
+        // Auto-tag lead with delivered template
+        const templateTagMap = {
+          trial: 'T1: Trial Confirmed',
+          consult: 'T2: Consultation & MRI',
+          webinar: 'T3: Webinar Link',
+          followup: 'F1: Post-Session Check-in'
+        };
+        const assignedTag = templateTagMap[activeTemplateKey] || 'T1: Trial Confirmed';
+        const leads = getLeads();
+        const found = leads.find(l => (l.phone || '').replace(/[^0-9]/g, '').slice(-10) === phone.slice(-10));
+        if (found) {
+          found.deliveredMessage = assignedTag;
+          found.deliveredMessageTime = new Date().toISOString();
+          saveLeads(leads);
+          renderLeadsTable();
+
+          fetch('/api/leads', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: found.id,
+              deliveredMessage: assignedTag,
+              deliveredMessageTime: found.deliveredMessageTime
+            })
+          }).catch(function() {});
+        }
+
         const fullPhone = phone.length === 10 ? '91' + phone : phone;
         const waUrl = 'https://wa.me/' + fullPhone + '?text=' + msg;
         window.open(waUrl, '_blank');
@@ -514,6 +629,34 @@
     });
 
     if (msgText) msgText.value = templates[activeTemplateKey](lead.name);
+  }
+
+  // =========================================================================
+  // WEBINAR.GG LIVE METRICS SYNC
+  // =========================================================================
+  async function syncWebinarMetrics() {
+    const syncBtn = document.querySelector('#btn-sync-webinar-metrics');
+    if (syncBtn) {
+      syncBtn.textContent = '🔄 Fetching Webinar.gg Live Metrics...';
+    }
+    try {
+      const res = await fetch('/api/get-webinar-metrics?id=charakhealth');
+      if (res.ok) {
+        const data = await res.json();
+        const elReg = document.querySelector('#stat-webinar-registered');
+        const elPeak = document.querySelector('#stat-webinar-peak');
+        const elRate = document.querySelector('#stat-webinar-rate');
+        if (elReg && data.totalUsers) elReg.textContent = data.totalUsers + ' Patients';
+        if (elPeak && data.peakUsers) elPeak.textContent = data.peakUsers + ' Attendees';
+        if (elRate && data.attendanceRate) elRate.textContent = data.attendanceRate;
+      }
+    } catch (e) {
+      console.warn('Webinar metric sync note:', e.message);
+    } finally {
+      if (syncBtn) {
+        syncBtn.textContent = '🔄 Sync Live Webinar.gg API Metrics';
+      }
+    }
   }
 
   // =========================================================================
