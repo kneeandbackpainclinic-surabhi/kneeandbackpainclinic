@@ -121,7 +121,7 @@ window.triggerCashfreeCheckout = async function(params) {
 };
 
 // ============================================================================
-// 3. WEBINAR.GG TOKEN & ACCESS GENERATOR
+// 3. WEBINAR.GG TOKEN & INLINE EMBEDDED MODAL (PLAN-ONE-PAGE PARITY)
 // ============================================================================
 window.getWebinarGgToken = async function(attendee) {
   try {
@@ -138,8 +138,77 @@ window.getWebinarGgToken = async function(attendee) {
   } catch (err) {
     console.error('Webinar token error:', err);
     return {
-      joinUrl: 'https://webinar.gg/charakhealth'
+      token: '',
+      joinUrl: 'https://webinar.gg/charakhealth',
+      webinarId: 'charakhealth'
     };
+  }
+};
+
+window.openWebinarModal = async function(options) {
+  options = options || {};
+  const token = options.token || '';
+  const webinarId = options.webinarId || 'charakhealth';
+  const name = options.name || '';
+  const phone = options.phone || '';
+  const email = options.email || '';
+
+  const modal = document.querySelector('#webinar-modal');
+  const iframe = document.querySelector('#webinar-inline-frame');
+  const loader = document.querySelector('#webinar-modal-loader');
+  const errorEl = document.querySelector('#webinar-modal-error');
+  const titleEl = document.querySelector('#webinar-modal-title');
+
+  if (titleEl && options.title) {
+    titleEl.textContent = options.title;
+  }
+
+  if (modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  if (loader) loader.style.display = 'flex';
+  if (errorEl) errorEl.style.display = 'none';
+  if (iframe) iframe.style.display = 'none';
+
+  let finalToken = token;
+  if (!finalToken && (phone || email || name)) {
+    try {
+      const data = await window.getWebinarGgToken({ name, phone, email });
+      if (data && data.token) {
+        finalToken = data.token;
+      }
+    } catch (e) {
+      console.warn('Token error:', e);
+    }
+  }
+
+  const embedUrl = finalToken 
+    ? 'https://webinar.gg/embed/' + webinarId + '?token=' + encodeURIComponent(finalToken)
+    : 'https://webinar.gg/embed/' + webinarId;
+
+  if (iframe) {
+    iframe.src = embedUrl;
+    iframe.onload = function() {
+      if (loader) loader.style.display = 'none';
+      iframe.style.display = 'block';
+    };
+    // Fallback timer if onload doesn't fire due to cross-origin iframe
+    setTimeout(function() {
+      if (loader) loader.style.display = 'none';
+      iframe.style.display = 'block';
+    }, 1500);
+  }
+};
+
+window.closeWebinarModal = function() {
+  const modal = document.querySelector('#webinar-modal');
+  const iframe = document.querySelector('#webinar-inline-frame');
+  if (iframe) iframe.src = '';
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
   }
 };
 
@@ -151,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
     closeBtn.addEventListener('click', window.closeCalModal);
   }
 
-  // Close modal when clicking on overlay background
+  // Close Cal modal when clicking on overlay background
   const calModal = document.querySelector('#cal-modal');
   if (calModal) {
     calModal.addEventListener('click', function(e) {
@@ -161,12 +230,36 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  // Close Webinar modal button
+  const closeWebinarBtn = document.querySelector('#close-webinar-modal-btn');
+  if (closeWebinarBtn) {
+    closeWebinarBtn.addEventListener('click', window.closeWebinarModal);
+  }
+
+  // Close Webinar modal on backdrop click
+  const webinarModal = document.querySelector('#webinar-modal');
+  if (webinarModal) {
+    webinarModal.addEventListener('click', function(e) {
+      if (e.target === webinarModal) {
+        window.closeWebinarModal();
+      }
+    });
+  }
+
   // Intercept all links targeting cal.id to open inline modal instead of navigating away
   document.addEventListener('click', function(e) {
-    const target = e.target.closest('a[href*="cal.id"]');
-    if (target) {
+    const calTarget = e.target.closest('a[href*="cal.id"]');
+    if (calTarget) {
       e.preventDefault();
       window.openCalModal({ title: 'Schedule Your In-Clinic Appointment' });
+      return;
+    }
+
+    // Intercept webinar.gg links or data-open-webinar triggers to open embedded player
+    const webinarTarget = e.target.closest('a[href*="webinar.gg"], [data-open-webinar]');
+    if (webinarTarget) {
+      e.preventDefault();
+      window.openWebinarModal({ title: "Dr. Surabhi's Live Knee & Spine Relief Masterclass" });
     }
   });
 });

@@ -471,9 +471,24 @@
                   const accessBox = quizBody.querySelector('#webinar-access-box');
                   const joinLink = quizBody.querySelector('#webinar-room-join-link');
                   if (accessBox && joinLink) {
-                    if (tokenData.joinUrl) joinLink.href = tokenData.joinUrl;
                     accessBox.style.display = 'block';
                     payBtn.style.display = 'none';
+
+                    joinLink.addEventListener('click', function(ev) {
+                      ev.preventDefault();
+                      document.querySelector('#quiz-modal').style.display = 'none';
+                      document.body.style.overflow = '';
+                      if (window.openWebinarModal) {
+                        window.openWebinarModal({
+                          token: tokenData.token || '',
+                          webinarId: tokenData.webinarId || 'charakhealth',
+                          name: name,
+                          phone: phone
+                        });
+                      } else {
+                        window.location.href = '/room?token=' + encodeURIComponent(tokenData.token || '');
+                      }
+                    });
                   }
                 } catch (tokErr) {
                   console.warn('Webinar token fetch:', tokErr);

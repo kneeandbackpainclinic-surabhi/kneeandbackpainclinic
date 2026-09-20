@@ -858,6 +858,31 @@
     </div>
   </div>
 
+  <!-- Webinar.gg Inline Embedded Player Modal (Plan-One-Page Parity - No External Redirection) -->
+  <div id="webinar-modal" class="quiz-modal-overlay" style="display: none; z-index: 100000; position: fixed; inset: 0; background: #000000; flex-direction: column; width: 100vw; height: 100vh;">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: rgba(15, 23, 42, 0.95); border-bottom: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px); z-index: 10;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981;"></span>
+        <div>
+          <span id="webinar-modal-title" style="color: #ffffff; font-weight: 700; font-size: 0.95rem;">Dr. Surabhi's Live Knee &amp; Spine Relief Masterclass</span>
+          <span style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-size: 0.72rem; padding: 2px 8px; border-radius: 9999px; font-weight: 700; margin-left: 8px;">● LIVE ROOM</span>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <a href="room.html" target="_blank" style="color: #94a3b8; font-size: 0.8rem; text-decoration: underline;">Open Full Tab ↗</a>
+        <button type="button" id="close-webinar-modal-btn" aria-label="Exit Live Stream" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff; font-size: 1.1rem; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; line-height: 1;">✕</button>
+      </div>
+    </div>
+    
+    <div style="flex: 1; position: relative; background: #000000; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+      <div id="webinar-modal-loader" style="display: flex; flex-direction: column; align-items: center; gap: 12px; color: #94a3b8; font-size: 0.9rem;">
+        <div style="width: 38px; height: 38px; border: 3px solid rgba(16, 185, 129, 0.2); border-top-color: #10b981; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <p>Connecting to secure live Webinar.gg broadcast...</p>
+      </div>
+      <iframe id="webinar-inline-frame" src="" style="width: 100%; height: 100%; border: none; display: none;" allow="autoplay; fullscreen; picture-in-picture; camera; microphone; display-capture" allowfullscreen title="Live Masterclass Stream"></iframe>
+    </div>
+  </div>
+
   <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
   <script src="booking-links.js"></script>
   <script src="script.js"></script>

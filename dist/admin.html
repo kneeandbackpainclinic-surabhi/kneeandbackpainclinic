@@ -78,9 +78,6 @@
       <button type="button" class="tab-btn" data-tab="webinar">
         <span>🎥 Webinar Management</span>
       </button>
-      <button type="button" class="tab-btn" data-tab="ai-calling">
-        <span>📞 AI Calling &amp; API Keys</span>
-      </button>
       <button type="button" class="tab-btn" data-tab="settings">
         <span>⚙️ Clinic Settings</span>
       </button>
@@ -198,73 +195,326 @@
       </section>
 
       <!-- ====================================================================
-           TAB 2: WHATSAPP AUTOMATION (STAFF DISPATCHER)
+           TAB 2: WHATSAPP AUTOMATION (HEALTHYHABITSRESET PARITY)
            ==================================================================== -->
       <section class="tab-content" id="tab-whatsapp">
+        
+        <!-- Top Banner: Meta WhatsApp Cloud API Integration Health -->
+        <div class="admin-card wa-header-banner">
+          <div class="wa-banner-left">
+            <div class="wa-banner-icon">
+              <span>💬</span>
+            </div>
+            <div>
+              <div class="wa-banner-title-row">
+                <h3>Meta WhatsApp Cloud API</h3>
+                <span class="badge-live-meta">
+                  <span class="pulse-dot-green"></span> Live
+                </span>
+              </div>
+              <p class="wa-banner-sub">Official Meta Graph API v21.0 integration on Vercel Serverless.</p>
+            </div>
+          </div>
+          <div class="wa-banner-actions">
+            <button type="button" class="btn-wa-action btn-wa-sweep" id="btn-wa-sweep" title="Runs multi-channel sweep to trigger due WhatsApp reminders">
+              <span>✨</span> Run Reminder Sweep
+            </button>
+            <button type="button" class="btn-wa-action btn-wa-sync" id="btn-wa-sync-receipts" title="Reconcile Meta dispatches with Delivered & Read status">
+              <span>✓</span> Sync Delivery Status
+            </button>
+            <button type="button" class="btn-wa-action btn-wa-refresh" id="btn-wa-refresh" title="Reload leads & dispatches">
+              <span>🔄</span> Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Summary KPI Cards -->
+        <div class="metrics-grid wa-kpi-grid">
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Total Dispatches</h3>
+              <div class="value" id="wa-kpi-total">184</div>
+              <div class="kpi-subtext" id="wa-kpi-total-sub">184 queued / dispatched</div>
+            </div>
+            <div class="metric-icon icon-wa-total">🚀</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Delivered</h3>
+              <div class="value" id="wa-kpi-delivered">181</div>
+              <div class="kpi-subtext" style="color: var(--admin-success);"><span id="wa-kpi-delivery-rate">98.4%</span> delivery rate</div>
+            </div>
+            <div class="metric-icon icon-wa-delivered">✓</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Read Receipts</h3>
+              <div class="value" id="wa-kpi-read">159</div>
+              <div class="kpi-subtext" style="color: #2563eb;"><span id="wa-kpi-read-rate">86.4%</span> double-blue read rate</div>
+            </div>
+            <div class="metric-icon icon-wa-read">👁️</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Failed</h3>
+              <div class="value" id="wa-kpi-failed" style="color: #dc2626;">3</div>
+              <div class="kpi-subtext" style="color: #dc2626;">invalid / blocked numbers</div>
+            </div>
+            <div class="metric-icon icon-wa-failed">⚠️</div>
+          </div>
+        </div>
+
+        <!-- Collapsible Meta Webhook Receiver Card -->
+        <div class="admin-card wa-webhook-card">
+          <div class="wa-webhook-header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span class="wa-webhook-badge">✓✓</span>
+              <div>
+                <strong style="font-size: 0.9rem; color: var(--admin-primary);">Meta Webhook &amp; Live Double-Blue Read Receipts</strong>
+                <p style="font-size: 0.76rem; color: var(--admin-muted); margin: 0;">Real-time delivery receipts emitted by Meta Cloud API webhook into Supabase.</p>
+              </div>
+            </div>
+            <button type="button" class="btn-toggle-webhook" id="btn-toggle-webhook">
+              <span id="webhook-toggle-label">Show Webhook Setup ▼</span>
+            </button>
+          </div>
+
+          <div id="wa-webhook-details" style="display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--admin-border); font-size: 0.8rem;">
+            <p style="color: var(--admin-muted); margin-bottom: 8px;">Subscribe to the <code>messages</code> field in your Meta Developer App to receive live delivered &amp; read ticks:</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+              <div class="webhook-pill">
+                <span class="pill-label">Callback URL:</span>
+                <code class="pill-val" id="val-webhook-url">https://dr-surabhi-knee-and-back-pain-relie-azure.vercel.app/api/whatsapp-webhook</code>
+                <button type="button" class="btn-copy-pill" onclick="navigator.clipboard.writeText(document.querySelector('#val-webhook-url').textContent); alert('Callback URL copied to clipboard!');">📋 Copy</button>
+              </div>
+              <div class="webhook-pill">
+                <span class="pill-label">Verify Token:</span>
+                <code class="pill-val">WHATSAPP_VERIFY_TOKEN</code>
+                <button type="button" class="btn-copy-pill" onclick="navigator.clipboard.writeText('WHATSAPP_VERIFY_TOKEN'); alert('Verify Token copied!');">📋 Copy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Template Management Cards -->
         <div class="admin-card">
           <div class="card-header-row">
             <div class="card-header-title">
-              <h2>Direct WhatsApp Message Dispatcher (Staff Only)</h2>
-              <p>Trigger pre-formatted WhatsApp clinical follow-ups without requiring third-party API integration.</p>
+              <h2>Meta Cloud Approved Clinical Templates</h2>
+              <p>Configure dynamic appointment and webinar links injected into WhatsApp nurture messages.</p>
             </div>
           </div>
 
-          <div class="whatsapp-layout">
+          <div class="wa-templates-grid">
             
-            <!-- Template Selection -->
-            <div class="template-box">
-              <h3>Select Clinical Message Template</h3>
+            <!-- Template 1: Trial Confirmation -->
+            <div class="wa-template-card">
+              <div class="wa-tmpl-top">
+                <div class="wa-tmpl-tag badge-trial">Trial Pathway</div>
+                <button type="button" class="btn-test-send" data-tmpl="trial">⚡ Test Send</button>
+              </div>
+              <h4 class="wa-tmpl-title">T1: ₹4,000 1-Day Trial Booking Confirmation</h4>
+              <p class="wa-tmpl-desc">Sent immediately when a patient confirms the 1-Day Intensive Experience Session.</p>
               
-              <div class="template-list">
-                <button type="button" class="template-item active" data-template="trial">
-                  <span class="template-title">1. ₹4,000 1-Day Trial Booking Confirmation</span>
-                  <span class="template-preview">Confirms date, clinic address in Thane West, and preparation instructions.</span>
-                </button>
+              <div class="wa-vars-preview">
+                <span class="var-badge">{{1}} Patient Name</span>
+                <span class="var-badge">{{2}} Clinic Address</span>
+                <span class="var-badge">{{3}} Cal.id Booking Link</span>
+              </div>
 
-                <button type="button" class="template-item" data-template="consult">
-                  <span class="template-title">2. ₹1,000 Consultation Schedule &amp; MRI Request</span>
-                  <span class="template-preview">Requests patient to bring previous X-Rays / MRI scans for Naadi Pariksha.</span>
-                </button>
-
-                <button type="button" class="template-item" data-template="webinar">
-                  <span class="template-title">3. ₹201 Live Hindi Masterclass Access Link</span>
-                  <span class="template-preview">Sends webinar.gg joining credentials and 7-day anti-inflammatory diet guide.</span>
-                </button>
-
-                <button type="button" class="template-item" data-template="followup">
-                  <span class="template-title">4. Post-Session Relief Check-in</span>
-                  <span class="template-preview">Inquires about next-day mobility improvement and pain score.</span>
-                </button>
+              <div class="form-field" style="margin-top: 10px;">
+                <label for="tmpl-trial-link" style="font-size: 0.75rem; font-weight: 700; color: var(--admin-muted);">Cal.id Slot Booking Link ({{3}})</label>
+                <input type="url" id="tmpl-trial-link" value="https://cal.id/charakhealth" style="font-size: 0.8rem; padding: 6px 10px; border: 1px solid var(--admin-border); border-radius: 4px; width: 100%;">
               </div>
             </div>
 
-            <!-- Composer & Preview -->
-            <div class="composer-box">
-              <h3>Message Preview &amp; Dispatch</h3>
+            <!-- Template 2: Consultation & MRI -->
+            <div class="wa-template-card">
+              <div class="wa-tmpl-top">
+                <div class="wa-tmpl-tag badge-consult">Consultation</div>
+                <button type="button" class="btn-test-send" data-tmpl="consult">⚡ Test Send</button>
+              </div>
+              <h4 class="wa-tmpl-title">T2: ₹1,000 Diagnostic Consultation &amp; MRI</h4>
+              <p class="wa-tmpl-desc">Requests previous X-Ray / MRI reports and confirms Naadi Pariksha consultation slot.</p>
               
-              <div class="form-field">
-                <label for="wa-patient-phone">Patient 10-Digit Mobile Number *</label>
-                <input type="tel" id="wa-patient-phone" placeholder="e.g. 9820145872" required>
+              <div class="wa-vars-preview">
+                <span class="var-badge">{{1}} Patient Name</span>
+                <span class="var-badge">{{2}} Cal.id Link</span>
+                <span class="var-badge">{{3}} Clinic Desk Email</span>
               </div>
 
-              <div class="form-field">
-                <label for="wa-patient-name">Patient Name *</label>
-                <input type="text" id="wa-patient-name" placeholder="e.g. Rajesh Sharma" required>
+              <div class="form-field" style="margin-top: 10px;">
+                <label for="tmpl-consult-link" style="font-size: 0.75rem; font-weight: 700; color: var(--admin-muted);">Cal.id Consultation Calendar URL ({{2}})</label>
+                <input type="url" id="tmpl-consult-link" value="https://cal.id/charakhealth" style="font-size: 0.8rem; padding: 6px 10px; border: 1px solid var(--admin-border); border-radius: 4px; width: 100%;">
+              </div>
+            </div>
+
+            <!-- Template 3: Masterclass Access -->
+            <div class="wa-template-card">
+              <div class="wa-tmpl-top">
+                <div class="wa-tmpl-tag badge-webinar">Masterclass (₹201)</div>
+                <button type="button" class="btn-test-send" data-tmpl="webinar">⚡ Test Send</button>
+              </div>
+              <h4 class="wa-tmpl-title">T3: Live Hindi Masterclass Room Access Link</h4>
+              <p class="wa-tmpl-desc">Sends direct Webinar.gg embedded room access pass and anti-inflammatory diet guide.</p>
+              
+              <div class="wa-vars-preview">
+                <span class="var-badge">{{1}} Patient Name</span>
+                <span class="var-badge">{{2}} Sunday 11 AM</span>
+                <span class="var-badge">{{3}} Webinar.gg /room Link</span>
               </div>
 
-              <div class="form-field">
-                <label for="wa-message-text">Message Content</label>
-                <textarea id="wa-message-text" rows="8" class="composer-textarea"></textarea>
+              <div class="form-field" style="margin-top: 10px;">
+                <label for="tmpl-webinar-link" style="font-size: 0.75rem; font-weight: 700; color: var(--admin-muted);">Webinar.gg Room Embed URL ({{3}})</label>
+                <input type="url" id="tmpl-webinar-link" value="https://dr-surabhi-knee-and-back-pain-relie-azure.vercel.app/room" style="font-size: 0.8rem; padding: 6px 10px; border: 1px solid var(--admin-border); border-radius: 4px; width: 100%;">
+              </div>
+            </div>
+
+            <!-- Template 4: Follow-up -->
+            <div class="wa-template-card">
+              <div class="wa-tmpl-top">
+                <div class="wa-tmpl-tag badge-lead" style="background: #eef2ff; color: #4338ca;">Post-Therapy</div>
+                <button type="button" class="btn-test-send" data-tmpl="followup">⚡ Test Send</button>
+              </div>
+              <h4 class="wa-tmpl-title">F1: Post-Session Pain Relief &amp; Mobility Check-in</h4>
+              <p class="wa-tmpl-desc">Follows up with patient 24 hours after their first trial to record pain score improvement.</p>
+              
+              <div class="wa-vars-preview">
+                <span class="var-badge">{{1}} Patient Name</span>
+                <span class="var-badge">{{2}} Pain Score (1-10)</span>
+                <span class="var-badge">{{3}} Clinic Support</span>
               </div>
 
-              <button type="button" class="btn-dispatch" id="btn-dispatch-wa">
-                <span>🚀</span> Send WhatsApp Message
-              </button>
+              <div class="form-field" style="margin-top: 10px;">
+                <label for="tmpl-followup-link" style="font-size: 0.75rem; font-weight: 700; color: var(--admin-muted);">Follow-Up Booking URL ({{3}})</label>
+                <input type="url" id="tmpl-followup-link" value="https://cal.id/charakhealth" style="font-size: 0.8rem; padding: 6px 10px; border: 1px solid var(--admin-border); border-radius: 4px; width: 100%;">
+              </div>
             </div>
 
           </div>
         </div>
+
+        <!-- Audience Selection & Follow-Up Campaign Table -->
+        <div class="admin-card">
+          <div class="card-header-row">
+            <div class="card-header-title">
+              <h2>Audience Selection &amp; WhatsApp Follow-Up Broadcast</h2>
+              <p>Filter patient leads by treatment pathway and send personalized 1-click WhatsApp broadcasts.</p>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button type="button" class="btn-export" id="btn-broadcast-selected" style="background: #15803d; color: #fff;">
+                <span>🚀</span> Dispatch Broadcast to Selected (<span id="selected-leads-count">0</span>)
+              </button>
+            </div>
+          </div>
+
+          <!-- Cohort Filter Pills -->
+          <div class="wa-cohort-tabs" id="wa-cohort-tabs">
+            <button type="button" class="cohort-tab-btn active" data-cohort="all">All Intake Leads</button>
+            <button type="button" class="cohort-tab-btn" data-cohort="trial">₹4,000 Trial Inquiries</button>
+            <button type="button" class="cohort-tab-btn" data-cohort="consult">₹1,000 Consultation Leads</button>
+            <button type="button" class="cohort-tab-btn" data-cohort="webinar">₹201 Masterclass Leads</button>
+            <button type="button" class="cohort-tab-btn" data-cohort="uncontacted">Uncontacted / Pending Only</button>
+          </div>
+
+          <div class="table-controls" style="margin-bottom: 14px;">
+            <input type="text" id="search-wa-audience" class="search-input" placeholder="Search audience by patient name or phone...">
+            <button type="button" class="btn-admin-nav" id="btn-select-all-audience" style="color: var(--admin-primary); border-color: var(--admin-border); background: #fff;">
+              Toggle Select All
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="leads-table">
+              <thead>
+                <tr>
+                  <th style="width: 40px; text-align: center;">
+                    <input type="checkbox" id="chk-select-all-audience">
+                  </th>
+                  <th>Patient</th>
+                  <th>Condition &amp; Severity</th>
+                  <th>Recommended Step</th>
+                  <th>Payment Status</th>
+                  <th>Delivered Message</th>
+                  <th>Quick Dispatch</th>
+                </tr>
+              </thead>
+              <tbody id="wa-audience-tbody">
+                <!-- Injected via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Recent Dispatches Log Table with Meta Status Badges -->
+        <div class="admin-card">
+          <div class="card-header-row">
+            <div class="card-header-title">
+              <h2>Recent WhatsApp Dispatches &amp; Meta Read Receipts Log</h2>
+              <p>Chronological feed of messages sent with real-time delivery and read confirmations from Meta Graph API.</p>
+            </div>
+            <button type="button" class="btn-export" id="btn-export-wa-csv">
+              <span>📥</span> Export Dispatch CSV
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="leads-table">
+              <thead>
+                <tr>
+                  <th>Time (IST)</th>
+                  <th>Recipient Patient</th>
+                  <th>Mobile Number</th>
+                  <th>Message Template</th>
+                  <th>Meta Delivery Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="wa-dispatches-tbody">
+                <!-- Injected via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </section>
+
+      <!-- Test Send Modal (Staff WhatsApp Dispatcher) -->
+      <div id="wa-test-modal" class="login-overlay" style="display: none;">
+        <div class="login-card" style="max-width: 520px; text-align: left;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="font-size: 1.15rem; color: var(--admin-primary); margin: 0;" id="wa-modal-title">⚡ Test WhatsApp Dispatch</h3>
+            <button type="button" onclick="document.querySelector('#wa-test-modal').style.display='none';" style="background: none; border: none; font-size: 1.4rem; cursor: pointer;">&times;</button>
+          </div>
+          
+          <div class="form-field">
+            <label for="wa-test-phone">Recipient 10-Digit Mobile Number *</label>
+            <input type="tel" id="wa-test-phone" placeholder="e.g. 9820145872" style="width: 100%; padding: 10px; border: 1px solid var(--admin-border); border-radius: 6px;">
+          </div>
+
+          <div class="form-field">
+            <label for="wa-test-name">Patient Name</label>
+            <input type="text" id="wa-test-name" value="Rajesh Sharma" style="width: 100%; padding: 10px; border: 1px solid var(--admin-border); border-radius: 6px;">
+          </div>
+
+          <div class="form-field">
+            <label for="wa-test-msg">Message Content Preview</label>
+            <textarea id="wa-test-msg" rows="7" style="width: 100%; padding: 10px; font-size: 0.82rem; font-family: inherit; border: 1px solid var(--admin-border); border-radius: 6px;"></textarea>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 14px;">
+            <button type="button" class="btn-login" id="btn-submit-test-dispatch" style="background: #25D366; flex: 1;">
+              <span>🚀</span> Dispatch via WhatsApp Web / App
+            </button>
+            <button type="button" class="btn-admin-nav" onclick="document.querySelector('#wa-test-modal').style.display='none';" style="padding: 10px 16px; color: var(--admin-text); background: #eee;">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
 
       <!-- ====================================================================
            TAB 3: WEBINAR MANAGEMENT & ANALYTICS
@@ -326,134 +576,7 @@
         </div>
       </section>
 
-      <!-- ====================================================================
-           TAB 4: AI CALLING & API KEY SETTINGS
-           ==================================================================== -->
-      <section class="tab-content" id="tab-ai-calling">
-        <div class="admin-card">
-          <div class="card-header-row">
-            <div class="card-header-title">
-              <h2>AI Voice Agent &amp; Calling Automation Settings</h2>
-              <p>Configure your AI Telephony API key to trigger human-like conversational voice agents for instant lead follow-ups and appointment confirmations.</p>
-            </div>
-            <div style="background: #eef7ed; color: var(--admin-success); font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 9999px;" id="ai-engine-status">
-              ● Voice Engine: Configured
-            </div>
-          </div>
 
-          <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; margin-top: 16px;">
-            
-            <!-- Left: API Configuration -->
-            <div style="border: 1px solid var(--admin-border); border-radius: 8px; padding: 20px;">
-              <h3 style="font-size: 1rem; color: var(--admin-primary); margin-bottom: 14px;">1. AI Voice Provider Credentials</h3>
-              
-              <div class="form-field">
-                <label for="ai-provider">AI Calling Engine Provider *</label>
-                <select id="ai-provider" style="padding: 9px 12px; border: 1px solid var(--admin-border); border-radius: 4px; font-size: 0.9rem;">
-                  <option value="vapi">Vapi.ai (Recommended for conversational Hindi &amp; English)</option>
-                  <option value="bland">Bland.ai (Fast phone calling agent)</option>
-                  <option value="retell">Retell AI (Ultra-low latency voice agent)</option>
-                  <option value="twilio">Twilio + OpenAI Realtime API</option>
-                  <option value="exotel">Exotel Telephony (Indian DND Compliant)</option>
-                </select>
-              </div>
-
-              <div class="form-field">
-                <label for="ai-api-key">Provider API Secret Key *</label>
-                <input type="password" id="ai-api-key" placeholder="e.g. vapi_sec_live_9a87d6... or bland_key_..." value="vapi_test_key_surabhi_clinic_2026">
-                <span style="font-size: 0.72rem; color: var(--admin-muted); margin-top: 4px; display: block;">Keys are stored encrypted locally in your secure admin session.</span>
-              </div>
-
-              <div class="form-field">
-                <label for="ai-phone-id">Telephony Caller ID / Phone Number ID</label>
-                <input type="text" id="ai-phone-id" placeholder="e.g. +91 98XXXXXXXX or phone-id-abc123" value="">
-              </div>
-
-              <div class="form-field">
-                <label for="ai-trigger-mode">Outbound Call Trigger Mode</label>
-                <select id="ai-trigger-mode" style="padding: 9px 12px; border: 1px solid var(--admin-border); border-radius: 4px; font-size: 0.9rem;">
-                  <option value="manual">Manual (1-Click trigger from CRM Lead Table)</option>
-                  <option value="auto">Automatic (Instant AI call 60 seconds after patient submits quiz)</option>
-                </select>
-              </div>
-
-              <button type="button" class="btn-login" style="margin-top: 8px;" onclick="saveAiSettings()">
-                Save API Key &amp; Telephony Settings
-              </button>
-            </div>
-
-            <!-- Right: AI Script & Test Call -->
-            <div style="border: 1px solid var(--admin-border); border-radius: 8px; padding: 20px;">
-              <h3 style="font-size: 1rem; color: var(--admin-primary); margin-bottom: 14px;">2. AI Voice Intake Script &amp; Test</h3>
-              
-              <div class="form-field">
-                <label for="ai-script-prompt">Voice Agent Persona &amp; Prompt</label>
-                <textarea id="ai-script-prompt" rows="7" style="width: 100%; padding: 10px; font-size: 0.82rem; font-family: monospace; border: 1px solid var(--admin-border); border-radius: 4px; line-height: 1.5;">You are Priya, clinical coordinator at Dr. Surabhi Vaidya's Knee & Back Pain Clinic (Charak Health Solutions, Thane West).
-Speak in polite, empathetic Hindi + English (Hinglish).
-Acknowledge the patient's condition ({painArea}), confirm their appointment request ({recommendedStep}), and verify if they have recent X-Rays or MRI scans to bring.</textarea>
-              </div>
-
-              <div style="background: var(--admin-sand); padding: 12px; border-radius: 6px; font-size: 0.82rem; margin-bottom: 14px;">
-                <strong>Test AI Call:</strong> Enter your mobile number to receive a live test call from the AI agent.
-              </div>
-
-              <div style="display: flex; gap: 8px;">
-                <input type="tel" id="ai-test-number" placeholder="10-digit number e.g. 9820145872" style="flex: 1; padding: 8px 10px; border: 1px solid var(--admin-border); border-radius: 4px;">
-                <button type="button" class="btn-export" style="background: var(--admin-primary); color: #fff;" onclick="triggerTestAiCall()">
-                  📞 Test Call
-                </button>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- Call Logs Table -->
-          <div style="margin-top: 24px;">
-            <h3 style="font-size: 1rem; color: var(--admin-primary); margin-bottom: 10px;">Recent AI Automated Call Logs</h3>
-            <div class="table-responsive">
-              <table class="leads-table">
-                <thead>
-                  <tr>
-                    <th>Patient Name</th>
-                    <th>Phone</th>
-                    <th>Call Type</th>
-                    <th>Duration</th>
-                    <th>Call Outcome</th>
-                    <th>AI Summary Notes</th>
-                  </tr>
-                </thead>
-                <tbody id="ai-logs-tbody">
-                  <tr>
-                    <td>Rajesh K. Sharma</td>
-                    <td>+91 9820145872</td>
-                    <td><span class="badge badge-trial">Trial Intake</span></td>
-                    <td>1m 42s</td>
-                    <td><strong style="color: var(--admin-success);">Confirmed Slot</strong></td>
-                    <td style="font-size: 0.82rem;">Patient agreed to tomorrow 9:30 AM slot. Bringing MRI from 2025.</td>
-                  </tr>
-                  <tr>
-                    <td>Sunita Deshmukh</td>
-                    <td>+91 9819234567</td>
-                    <td><span class="badge badge-consult">Consultation</span></td>
-                    <td>2m 15s</td>
-                    <td><strong style="color: var(--admin-info);">Rescheduled</strong></td>
-                    <td style="font-size: 0.82rem;">Requested Saturday 4:00 PM appointment instead of weekday.</td>
-                  </tr>
-                  <tr>
-                    <td>Arvind Mehta</td>
-                    <td>+91 9833451290</td>
-                    <td><span class="badge badge-webinar">₹201 Masterclass</span></td>
-                    <td>58s</td>
-                    <td><strong style="color: var(--admin-success);">Webinar.gg Link Verified</strong></td>
-                    <td style="font-size: 0.82rem;">Confirmed receipt of SMS and will attend Sunday 11 AM session.</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-        </div>
-      </section>
 
       <!-- ====================================================================
            TAB 5: CLINIC SETTINGS
@@ -502,40 +625,7 @@ Acknowledge the patient's condition ({painArea}), confirm their appointment requ
             </button>
           </div>
 
-          <!-- Cashfree Payment Gateway Integration Card -->
-          <div style="margin-top: 32px; border-top: 1px solid var(--admin-border); padding-top: 24px; max-width: 700px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <div>
-                <h3 style="font-size: 1.05rem; color: var(--admin-primary); margin: 0;">💳 Cashfree Payment Gateway (PG) Sandbox Status</h3>
-                <p style="font-size: 0.8rem; color: var(--admin-muted); margin: 2px 0 0 0;">Verify seamless order creation, UPI/Card payment sessions, and webhook reconciliation.</p>
-              </div>
-              <span id="cashfree-badge" style="background: #eef7ed; color: var(--admin-success); font-weight: 700; font-size: 0.75rem; padding: 4px 10px; border-radius: 9999px;">
-                ● Sandbox Active
-              </span>
-            </div>
 
-            <div style="background: var(--admin-sand); padding: 14px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 14px;">
-              <div style="display: grid; grid-template-columns: 140px 1fr; gap: 6px;">
-                <strong>Sandbox API URL:</strong> <code>https://sandbox.cashfree.com/pg</code>
-                <strong>Test App ID:</strong> <code>TEST430329ae80e0f32e41a393d78b923034</code>
-                <strong>PG Mode:</strong> <span>Sandbox (Safe Simulation)</span>
-                <strong>Supported Fees:</strong> <span>₹201 (Masterclass), ₹1,000 (Consultation), ₹4,000 (Trial)</span>
-              </div>
-            </div>
-
-            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 14px;">
-              <button type="button" class="btn-export" id="btn-test-cashfree" style="background: #1e3a2f; color: #ffffff; padding: 9px 16px; font-weight: 700;">
-                ⚡ Run Live Cashfree Sandbox Test
-              </button>
-              <a href="https://www.cashfree.com/devstudio/preview/pg/seamless" target="_blank" rel="noopener" style="font-size: 0.82rem; color: #2563eb; text-decoration: underline;">
-                Open Cashfree DevStudio ↗
-              </a>
-            </div>
-
-            <div id="cashfree-test-output" style="display: none; background: #1e293b; color: #f8fafc; padding: 14px; border-radius: 6px; font-family: monospace; font-size: 0.78rem; line-height: 1.5; max-height: 240px; overflow-y: auto;">
-              <!-- Real-time JSON results injected here -->
-            </div>
-          </div>
         </div>
       </section>
 
