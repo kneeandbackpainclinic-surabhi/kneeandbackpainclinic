@@ -222,6 +222,7 @@
     if (syncWebinarBtn) {
       syncWebinarBtn.addEventListener('click', syncWebinarMetrics);
     }
+    initCashfreeTester();
   }
 
   async function fetchSupabaseLeads() {
@@ -752,6 +753,43 @@
       saveLeads(leads);
       renderLeadsTable();
     }
+  }
+
+  // =========================================================================
+  // CASHFREE SANDBOX TESTER LOGIC
+  // =========================================================================
+  function initCashfreeTester() {
+    const btn = document.querySelector('#btn-test-cashfree');
+    const output = document.querySelector('#cashfree-test-output');
+    if (!btn) return;
+
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      btn.textContent = '⏳ Testing Cashfree Sandbox API...';
+      if (output) {
+        output.style.display = 'block';
+        output.textContent = 'Connecting to https://sandbox.cashfree.com/pg...\n1. Creating Order...\n2. Initializing Payment Session...\n3. Fetching Transaction Status...';
+      }
+
+      try {
+        const res = await fetch('/api/test-cashfree-sandbox');
+        const data = await res.json();
+        if (output) {
+          output.textContent = JSON.stringify(data, null, 2);
+        }
+        if (data.overallStatus === 'ALL_SANDBOX_TESTS_PASSED') {
+          alert('✅ Cashfree Sandbox API test passed completely!\nOrder ID: ' + data.steps[0].orderId + '\nStatus: ' + data.steps[0].orderStatus);
+        } else {
+          alert('⚠️ Cashfree Sandbox test completed with notice. Check response log in Settings.');
+        }
+      } catch (err) {
+        if (output) output.textContent = 'Error: ' + err.message;
+        alert('Could not reach test endpoint: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '⚡ Run Live Cashfree Sandbox Test';
+      }
+    });
   }
 
   function escapeHtml(str) {

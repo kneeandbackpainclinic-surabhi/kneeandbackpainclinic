@@ -501,6 +501,41 @@ Acknowledge the patient's condition ({painArea}), confirm their appointment requ
               Save Clinic Configuration
             </button>
           </div>
+
+          <!-- Cashfree Payment Gateway Integration Card -->
+          <div style="margin-top: 32px; border-top: 1px solid var(--admin-border); padding-top: 24px; max-width: 700px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <div>
+                <h3 style="font-size: 1.05rem; color: var(--admin-primary); margin: 0;">💳 Cashfree Payment Gateway (PG) Sandbox Status</h3>
+                <p style="font-size: 0.8rem; color: var(--admin-muted); margin: 2px 0 0 0;">Verify seamless order creation, UPI/Card payment sessions, and webhook reconciliation.</p>
+              </div>
+              <span id="cashfree-badge" style="background: #eef7ed; color: var(--admin-success); font-weight: 700; font-size: 0.75rem; padding: 4px 10px; border-radius: 9999px;">
+                ● Sandbox Active
+              </span>
+            </div>
+
+            <div style="background: var(--admin-sand); padding: 14px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 14px;">
+              <div style="display: grid; grid-template-columns: 140px 1fr; gap: 6px;">
+                <strong>Sandbox API URL:</strong> <code>https://sandbox.cashfree.com/pg</code>
+                <strong>Test App ID:</strong> <code>TEST430329ae80e0f32e41a393d78b923034</code>
+                <strong>PG Mode:</strong> <span>Sandbox (Safe Simulation)</span>
+                <strong>Supported Fees:</strong> <span>₹201 (Masterclass), ₹1,000 (Consultation), ₹4,000 (Trial)</span>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 14px;">
+              <button type="button" class="btn-export" id="btn-test-cashfree" style="background: #1e3a2f; color: #ffffff; padding: 9px 16px; font-weight: 700;">
+                ⚡ Run Live Cashfree Sandbox Test
+              </button>
+              <a href="https://www.cashfree.com/devstudio/preview/pg/seamless" target="_blank" rel="noopener" style="font-size: 0.82rem; color: #2563eb; text-decoration: underline;">
+                Open Cashfree DevStudio ↗
+              </a>
+            </div>
+
+            <div id="cashfree-test-output" style="display: none; background: #1e293b; color: #f8fafc; padding: 14px; border-radius: 6px; font-family: monospace; font-size: 0.78rem; line-height: 1.5; max-height: 240px; overflow-y: auto;">
+              <!-- Real-time JSON results injected here -->
+            </div>
+          </div>
         </div>
       </section>
 

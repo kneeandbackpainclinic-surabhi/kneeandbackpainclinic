@@ -35,9 +35,11 @@ export default async function handler(req, res) {
     const proto = req.headers['x-forwarded-proto'] || 'https';
     const baseUrl = `${proto}://${host}`;
 
-    const cashfreeAppId = (process.env.CASHFREE_APP_ID || process.env.CASHFREE_CLIENT_ID || '').trim();
-    const cashfreeSecret = (process.env.CASHFREE_SECRET_KEY || process.env.CASHFREE_API_SECRET || '').trim();
-    const isSandbox = (process.env.CASHFREE_ENVIRONMENT || 'production').toLowerCase() === 'sandbox' || (!cashfreeAppId);
+    const defaultSandboxAppId = 'TEST430329ae80e0f32e41a393d78b923034';
+    const defaultSandboxSecret = 'TESTaf195616268bd6202eeb3bf8dc458956e7192a85';
+    const cashfreeAppId = (process.env.CASHFREE_APP_ID || process.env.CASHFREE_CLIENT_ID || defaultSandboxAppId).trim();
+    const cashfreeSecret = (process.env.CASHFREE_SECRET_KEY || process.env.CASHFREE_API_SECRET || defaultSandboxSecret).trim();
+    const isSandbox = (process.env.CASHFREE_ENVIRONMENT || 'sandbox').toLowerCase() === 'sandbox' || cashfreeAppId.startsWith('TEST');
 
     const endpoint = isSandbox
       ? 'https://sandbox.cashfree.com/pg/orders'
