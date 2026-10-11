@@ -858,8 +858,9 @@ img {
 
 .doctor-portrait-img {
   width: 100%;
-  aspect-ratio: 4 / 4.5;
+  aspect-ratio: 4 / 5;
   object-fit: cover;
+  object-position: top center;
 }
 
 .doctor-exp-badge {
