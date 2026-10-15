@@ -68,16 +68,22 @@ window.BOOKING_LINKS = {
 Cal("init", "default", { origin: "https://cal.id" });
 Cal("init", "quiz", { origin: "https://cal.id" });
 
+let calModalMounted = false;
+
 window.mountCalInline = function(elementOrSelector, namespace, configOverrides) {
   namespace = namespace || "default";
   const el = typeof elementOrSelector === "string" ? document.querySelector(elementOrSelector) : elementOrSelector;
   if (!el) return;
 
+  // Pop up window (#my-cal-inline) uses week_view; quiz inline assessment uses month_view
+  const isWeekly = (namespace === "default" || elementOrSelector === "#my-cal-inline");
+  const layout = isWeekly ? "week_view" : "month_view";
+
   try {
     Cal("init", namespace, { origin: "https://cal.id" });
     const ns = (Cal.ns && Cal.ns[namespace]) ? Cal.ns[namespace] : Cal;
 
-    const baseConfig = { "layout": "month_view" };
+    const baseConfig = { "layout": layout };
     const finalConfig = Object.assign(baseConfig, configOverrides || {});
 
     ns("inline", {
@@ -92,7 +98,7 @@ window.mountCalInline = function(elementOrSelector, namespace, configOverrides) 
         dark: { "cal-brand": "#fafafa" }
       },
       hideEventTypeDetails: true,
-      layout: "week_view"
+      layout: layout
     });
   } catch (e) {
     console.warn("Cal mount error:", e);
@@ -122,7 +128,10 @@ window.openCalModal = function(options) {
   if (options.email) prefill.email = options.email;
   if (options.notes) prefill.notes = options.notes;
 
-  window.mountCalInline("#my-cal-inline", "default", prefill);
+  if (!calModalMounted) {
+    calModalMounted = true;
+    window.mountCalInline("#my-cal-inline", "default", prefill);
+  }
 };
 
 window.closeCalModal = function() {
@@ -276,10 +285,7 @@ window.closeWebinarModal = function() {
 
 // Global event listeners on load
 document.addEventListener('DOMContentLoaded', function() {
-  // Pre-initialize Cal inline if #my-cal-inline exists in DOM
-  if (document.querySelector('#my-cal-inline') && window.mountCalInline) {
-    window.mountCalInline('#my-cal-inline', 'default');
-  }
+  // Close Cal modal button
 
   // Close Cal modal button
   const closeBtn = document.querySelector('#close-cal-modal-btn');
