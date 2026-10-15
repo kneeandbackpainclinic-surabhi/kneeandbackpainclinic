@@ -218,6 +218,81 @@
       let resultHtml = '';
       const nextAvailableDate = getNextAvailableDateStr();
 
+      // Helper to render dedicated final Consultation Confirmed screen
+      function renderConsultationSuccess(nameVal, phoneVal, slotVal, isPaid) {
+        const cleanP = (phoneVal || '').replace(/[^0-9]/g, '').slice(-10);
+        const displayName = nameVal || 'Patient';
+        const displaySlot = slotVal || 'Earliest Available (Selected on Cal.id)';
+        const feeStatus = isPaid ? 'Paid Online via Cashfree ✓' : 'Pay ₹1,000 at Clinic Desk';
+
+        quizBody.innerHTML = `
+          <div style="text-align: center; padding: 20px 12px;">
+            <div style="font-size: 3.2rem; margin-bottom: 8px;">🎉</div>
+            <h3 style="font-size: 1.4rem; color: var(--primary-deep); margin-bottom: 6px;">
+              Consultation Confirmed for ${displayName}!
+            </h3>
+            <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
+              Your 30-minute in-clinic diagnostic assessment with <strong>Dr. Surabhi Vaidya</strong> is registered.
+            </p>
+
+            <div style="background: #eef7ed; border: 1.5px solid #86efac; border-radius: 8px; padding: 14px; text-align: left; margin-bottom: 14px;">
+              <div style="font-weight: 700; color: #166534; font-size: 0.88rem; margin-bottom: 4px;">
+                📲 WhatsApp Confirmation Dispatched
+              </div>
+              <div style="font-size: 0.82rem; color: #15803d; line-height: 1.5;">
+                Appointment details and clinic directions have been sent to <strong>+91 ${cleanP || phoneVal}</strong>. If you booked your slot on Cal.id, your time is confirmed on the clinic schedule.
+              </div>
+            </div>
+
+            <div style="background: var(--bg-sand); border-radius: 8px; padding: 14px; text-align: left; margin-bottom: 18px; font-size: 0.82rem; color: var(--primary-deep); line-height: 1.6;">
+              <div>📅 <strong>Scheduled Time:</strong> ${displaySlot}</div>
+              <div style="margin-top: 4px;">📍 <strong>Clinic Address:</strong> Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West, Maharashtra 400606</div>
+              <div style="margin-top: 4px;">⏱️ <strong>Duration:</strong> 30 Minutes In-Clinic Assessment</div>
+              <div style="margin-top: 4px;">💳 <strong>Consultation Fee:</strong> ₹1,000 (${feeStatus})</div>
+            </div>
+
+            <div style="display: flex; gap: 10px; flex-direction: column;">
+              <button type="button" id="confirmed-done-close-btn" class="btn btn-primary btn-lg" style="width: 100%; font-weight: 700;">
+                ✓ Done &amp; Close Window
+              </button>
+              ${!isPaid ? `
+              <button type="button" id="confirmed-pay-cashfree-btn" class="btn btn-secondary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <span>💳</span> Or Pay ₹1,000 Online via Cashfree Now
+              </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+
+        const doneCloseBtn = quizBody.querySelector('#confirmed-done-close-btn');
+        if (doneCloseBtn) {
+          doneCloseBtn.addEventListener('click', closeQuiz);
+        }
+
+        const payNowBtn = quizBody.querySelector('#confirmed-pay-cashfree-btn');
+        if (payNowBtn) {
+          payNowBtn.addEventListener('click', async function() {
+            payNowBtn.disabled = true;
+            payNowBtn.textContent = 'Opening Cashfree Gateway...';
+            try {
+              if (window.triggerCashfreeCheckout) {
+                await window.triggerCashfreeCheckout({
+                  amount: 1000,
+                  name: displayName,
+                  phone: cleanP,
+                  planType: '₹1,000 Diagnostic Consultation (30-Min)',
+                  leadId: `LEAD-${Date.now()}`
+                });
+              }
+            } catch (e) {
+              console.warn('PG Checkout Note:', e);
+              payNowBtn.disabled = false;
+              payNowBtn.textContent = 'Pay ₹1,000 Online via Cashfree';
+            }
+          });
+        }
+      }
+
       // BRANCH 1: IN-CLINIC DIAGNOSTIC CONSULTATION (WITH DIRECT EMBEDDED CAL.ID FORM)
       if (branch === 'consultation') {
         resultHtml = `
@@ -265,22 +340,18 @@
                 <iframe id="quiz-cal-embed-frame" src="https://cal.id/charakhealth/consultation?embed=true&layout=month_view&date=${nextAvailableDate}" style="width: 100%; height: 490px; border: none; display: block;" title="Cal.id Booking Calendar"></iframe>
               </div>
 
-              <!-- Booking Status Banner (Updated on slot selection) -->
-              <div id="quiz-booking-status-box" style="display: none; background: #eef7ed; border: 1px solid #c7e8c6; padding: 12px 14px; border-radius: 8px; margin-bottom: 12px; text-align: left;">
-                <div style="font-weight: 700; color: #166534; margin-bottom: 4px;">🎉 Appointment Slot Selected!</div>
-                <div id="quiz-booking-status-text" style="font-size: 0.82rem; color: #15803d;">Your 30-minute consultation has been scheduled with Dr. Surabhi Vaidya. Confirmation sent on WhatsApp.</div>
-              </div>
-
-              <!-- Payment / Confirmation Options -->
-              <div style="background: var(--bg-sand); padding: 12px 14px; border-radius: 8px; margin-bottom: 14px;">
-                <div style="font-weight: 700; font-size: 0.85rem; color: var(--primary-deep); margin-bottom: 2px;">Consultation Fee: ₹1,000</div>
-                <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">Select a slot above. You can secure payment online via Cashfree or pay upon arrival at clinic desk.</p>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                  <button type="button" id="pay-cashfree-consult-btn" class="btn btn-primary" style="flex: 1; min-width: 170px; font-size: 0.85rem; padding: 10px 14px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
-                    <span>💳</span> Pay ₹1,000 via Cashfree
+              <!-- Payment / Confirmation Options directly linked to booking -->
+              <div style="background: var(--bg-sand); padding: 14px; border-radius: 8px; margin-bottom: 14px;">
+                <div style="font-weight: 700; font-size: 0.88rem; color: var(--primary-deep); margin-bottom: 4px;">Consultation Fee: ₹1,000</div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">
+                  Pick your slot on the calendar above. Once scheduled, click below to confirm your booking:
+                </p>
+                <div style="display: flex; gap: 10px; flex-direction: column;">
+                  <button type="submit" id="confirm-clinic-slot-btn" class="btn btn-primary btn-lg" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;">
+                    <span>✅</span> Confirm Booking &amp; Pay ₹1,000 at Clinic
                   </button>
-                  <button type="submit" id="confirm-clinic-slot-btn" class="btn btn-secondary" style="flex: 1; min-width: 130px; font-size: 0.85rem; padding: 10px 14px;">
-                    Pay ₹1,000 at Clinic
+                  <button type="button" id="pay-cashfree-consult-btn" class="btn btn-secondary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <span>💳</span> Or Pay ₹1,000 Online via Cashfree Now
                   </button>
                 </div>
               </div>
@@ -390,8 +461,6 @@
         const nameInput = quizBody.querySelector('#booking-name');
         const phoneInput = quizBody.querySelector('#booking-phone');
         const payConsultBtn = quizBody.querySelector('#pay-cashfree-consult-btn');
-        const statusBox = quizBody.querySelector('#quiz-booking-status-box');
-        const statusText = quizBody.querySelector('#quiz-booking-status-text');
 
         // Dynamic prefill sync when user completes name & phone
         function updateCalFramePrefill() {
@@ -410,33 +479,30 @@
         if (phoneInput) phoneInput.addEventListener('blur', updateCalFramePrefill);
         if (nameInput) nameInput.addEventListener('blur', updateCalFramePrefill);
 
-        // Listen for Cal.com / Cal.id booking confirmation event
+        // Listen for all Cal.com / Cal.id booking confirmation events across origins
         const onCalMessage = function(ev) {
           try {
-            const data = (typeof ev.data === 'string') ? JSON.parse(ev.data) : ev.data;
-            const isBooking = data && (
-              data.type === 'bookingSuccessfulV2' ||
-              data.type === 'bookingSuccessful' ||
-              data.action === 'bookingSuccessful' ||
-              (data.event && data.event.includes('bookingSuccessful'))
-            );
+            const raw = ev.data;
+            if (!raw) return;
+            const str = typeof raw === 'string' ? raw : JSON.stringify(raw);
+            const isBooking = /bookingSuccessful/i.test(str) || /booking_successful/i.test(str);
             if (isBooking) {
-              const nameVal = nameInput ? nameInput.value.trim() : 'Patient';
+              const nameVal = nameInput && nameInput.value.trim() ? nameInput.value.trim() : 'Patient';
               const phoneVal = phoneInput ? phoneInput.value.trim() : '';
-              const bookingData = data.data || {};
-              const slotTime = bookingData.startTime
-                ? new Date(bookingData.startTime).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
-                : 'Confirmed Slot';
+              let slotTime = 'Confirmed on Cal.id';
+              try {
+                const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+                const d = parsed.data || parsed.payload || parsed;
+                if (d && d.startTime) {
+                  slotTime = new Date(d.startTime).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+                }
+              } catch (e) {}
 
               saveConsultationLead(nameVal, phoneVal, slotTime, 'Slot Booked (Cal.id)');
-
-              if (statusBox && statusText) {
-                statusText.innerHTML = `Your 30-minute consultation is booked for <strong>${slotTime}</strong> with Dr. Surabhi Vaidya. Confirmation sent on WhatsApp!`;
-                statusBox.style.display = 'block';
-              }
+              renderConsultationSuccess(nameVal, phoneVal, slotTime, false);
             }
           } catch (e) {
-            // Ignore non-json messages
+            // Ignore non-booking messages
           }
         };
 
@@ -449,7 +515,7 @@
             const phoneVal = phoneInput ? phoneInput.value.trim() : '';
             if (!phoneVal || phoneVal.length !== 10) {
               if (phoneInput) phoneInput.focus();
-              alert('Please enter your 10-digit mobile number before proceeding to payment.');
+              alert('Please enter your 10-digit mobile number before proceeding.');
               return;
             }
 
@@ -459,18 +525,21 @@
 
             try {
               if (window.triggerCashfreeCheckout) {
-                await window.triggerCashfreeCheckout({
+                const result = await window.triggerCashfreeCheckout({
                   amount: 1000,
                   name: nameVal,
                   phone: phoneVal,
                   planType: '₹1,000 Diagnostic Consultation (30-Min)',
                   leadId: currentLead.id
                 });
+                renderConsultationSuccess(nameVal, phoneVal, 'Slot Chosen on Cal.id', true);
+              } else {
+                renderConsultationSuccess(nameVal, phoneVal, 'Slot Chosen on Cal.id', true);
               }
             } catch (err) {
               console.warn('Consultation PG checkout error:', err);
               payConsultBtn.disabled = false;
-              payConsultBtn.textContent = 'Pay ₹1,000 via Cashfree';
+              payConsultBtn.textContent = 'Pay ₹1,000 Online via Cashfree';
             }
           });
         }
@@ -483,17 +552,17 @@
           e.preventDefault();
           const nameInput = form.querySelector('#booking-name');
           const phoneInput = form.querySelector('#booking-phone');
-          const name = nameInput ? nameInput.value.trim() : 'Patient';
+          const name = nameInput && nameInput.value.trim() ? nameInput.value.trim() : 'Patient';
           const phone = phoneInput ? phoneInput.value.trim() : '';
 
           if (branch === 'consultation') {
-            saveConsultationLead(name, phone, 'Pay at Clinic / Earliest Slot', 'Pay at Clinic');
-            const statusBox = quizBody.querySelector('#quiz-booking-status-box');
-            const statusText = quizBody.querySelector('#quiz-booking-status-text');
-            if (statusBox && statusText) {
-              statusText.innerHTML = `Thank you, <strong>${name}</strong>! Your 30-minute consultation request is received. Select your preferred slot above on the calendar, or our clinic desk will confirm with you via WhatsApp at <strong>+91 ${phone}</strong>.`;
-              statusBox.style.display = 'block';
+            if (!phone || phone.length !== 10) {
+              if (phoneInput) phoneInput.focus();
+              alert('Please enter your 10-digit mobile number.');
+              return;
             }
+            saveConsultationLead(name, phone, 'Confirmed on Cal.id / Pay at Clinic', 'Pay at Clinic');
+            renderConsultationSuccess(name, phone, 'Confirmed on Cal.id', false);
             return;
           }
 
