@@ -759,11 +759,37 @@
     });
   }
 
+  // =========================================================================
+  // 6. VIDEO TESTIMONIAL SAFEGUARD (Hide cards with unavailable video)
+  // =========================================================================
+  function initVideoStoryCards() {
+    const cards = document.querySelectorAll('.video-story-card');
+    cards.forEach((card) => {
+      const img = card.querySelector('.video-thumb-holder img');
+      if (!img) return;
+
+      const checkUnavailable = () => {
+        // YouTube returns a 120x90 placeholder for 404 / unavailable videos
+        if (img.naturalWidth > 0 && img.naturalWidth <= 120) {
+          card.remove();
+        }
+      };
+
+      if (img.complete) {
+        checkUnavailable();
+      } else {
+        img.addEventListener('load', checkUnavailable);
+        img.addEventListener('error', () => card.remove());
+      }
+    });
+  }
+
   // INITIALIZATION ON DOM READY
   document.addEventListener('DOMContentLoaded', () => {
     initVslSlug();
     initFaq();
     initStickyBar();
+    initVideoStoryCards();
   });
 
 })();
