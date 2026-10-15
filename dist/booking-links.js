@@ -79,6 +79,68 @@ if (window.Cal) {
   }
 }
 
+// Active UI Config Dispatcher for all Cal.id iframes
+window.applyCalUiConfig = function() {
+  const frames = document.querySelectorAll('#cal-inline-frame, #quiz-cal-embed-frame, iframe[src*="cal.id"]');
+  frames.forEach(frame => {
+    if (frame && frame.contentWindow) {
+      try {
+        // Send official UI message payload to Cal iframe
+        frame.contentWindow.postMessage({
+          originator: "CAL",
+          method: "ui",
+          arg: {
+            hideEventTypeDetails: true,
+            layout: "week_view",
+            cssVarsPerTheme: {
+              light: { "cal-brand": "#143026" },
+              dark: { "cal-brand": "#fafafa" }
+            }
+          }
+        }, "*");
+
+        // Send layout instruction as well
+        frame.contentWindow.postMessage({
+          originator: "CAL",
+          method: "layout",
+          arg: "week_view"
+        }, "*");
+      } catch (err) {
+        // Cross-origin message safety
+      }
+    }
+  });
+
+  if (window.Cal) {
+    try {
+      window.Cal("ui", {
+        cssVarsPerTheme: {
+          light: { "cal-brand": "#143026" },
+          dark: { "cal-brand": "#fafafa" }
+        },
+        hideEventTypeDetails: true,
+        layout: "week_view"
+      });
+    } catch (e) {}
+  }
+};
+
+// Global message listener for Cal embed lifecycle events
+window.addEventListener('message', function(ev) {
+  if (!ev.data) return;
+  const raw = ev.data;
+  const str = typeof raw === 'string' ? raw : JSON.stringify(raw);
+  if (
+    str.includes('CAL:') ||
+    str.includes('linkReady') ||
+    str.includes('__iframeReady') ||
+    str.includes('__routeChanged') ||
+    str.includes('iframeReady')
+  ) {
+    window.applyCalUiConfig();
+  }
+});
+
 // ============================================================================
 // 1. INLINE CAL.ID EMBEDDED MODAL (NO EXTERNAL REDIRECTION)
 // ============================================================================
@@ -98,22 +160,32 @@ window.openCalModal = function(options) {
   }
 
   // Build Cal.id embedded URL with prefilled parameters
-  const params = new URLSearchParams({ embed: 'true', layout: 'week_view', hideEventTypeDetails: 'true' });
+  const params = new URLSearchParams({ embed: 'default', layout: 'week_view', hideEventTypeDetails: 'true' });
   if (name) params.set('name', name);
   if (phone) params.set('phone', phone);
   if (email) params.set('email', email);
   if (notes) params.set('notes', notes);
 
-  const calUrl = 'https://cal.id/charakhealth/consultation?' + params.toString();
+  const calUrl = 'https://cal.id/charakhealth/consultation/embed?' + params.toString();
 
   if (iframe) {
-    iframe.src = calUrl;
+    if (iframe.src !== calUrl) {
+      iframe.src = calUrl;
+    }
+    iframe.onload = function() {
+      window.applyCalUiConfig();
+    };
   }
 
   if (modal) {
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
   }
+
+  // Staggered triggers to guarantee UI config is applied once Cal iframe hydrates
+  [150, 400, 800, 1500, 2500].forEach(delay => {
+    setTimeout(window.applyCalUiConfig, delay);
+  });
 };
 
 window.closeCalModal = function() {

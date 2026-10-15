@@ -1330,30 +1330,33 @@ img {
 
 .booking-calendar-main iframe {
   width: 100%;
-  height: 460px;
+  height: 580px;
+  min-height: 580px;
   border: none;
   display: block;
-  overflow: hidden;
 }
 
 @media (min-width: 820px) {
   .booking-calendar-main iframe {
-    height: 480px;
+    height: 600px;
+    min-height: 600px;
   }
 }
 
 /* Standalone Cal Modal Card (#cal-modal) */
 .cal-modal-card {
-  max-width: 760px;
+  max-width: 940px;
   width: 95%;
   height: auto;
+  max-height: 92vh;
   padding: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   border-radius: 12px;
   background: #ffffff;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .cal-modal-header {
@@ -1378,19 +1381,21 @@ img {
 
 .cal-modal-iframe-wrap {
   width: 100%;
-  height: 460px;
+  height: 580px;
   background: #ffffff;
   position: relative;
   display: flex;
-  overflow: hidden;
+  flex-grow: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .cal-modal-iframe-wrap iframe {
   width: 100%;
   height: 100%;
+  min-height: 580px;
   border: none;
   display: block;
-  overflow: hidden;
 }
 
 @media (max-width: 767px) {
@@ -1399,7 +1404,11 @@ img {
     max-height: 94vh;
   }
   .cal-modal-iframe-wrap {
-    height: 520px;
+    height: 560px;
+  }
+  .booking-calendar-main iframe {
+    height: 560px;
+    min-height: 560px;
   }
 }
 

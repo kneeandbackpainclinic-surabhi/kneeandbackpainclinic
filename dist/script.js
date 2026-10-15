@@ -364,7 +364,7 @@
                     <span>📅 Select Appointment Slot (Cal.id Live Calendar)</span>
                     <span class="auto-slot-badge">● Live Availability</span>
                   </div>
-                  <iframe id="quiz-cal-embed-frame" src="https://cal.id/charakhealth/consultation?embed=true&layout=week_view&hideEventTypeDetails=true&date=${nextAvailableDate}" scrolling="no" title="Cal.id Booking Calendar"></iframe>
+                  <iframe id="quiz-cal-embed-frame" src="https://cal.id/charakhealth/consultation/embed?embed=default&layout=week_view&hideEventTypeDetails=true&date=${nextAvailableDate}" title="Cal.id Booking Calendar"></iframe>
                 </div>
 
               </div>
@@ -471,6 +471,17 @@
         const phoneInput = quizBody.querySelector('#booking-phone');
         const payConsultBtn = quizBody.querySelector('#pay-cashfree-consult-btn');
 
+        if (calFrame) {
+          calFrame.onload = function() {
+            if (window.applyCalUiConfig) window.applyCalUiConfig();
+          };
+        }
+        if (window.applyCalUiConfig) {
+          [150, 400, 800, 1500, 2500].forEach(delay => {
+            setTimeout(window.applyCalUiConfig, delay);
+          });
+        }
+
         // Dynamic prefill sync when user completes name & phone
         function updateCalFramePrefill() {
           if (!calFrame) return;
@@ -478,7 +489,7 @@
           const phoneVal = phoneInput ? phoneInput.value.trim() : '';
           if (phoneVal.length === 10) {
             saveConsultationLead(nameVal, phoneVal, '', 'Unpaid');
-            const newUrl = `https://cal.id/charakhealth/consultation?embed=true&layout=week_view&hideEventTypeDetails=true&date=${nextAvailableDate}&name=${encodeURIComponent(nameVal)}&phone=${encodeURIComponent(phoneVal)}`;
+            const newUrl = `https://cal.id/charakhealth/consultation/embed?embed=default&layout=week_view&hideEventTypeDetails=true&date=${nextAvailableDate}&name=${encodeURIComponent(nameVal)}&phone=${encodeURIComponent(phoneVal)}`;
             if (calFrame.src !== newUrl) {
               calFrame.src = newUrl;
             }
