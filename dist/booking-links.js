@@ -71,6 +71,7 @@ if (window.Cal) {
         light: { "cal-brand": "#143026" },
         dark: { "cal-brand": "#fafafa" }
       },
+      hideEventTypeDetails: true,
       layout: "week_view"
     });
   } catch (e) {
@@ -97,7 +98,7 @@ window.openCalModal = function(options) {
   }
 
   // Build Cal.id embedded URL with prefilled parameters
-  const params = new URLSearchParams({ embed: 'true', layout: 'week_view' });
+  const params = new URLSearchParams({ embed: 'true', layout: 'week_view', hideEventTypeDetails: 'true' });
   if (name) params.set('name', name);
   if (phone) params.set('phone', phone);
   if (email) params.set('email', email);

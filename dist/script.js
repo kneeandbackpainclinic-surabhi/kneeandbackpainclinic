@@ -364,7 +364,7 @@
                     <span>📅 Select Appointment Slot (Cal.id Live Calendar)</span>
                     <span class="auto-slot-badge">● Live Availability</span>
                   </div>
-                  <iframe id="quiz-cal-embed-frame" src="https://cal.id/charakhealth/consultation?embed=true&layout=week_view&date=${nextAvailableDate}" title="Cal.id Booking Calendar"></iframe>
+                  <iframe id="quiz-cal-embed-frame" src="https://cal.id/charakhealth/consultation?embed=true&layout=week_view&hideEventTypeDetails=true&date=${nextAvailableDate}" scrolling="no" title="Cal.id Booking Calendar"></iframe>
                 </div>
 
               </div>
@@ -478,7 +478,7 @@
           const phoneVal = phoneInput ? phoneInput.value.trim() : '';
           if (phoneVal.length === 10) {
             saveConsultationLead(nameVal, phoneVal, '', 'Unpaid');
-            const newUrl = `https://cal.id/charakhealth/consultation?embed=true&layout=week_view&date=${nextAvailableDate}&name=${encodeURIComponent(nameVal)}&phone=${encodeURIComponent(phoneVal)}`;
+            const newUrl = `https://cal.id/charakhealth/consultation?embed=true&layout=week_view&hideEventTypeDetails=true&date=${nextAvailableDate}&name=${encodeURIComponent(nameVal)}&phone=${encodeURIComponent(phoneVal)}`;
             if (calFrame.src !== newUrl) {
               calFrame.src = newUrl;
             }
