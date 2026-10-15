@@ -1328,8 +1328,21 @@ img {
   font-weight: 600;
 }
 
-.booking-calendar-main iframe {
-  width: 100%;
+#my-cal-inline,
+#my-cal-inline-quiz,
+.cal-inline-container,
+cal-inline {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 580px;
+  display: block;
+}
+
+.booking-calendar-main iframe,
+#my-cal-inline iframe,
+#my-cal-inline-quiz iframe,
+.cal-embed {
+  width: 100% !important;
   height: 580px;
   min-height: 580px;
   border: none;
@@ -1337,7 +1350,10 @@ img {
 }
 
 @media (min-width: 820px) {
-  .booking-calendar-main iframe {
+  .booking-calendar-main iframe,
+  #my-cal-inline iframe,
+  #my-cal-inline-quiz iframe,
+  .cal-embed {
     height: 600px;
     min-height: 600px;
   }
@@ -1406,7 +1422,10 @@ img {
   .cal-modal-iframe-wrap {
     height: 560px;
   }
-  .booking-calendar-main iframe {
+  .booking-calendar-main iframe,
+  #my-cal-inline iframe,
+  #my-cal-inline-quiz iframe,
+  .cal-embed {
     height: 560px;
     min-height: 560px;
   }

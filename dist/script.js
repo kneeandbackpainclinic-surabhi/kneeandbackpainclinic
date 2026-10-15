@@ -364,7 +364,8 @@
                     <span>📅 Select Appointment Slot (Cal.id Live Calendar)</span>
                     <span class="auto-slot-badge">● Live Availability</span>
                   </div>
-                  <iframe id="quiz-cal-embed-frame" src="https://cal.id/charakhealth/consultation/embed?embed=default&layout=week_view&hideEventTypeDetails=true&date=${nextAvailableDate}" title="Cal.id Booking Calendar"></iframe>
+                  <!-- Cal inline embed container -->
+                  <div id="my-cal-inline-quiz" style="width:100%;height:100%;min-height:580px;overflow:auto;"></div>
                 </div>
 
               </div>
@@ -466,38 +467,27 @@
 
       // If Consultation branch: dynamic Cal.id prefilling & postMessage listening
       if (branch === 'consultation') {
-        const calFrame = quizBody.querySelector('#quiz-cal-embed-frame');
         const nameInput = quizBody.querySelector('#booking-name');
         const phoneInput = quizBody.querySelector('#booking-phone');
         const payConsultBtn = quizBody.querySelector('#pay-cashfree-consult-btn');
 
-        if (calFrame) {
-          calFrame.onload = function() {
-            if (window.applyCalUiConfig) window.applyCalUiConfig();
-          };
-        }
-        if (window.applyCalUiConfig) {
-          [150, 400, 800, 1500, 2500].forEach(delay => {
-            setTimeout(window.applyCalUiConfig, delay);
+        if (window.mountCalInline) {
+          window.mountCalInline('#my-cal-inline-quiz', 'quiz', {
+            date: nextAvailableDate
           });
         }
 
-        // Dynamic prefill sync when user completes name & phone
-        function updateCalFramePrefill() {
-          if (!calFrame) return;
+        // Save lead when user completes name & phone
+        function syncConsultationLead() {
           const nameVal = nameInput ? nameInput.value.trim() : '';
           const phoneVal = phoneInput ? phoneInput.value.trim() : '';
           if (phoneVal.length === 10) {
             saveConsultationLead(nameVal, phoneVal, '', 'Unpaid');
-            const newUrl = `https://cal.id/charakhealth/consultation/embed?embed=default&layout=week_view&hideEventTypeDetails=true&date=${nextAvailableDate}&name=${encodeURIComponent(nameVal)}&phone=${encodeURIComponent(phoneVal)}`;
-            if (calFrame.src !== newUrl) {
-              calFrame.src = newUrl;
-            }
           }
         }
 
-        if (phoneInput) phoneInput.addEventListener('blur', updateCalFramePrefill);
-        if (nameInput) nameInput.addEventListener('blur', updateCalFramePrefill);
+        if (phoneInput) phoneInput.addEventListener('blur', syncConsultationLead);
+        if (nameInput) nameInput.addEventListener('blur', syncConsultationLead);
 
         // Listen for all Cal.com / Cal.id booking confirmation events across origins
         const onCalMessage = function(ev) {
