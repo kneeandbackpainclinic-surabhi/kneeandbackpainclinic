@@ -182,7 +182,7 @@
     const total = quizQuestions.length;
     quizProgress.style.width = `${((currentStep) / total) * 100}%`;
 
-    // RESULT STEP: STRICTLY ONLY ONE OPTION WITH FLOW DIAGRAM
+    // RESULT STEP: ONLY TWO PATHWAYS (Webinar or Consultation)
     if (currentStep >= total) {
       quizProgress.style.width = '100%';
       const painArea = quizQuestions[0].options[userAnswers[0]] || 'Knee & Back Pain';
@@ -190,75 +190,36 @@
       const qPrior = userAnswers[2];
       const qReadiness = userAnswers[3];
 
-      let branch = 'consultation';
+      // Calculate next available date in India Standard Time (+5:30)
+      function getNextAvailableDateStr() {
+        const now = new Date();
+        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+        const istTime = new Date(utc + (330 * 60000));
+        // After 5:00 PM IST (17:00), default to tomorrow's date
+        if (istTime.getHours() >= 17) {
+          istTime.setDate(istTime.getDate() + 1);
+        }
+        const yyyy = istTime.getFullYear();
+        const mm = String(istTime.getMonth() + 1).padStart(2, '0');
+        const dd = String(istTime.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+      }
 
-      // RULE 1: Severe distress, surgery advised, or ready to begin -> Recommend ONLY ₹4,000 Trial
-      if (qReadiness === 0 || qSeverity === 0 || qPrior === 0) {
-        branch = 'trial';
-      }
-      // RULE 2: Hesitant, skeptical, just exploring -> Recommend ONLY ₹201 Webinar Masterclass
-      else if (qReadiness === 2 || qReadiness === 3 || qPrior === 3) {
+      // ONLY TWO BRANCHES:
+      // Hesitant, skeptical, just exploring -> Recommend Webinar Masterclass (₹201)
+      // Otherwise (active pain, ready, seeking doctor diagnosis) -> In-Clinic Consultation (₹1,000, 30-Min)
+      let branch = 'consultation';
+      if (qReadiness === 2 || qReadiness === 3 || qPrior === 3) {
         branch = 'webinar';
-      }
-      // RULE 3: Fairly ready, moderate/advanced stage -> Recommend ONLY ₹1,000 Consultation
-      else {
+      } else {
         branch = 'consultation';
       }
 
       let resultHtml = '';
+      const nextAvailableDate = getNextAvailableDateStr();
 
-      // BRANCH 1: ONLY ₹4,000 1-DAY EXPERIENCE SESSION
-      if (branch === 'trial') {
-        resultHtml = `
-          <div class="quiz-result-single" style="border-color: var(--accent-terracotta);">
-            <div style="font-size: 0.72rem; font-weight: 700; color: var(--accent-terracotta); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">
-              SINGLE RECOMMENDED NEXT STEP
-            </div>
-            <h3 style="font-size: 1.35rem; color: var(--primary-deep); margin-bottom: 8px;">
-              Direct 1-Day Experience Session (₹4,000)
-            </h3>
-            <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 12px;">
-              Based on your reported pain severity for <strong>${painArea}</strong>, an initial consultation alone may delay needed relief. We strongly recommend experiencing our <strong>1-Day Intensive Session (7 comprehensive treatments)</strong> to achieve 20% to 30% measurable pain relief on Day 1.
-            </p>
-
-            <div class="quiz-flow-indicator">
-              <div class="flow-node">1. Assessment ✓</div>
-              <div class="flow-node active-node">2. ★ 1-Day Trial (₹4k)</div>
-              <div class="flow-node">3. Long-Term Recovery</div>
-            </div>
-
-            <div style="background: var(--bg-sand); padding: 12px 14px; border-radius: 6px; font-size: 0.82rem; color: var(--primary-deep); margin-bottom: 16px;">
-              <strong>What is included:</strong> Full doctor diagnosis + Janu/Kati Basti + Marma stimulation + Pottali Sekam + Medicated Herbal Steam.
-            </div>
-
-            <form id="quiz-booking-form">
-              <div class="form-field">
-                <label for="booking-name">Your Full Name *</label>
-                <input type="text" id="booking-name" required placeholder="Enter full name" minlength="2">
-              </div>
-              <div class="form-field">
-                <label for="booking-phone">Mobile Phone Number *</label>
-                <input type="tel" id="booking-phone" required placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" maxlength="10">
-              </div>
-              <div class="form-field">
-                <label for="booking-time">Preferred Session Slot</label>
-                <select id="booking-time">
-                  <option value="Pick on Live Cal.id Calendar">Pick exact slot on Cal.id Calendar (Recommended)</option>
-                  <option value="Tomorrow Morning (9:30 AM)">Tomorrow Morning (9:30 AM)</option>
-                  <option value="Tomorrow Afternoon (2:30 PM)">Tomorrow Afternoon (2:30 PM)</option>
-                  <option value="This Weekend (Saturday)">This Weekend (Saturday)</option>
-                  <option value="This Weekend (Sunday)">This Weekend (Sunday)</option>
-                </select>
-              </div>
-              <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 10px;">
-                Confirm Trial Request (₹4,000) ↗
-              </button>
-            </form>
-          </div>
-        `;
-      }
-      // BRANCH 2: ONLY ₹1,000 DIAGNOSTIC CONSULTATION
-      else if (branch === 'consultation') {
+      // BRANCH 1: IN-CLINIC DIAGNOSTIC CONSULTATION (WITH DIRECT EMBEDDED CAL.ID FORM)
+      if (branch === 'consultation') {
         resultHtml = `
           <div class="quiz-result-single" style="border-color: var(--accent-gold);">
             <div style="font-size: 0.72rem; font-weight: 700; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">
@@ -268,46 +229,70 @@
               In-Clinic Diagnostic Consultation (₹1,000)
             </h3>
             <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 12px;">
-              You are at a suitable stage to get an in-depth 45-minute clinical assessment with Dr. Surabhi Vaidya for your <strong>${painArea}</strong>. She will perform Ayurvedic Naadi Pariksha (pulse analysis), evaluate your MRI / X-Rays, and map your surgical prevention plan.
+              You are at a suitable stage to get an in-depth 30-minute clinical assessment with Dr. Surabhi Vaidya for your <strong>${painArea}</strong>. She will perform Ayurvedic Naadi Pariksha (pulse analysis), evaluate your MRI / X-Rays, and map your surgical prevention plan.
             </p>
 
             <div class="quiz-flow-indicator">
               <div class="flow-node">1. Assessment ✓</div>
-              <div class="flow-node active-node">2. ★ Diagnosis (₹1,000)</div>
+              <div class="flow-node active-node">2. ★ 30-Min Consultation (₹1,000)</div>
               <div class="flow-node">3. Targeted Protocol</div>
             </div>
 
-            <div style="background: var(--bg-sand); padding: 12px 14px; border-radius: 6px; font-size: 0.82rem; color: var(--primary-deep); margin-bottom: 16px;">
-              <strong>Clinic Location:</strong> Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West.
+            <div style="background: var(--bg-sand); padding: 10px 14px; border-radius: 6px; font-size: 0.82rem; color: var(--primary-deep); margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+              <span>📍 <strong>Location:</strong> Cura 304, Raymond TenX Habitat, Thane West</span>
+              <span>⏱️ <strong>Duration:</strong> 30 Minutes</span>
             </div>
 
+            <!-- Booking Form With Cal.id Embedded Directly -->
             <form id="quiz-booking-form">
-              <div class="form-field">
-                <label for="booking-name">Your Full Name *</label>
-                <input type="text" id="booking-name" required placeholder="Enter full name" minlength="2">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                <div class="form-field" style="margin-bottom: 0;">
+                  <label for="booking-name" style="font-size: 0.8rem; font-weight: 600; color: var(--primary-deep); margin-bottom: 4px; display: block;">Your Full Name *</label>
+                  <input type="text" id="booking-name" required placeholder="Enter full name" minlength="2" style="width: 100%; padding: 8px 10px; font-size: 0.85rem; border: 1px solid var(--border-light); border-radius: 6px;">
+                </div>
+                <div class="form-field" style="margin-bottom: 0;">
+                  <label for="booking-phone" style="font-size: 0.8rem; font-weight: 600; color: var(--primary-deep); margin-bottom: 4px; display: block;">Mobile Phone *</label>
+                  <input type="tel" id="booking-phone" required placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" maxlength="10" style="width: 100%; padding: 8px 10px; font-size: 0.85rem; border: 1px solid var(--border-light); border-radius: 6px;">
+                </div>
               </div>
-              <div class="form-field">
-                <label for="booking-phone">Mobile Phone Number *</label>
-                <input type="tel" id="booking-phone" required placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" maxlength="10">
+
+              <!-- Direct Cal.id Scheduler Embed (Next Available Slot Auto-Focused) -->
+              <div style="background: #ffffff; border: 1.5px solid var(--border-light); border-radius: 8px; overflow: hidden; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                <div style="background: var(--bg-sand); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light);">
+                  <span style="font-size: 0.82rem; font-weight: 700; color: var(--primary-deep);">📅 Select Appointment Slot (Cal.id Live Calendar)</span>
+                  <span style="font-size: 0.72rem; color: #166534; background: #eef7ed; padding: 2px 8px; border-radius: 9999px; font-weight: 600;">● Next Slot Auto-Selected</span>
+                </div>
+                <iframe id="quiz-cal-embed-frame" src="https://cal.id/charakhealth/consultation?embed=true&layout=month_view&date=${nextAvailableDate}" style="width: 100%; height: 490px; border: none; display: block;" title="Cal.id Booking Calendar"></iframe>
               </div>
-              <div class="form-field">
-                <label for="booking-time">Preferred Appointment Slot</label>
-                <select id="booking-time">
-                  <option value="Pick on Live Cal.id Calendar">Pick exact slot on Cal.id Calendar (Recommended)</option>
-                  <option value="Earliest Available Slot">Earliest Available Slot</option>
-                  <option value="Tomorrow (Weekday)">Tomorrow (Weekday)</option>
-                  <option value="This Saturday">This Saturday</option>
-                  <option value="This Sunday">This Sunday</option>
-                </select>
+
+              <!-- Booking Status Banner (Updated on slot selection) -->
+              <div id="quiz-booking-status-box" style="display: none; background: #eef7ed; border: 1px solid #c7e8c6; padding: 12px 14px; border-radius: 8px; margin-bottom: 12px; text-align: left;">
+                <div style="font-weight: 700; color: #166534; margin-bottom: 4px;">🎉 Appointment Slot Selected!</div>
+                <div id="quiz-booking-status-text" style="font-size: 0.82rem; color: #15803d;">Your 30-minute consultation has been scheduled with Dr. Surabhi Vaidya. Confirmation sent on WhatsApp.</div>
               </div>
-              <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 10px;">
-                Schedule Consultation (₹1,000) ↗
-              </button>
+
+              <!-- Payment / Confirmation Options -->
+              <div style="background: var(--bg-sand); padding: 12px 14px; border-radius: 8px; margin-bottom: 14px;">
+                <div style="font-weight: 700; font-size: 0.85rem; color: var(--primary-deep); margin-bottom: 2px;">Consultation Fee: ₹1,000</div>
+                <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">Select a slot above. You can secure payment online via Cashfree or pay upon arrival at clinic desk.</p>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button type="button" id="pay-cashfree-consult-btn" class="btn btn-primary" style="flex: 1; min-width: 170px; font-size: 0.85rem; padding: 10px 14px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                    <span>💳</span> Pay ₹1,000 via Cashfree
+                  </button>
+                  <button type="submit" id="confirm-clinic-slot-btn" class="btn btn-secondary" style="flex: 1; min-width: 130px; font-size: 0.85rem; padding: 10px 14px;">
+                    Pay ₹1,000 at Clinic
+                  </button>
+                </div>
+              </div>
+
+              <div style="background: #faf8f5; border: 1px solid var(--border-light); padding: 8px 12px; border-radius: 6px; font-size: 0.75rem; color: var(--text-muted); text-align: left;">
+                📍 <strong>Clinic Address:</strong> Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West. Desk: kneeandbackpainclinic@gmail.com
+              </div>
             </form>
           </div>
         `;
       }
-      // BRANCH 3: ONLY LIVE HINDI WEBINAR MASTERCLASS (₹201)
+      // BRANCH 2: ONLY LIVE HINDI WEBINAR MASTERCLASS (₹201)
       else {
         resultHtml = `
           <div class="quiz-result-single" style="border-color: var(--primary-sage);">
@@ -359,50 +344,162 @@
         </div>
       `;
 
-      // Wire submit form & save lead to CRM
+      // Helper to save and dispatch lead to CRM and serverless API
+      function saveConsultationLead(name, phone, slotInfo, paymentStatus) {
+        const lead = {
+          id: 'LEAD-' + Math.floor(100 + Math.random() * 900),
+          name: name || 'Patient',
+          phone: phone || '',
+          city: 'Thane / Mumbai',
+          painArea: painArea,
+          severity: quizQuestions[1].options[userAnswers[1]] || '',
+          priorTreatments: quizQuestions[2].options[userAnswers[2]] || '',
+          readiness: quizQuestions[3].options[userAnswers[3]] || '',
+          recommendedStep: branch === 'webinar' ? '₹201 Live Hindi Masterclass' : '₹1,000 Diagnostic Consultation',
+          slotPreference: slotInfo || 'Earliest Available (Cal.id)',
+          status: slotInfo ? 'Consultation Scheduled' : 'New Lead',
+          paymentStatus: paymentStatus || 'Unpaid',
+          createdAt: new Date().toISOString()
+        };
+
+        try {
+          const existing = JSON.parse(localStorage.getItem('dr_surabhi_leads')) || [];
+          const idx = existing.findIndex(l => (lead.phone && l.phone === lead.phone));
+          if (idx >= 0) {
+            existing[idx] = Object.assign(existing[idx], lead);
+          } else {
+            existing.unshift(lead);
+          }
+          localStorage.setItem('dr_surabhi_leads', JSON.stringify(existing));
+
+          fetch('/api/lead-intake', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(lead)
+          }).catch(err => console.warn('Lead intake sync error:', err));
+        } catch (e) {
+          console.warn('Lead sync error:', e);
+        }
+
+        return lead;
+      }
+
+      // If Consultation branch: dynamic Cal.id prefilling & postMessage listening
+      if (branch === 'consultation') {
+        const calFrame = quizBody.querySelector('#quiz-cal-embed-frame');
+        const nameInput = quizBody.querySelector('#booking-name');
+        const phoneInput = quizBody.querySelector('#booking-phone');
+        const payConsultBtn = quizBody.querySelector('#pay-cashfree-consult-btn');
+        const statusBox = quizBody.querySelector('#quiz-booking-status-box');
+        const statusText = quizBody.querySelector('#quiz-booking-status-text');
+
+        // Dynamic prefill sync when user completes name & phone
+        function updateCalFramePrefill() {
+          if (!calFrame) return;
+          const nameVal = nameInput ? nameInput.value.trim() : '';
+          const phoneVal = phoneInput ? phoneInput.value.trim() : '';
+          if (phoneVal.length === 10) {
+            saveConsultationLead(nameVal, phoneVal, '', 'Unpaid');
+            const newUrl = `https://cal.id/charakhealth/consultation?embed=true&layout=month_view&date=${nextAvailableDate}&name=${encodeURIComponent(nameVal)}&phone=${encodeURIComponent(phoneVal)}`;
+            if (calFrame.src !== newUrl) {
+              calFrame.src = newUrl;
+            }
+          }
+        }
+
+        if (phoneInput) phoneInput.addEventListener('blur', updateCalFramePrefill);
+        if (nameInput) nameInput.addEventListener('blur', updateCalFramePrefill);
+
+        // Listen for Cal.com / Cal.id booking confirmation event
+        const onCalMessage = function(ev) {
+          try {
+            const data = (typeof ev.data === 'string') ? JSON.parse(ev.data) : ev.data;
+            const isBooking = data && (
+              data.type === 'bookingSuccessfulV2' ||
+              data.type === 'bookingSuccessful' ||
+              data.action === 'bookingSuccessful' ||
+              (data.event && data.event.includes('bookingSuccessful'))
+            );
+            if (isBooking) {
+              const nameVal = nameInput ? nameInput.value.trim() : 'Patient';
+              const phoneVal = phoneInput ? phoneInput.value.trim() : '';
+              const bookingData = data.data || {};
+              const slotTime = bookingData.startTime
+                ? new Date(bookingData.startTime).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+                : 'Confirmed Slot';
+
+              saveConsultationLead(nameVal, phoneVal, slotTime, 'Slot Booked (Cal.id)');
+
+              if (statusBox && statusText) {
+                statusText.innerHTML = `Your 30-minute consultation is booked for <strong>${slotTime}</strong> with Dr. Surabhi Vaidya. Confirmation sent on WhatsApp!`;
+                statusBox.style.display = 'block';
+              }
+            }
+          } catch (e) {
+            // Ignore non-json messages
+          }
+        };
+
+        window.addEventListener('message', onCalMessage);
+
+        // Cashfree online payment trigger
+        if (payConsultBtn) {
+          payConsultBtn.addEventListener('click', async function() {
+            const nameVal = nameInput && nameInput.value.trim() ? nameInput.value.trim() : 'Patient';
+            const phoneVal = phoneInput ? phoneInput.value.trim() : '';
+            if (!phoneVal || phoneVal.length !== 10) {
+              if (phoneInput) phoneInput.focus();
+              alert('Please enter your 10-digit mobile number before proceeding to payment.');
+              return;
+            }
+
+            const currentLead = saveConsultationLead(nameVal, phoneVal, 'Slot Chosen on Cal.id', 'Paid Online Pending');
+            payConsultBtn.disabled = true;
+            payConsultBtn.textContent = 'Opening Cashfree Gateway...';
+
+            try {
+              if (window.triggerCashfreeCheckout) {
+                await window.triggerCashfreeCheckout({
+                  amount: 1000,
+                  name: nameVal,
+                  phone: phoneVal,
+                  planType: '₹1,000 Diagnostic Consultation (30-Min)',
+                  leadId: currentLead.id
+                });
+              }
+            } catch (err) {
+              console.warn('Consultation PG checkout error:', err);
+              payConsultBtn.disabled = false;
+              payConsultBtn.textContent = 'Pay ₹1,000 via Cashfree';
+            }
+          });
+        }
+      }
+
+      // Wire submit form
       const form = quizBody.querySelector('#quiz-booking-form');
       if (form) {
         form.addEventListener('submit', (e) => {
           e.preventDefault();
           const nameInput = form.querySelector('#booking-name');
           const phoneInput = form.querySelector('#booking-phone');
-          const slotInput = form.querySelector('#booking-time');
-          const cityInput = form.querySelector('#booking-city');
           const name = nameInput ? nameInput.value.trim() : 'Patient';
           const phone = phoneInput ? phoneInput.value.trim() : '';
-          const slot = slotInput ? slotInput.value : (cityInput ? cityInput.value : 'Immediate Intake');
 
-          // Save into CRM Leads
-          try {
-            const existing = JSON.parse(localStorage.getItem('dr_surabhi_leads')) || [];
-            const newLead = {
-              id: 'LEAD-' + Math.floor(100 + Math.random() * 900),
-              name: name,
-              phone: phone,
-              city: cityInput ? cityInput.value : 'Thane / Mumbai',
-              painArea: painArea,
-              severity: quizQuestions[1].options[userAnswers[1]] || '',
-              priorTreatments: quizQuestions[2].options[userAnswers[2]] || '',
-              readiness: quizQuestions[3].options[userAnswers[3]] || '',
-              recommendedStep: branch === 'trial' ? '₹4,000 1-Day Experience Session' : (branch === 'consultation' ? '₹1,000 Diagnostic Consultation' : '₹201 Live Hindi Masterclass'),
-              slotPreference: slot,
-              status: 'New Lead',
-              createdAt: new Date().toISOString()
-            };
-            existing.unshift(newLead);
-            localStorage.setItem('dr_surabhi_leads', JSON.stringify(existing));
-
-            // Forward to secure Vercel serverless function (safe WhatsApp/Email/CRM dispatch)
-            fetch('/api/lead-intake', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(newLead)
-            }).catch(() => {});
-          } catch (err) {
-            console.error('Lead sync err:', err);
+          if (branch === 'consultation') {
+            saveConsultationLead(name, phone, 'Pay at Clinic / Earliest Slot', 'Pay at Clinic');
+            const statusBox = quizBody.querySelector('#quiz-booking-status-box');
+            const statusText = quizBody.querySelector('#quiz-booking-status-text');
+            if (statusBox && statusText) {
+              statusText.innerHTML = `Thank you, <strong>${name}</strong>! Your 30-minute consultation request is received. Select your preferred slot above on the calendar, or our clinic desk will confirm with you via WhatsApp at <strong>+91 ${phone}</strong>.`;
+              statusBox.style.display = 'block';
+            }
+            return;
           }
 
+          // Webinar registration handling
           if (branch === 'webinar') {
+            const newLead = saveConsultationLead(name, phone, 'Webinar Registered', 'Unpaid');
             quizBody.innerHTML = `
               <div style="text-align: center; padding: 16px 8px;">
                 <div style="font-size: 2.8rem; margin-bottom: 8px;">🎥</div>
@@ -492,70 +589,6 @@
                   }
                 } catch (tokErr) {
                   console.warn('Webinar token fetch:', tokErr);
-                }
-              });
-            }
-
-          } else {
-            const isTrial = branch === 'trial';
-            const actionTitle = isTrial ? '1-Day Trial Session (₹4,000)' : 'Diagnostic Consultation (₹1,000)';
-            const orderFee = isTrial ? 4000 : 1000;
-            quizBody.innerHTML = `
-              <div style="text-align: center; padding: 16px 8px;">
-                <div style="font-size: 2.8rem; margin-bottom: 6px;">✅</div>
-                <h3 style="font-size: 1.35rem; color: var(--primary-deep); margin-bottom: 6px;">
-                  Request Registered for ${name}!
-                </h3>
-                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
-                  Select your exact appointment date &amp; time below on our live <strong>Cal.id</strong> clinic calendar:
-                </p>
-
-                <!-- Embedded Cal.id (No external redirection) -->
-                <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: 8px; overflow: hidden; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.04);">
-                  <div style="background: var(--bg-sand); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light);">
-                    <span style="font-size: 0.82rem; font-weight: 700; color: var(--primary-deep);">📅 Dr. Surabhi Vaidya Live Cal.id Calendar</span>
-                    <span style="font-size: 0.72rem; color: var(--primary-deep); background: #eef7ed; padding: 2px 8px; border-radius: 9999px; font-weight: 600;">● Online Slot Booking</span>
-                  </div>
-                  <iframe src="https://cal.id/charakhealth/consultation?embed=true&layout=month_view&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}" style="width: 100%; height: 480px; border: none;" title="Cal.id Inline Booking"></iframe>
-                </div>
-
-                <!-- Cashfree PG Option or Pay at Clinic -->
-                <div style="background: var(--bg-sand); padding: 14px; border-radius: 8px; margin-bottom: 16px; text-align: left;">
-                  <div style="font-weight: 700; font-size: 0.88rem; color: var(--primary-deep); margin-bottom: 4px;">Payment Option:</div>
-                  <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">You may secure your slot now with Cashfree or pay upon arrival at clinic.</p>
-                  <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button type="button" id="pay-cashfree-slot-btn" class="btn btn-primary" style="flex: 1; min-width: 180px; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
-                      <span>💳</span> Pay ₹${orderFee.toLocaleString('en-IN')} via Cashfree
-                    </button>
-                    <button type="button" class="btn btn-secondary" style="flex: 1; min-width: 120px; font-size: 0.85rem;" onclick="document.querySelector('#quiz-modal').style.display='none'; document.body.style.overflow='';">
-                      Pay at Clinic
-                    </button>
-                  </div>
-                </div>
-
-                <div style="background: #faf8f5; border: 1px solid var(--border-light); padding: 10px; border-radius: 6px; font-size: 0.78rem; color: var(--text-muted); text-align: left;">
-                  <strong>Clinic Address:</strong> Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West, Maharashtra 400606. Desk: kneeandbackpainclinic@gmail.com
-                </div>
-              </div>
-            `;
-
-            const paySlotBtn = quizBody.querySelector('#pay-cashfree-slot-btn');
-            if (paySlotBtn) {
-              paySlotBtn.addEventListener('click', async function() {
-                paySlotBtn.disabled = true;
-                paySlotBtn.textContent = 'Opening Cashfree Gateway...';
-                try {
-                  if (window.triggerCashfreeCheckout) {
-                    await window.triggerCashfreeCheckout({
-                      amount: orderFee,
-                      name: name,
-                      phone: phone,
-                      planType: actionTitle,
-                      leadId: newLead.id
-                    });
-                  }
-                } catch (err) {
-                  console.warn('Slot checkout err:', err.message);
                 }
               });
             }
