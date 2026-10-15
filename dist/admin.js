@@ -627,7 +627,7 @@
       category: 'marketing',
       variableCount: 1,
       variableLabels: ['Booking URL'],
-      defaultVariables: ['https://dr-surabhi.com/book'],
+      defaultVariables: ['https://cal.id/charakhealth/consultation'],
       hasMedia: false,
       body: 'Meet Dr. Surabhi Vaidya, BAMS and MBA in Clinical Research, at Charak Health Solutions in Thane.\n\nHer consultation process begins with health history, current difficulties and assessment before suitable next steps are discussed.\n\nBook an appointment: {{1}}\n\nReply STOP to opt out.'
     },
@@ -641,7 +641,7 @@
       defaultVariables: [],
       hasMedia: true,
       mediaType: 'image',
-      defaultMediaUrl: 'https://dr-surabhi-knee-and-back-pain-relie-azure.vercel.app/assets/garden-mobile-draft.png',
+      defaultMediaUrl: 'https://kneeandbackpainclinic.vercel.app/assets/garden-mobile-draft.png',
       body: '🫧 TIRED? STIFF? SLOW TO RECOVER?\n\nNow experience a personalised combination of Ozone Shots + Ayurveda at Charak Health Solutions 🌿\n\n✨ Support for recovery, circulation & overall wellness — with the holistic approach of Ayurveda.\n\n👩‍⚕️ Assessment before treatment\n📍 Vartak Nagar, Thane\n📞 9082280274\n\n👉 Book your Assessment today!'
     },
     knee_care_assessment_education_v1: {
@@ -673,7 +673,7 @@
       category: 'marketing',
       variableCount: 1,
       variableLabels: ['Appointment Link'],
-      defaultVariables: ['https://dr-surabhi.com/consultation'],
+      defaultVariables: ['https://cal.id/charakhealth/consultation'],
       hasMedia: false,
       body: 'Every person condition and response to care can be different. In this video, a Charak Health Solutions patient shares their own experience of seeking help for knee pain.\n\nTo discuss an individual starting point with Dr. Surabhi, book an appointment: {{1}}\n\nIndividual results vary. A consultation is needed to discuss suitable options. Reply STOP to opt out.'
     },
@@ -698,7 +698,7 @@
       defaultVariables: ['Meena', 'Your consultation details have been updated.', 'Please arrive 10 minutes early.', 'Location: Charak Health Solutions, Thane West.'],
       hasMedia: true,
       mediaType: 'image',
-      defaultMediaUrl: 'https://dr-surabhi-knee-and-back-pain-relie-azure.vercel.app/assets/garden-mobile-draft.png',
+      defaultMediaUrl: 'https://kneeandbackpainclinic.vercel.app/assets/garden-mobile-draft.png',
       body: 'Hello {{1}},\n\n{{2}}\n\n{{3}}\n\n{{4}}\n\nThis information is being shared for reference purposes.\n\n*Thank You.*'
     },
     surabhi_v4_no_image: {
@@ -722,7 +722,7 @@
       defaultVariables: ['Meena', 'Please find your clinic protocol attached.', 'Kindly review the instructions before your visit.', 'Feel free to reply if you have questions.'],
       hasMedia: true,
       mediaType: 'document',
-      defaultMediaUrl: 'https://dr-surabhi-knee-and-back-pain-relie-azure.vercel.app/assets/knee_pain_guide.pdf',
+      defaultMediaUrl: 'https://kneeandbackpainclinic.vercel.app/assets/knee_pain_guide.pdf',
       body: 'Hello {{1}},\n\n{{2}}\n\n{{3}}\n\n{{4}}\n\n*Thank You.*\n\n_This information is being shared for reference purposes._'
     },
     surabhi_v5_with_image: {
@@ -735,7 +735,7 @@
       defaultVariables: ['Meena', 'Line 1', 'Line 2', 'Line 3', 'Line 4'],
       hasMedia: true,
       mediaType: 'image',
-      defaultMediaUrl: 'https://dr-surabhi-knee-and-back-pain-relie-azure.vercel.app/assets/garden-mobile-draft.png',
+      defaultMediaUrl: 'https://kneeandbackpainclinic.vercel.app/assets/garden-mobile-draft.png',
       body: 'Hello {{1}},\n\n{{2}}\n\n{{3}}\n\n{{4}}\n\n{{5}}\n\nThis information is being shared for reference purposes.\n\n*Thank You.*'
     },
     surabhi_v5_no_image: {
@@ -759,7 +759,7 @@
       defaultVariables: ['Meena', 'Line 1', 'Line 2', 'Line 3', 'Line 4'],
       hasMedia: true,
       mediaType: 'document',
-      defaultMediaUrl: 'https://dr-surabhi-knee-and-back-pain-relie-azure.vercel.app/assets/knee_pain_guide.pdf',
+      defaultMediaUrl: 'https://kneeandbackpainclinic.vercel.app/assets/knee_pain_guide.pdf',
       body: 'Hello {{1}},\n\n{{2}}\n\n{{3}}\n\n{{4}}\n\n{{5}}\n\nThis information is being shared for reference purposes.\n\n*Thank You.*'
     },
     surabhi_v5_video: {
@@ -772,7 +772,7 @@
       defaultVariables: ['Meena', 'Line 1', 'Line 2', 'Line 3', 'Line 4'],
       hasMedia: true,
       mediaType: 'video',
-      defaultMediaUrl: 'https://dr-surabhi-knee-and-back-pain-relie-azure.vercel.app/assets/dr_surabhi_intro.mp4',
+      defaultMediaUrl: 'https://kneeandbackpainclinic.vercel.app/assets/dr_surabhi_intro.mp4',
       body: 'Hello {{1}},\n\n{{2}}\n\n{{3}}\n\n{{4}}\n\n{{5}}\n\nThis information is being shared for reference purposes.\n\n*Thank You.*'
     }
   };

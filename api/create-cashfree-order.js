@@ -31,7 +31,7 @@ export default async function handler(req, res) {
     const customerId = 'CUST_' + (cleanPhone.length === 10 ? cleanPhone : Math.floor(100000 + Math.random() * 900000));
     const name = customerName || 'Patient';
     const email = customerEmail || `${cleanPhone}@patient.charakhealth.com`;
-    const host = req.headers['x-forwarded-host'] || req.headers.host || 'dr-surabhi-knee-and-back-pain-relie-azure.vercel.app';
+    const host = req.headers['x-forwarded-host'] || req.headers.host || 'kneeandbackpainclinic.vercel.app';
     const proto = req.headers['x-forwarded-proto'] || 'https';
     const baseUrl = `${proto}://${host}`;
 

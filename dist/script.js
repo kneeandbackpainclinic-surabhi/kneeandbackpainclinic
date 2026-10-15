@@ -516,7 +516,7 @@
                     <span style="font-size: 0.82rem; font-weight: 700; color: var(--primary-deep);">📅 Dr. Surabhi Vaidya Live Cal.id Calendar</span>
                     <span style="font-size: 0.72rem; color: var(--primary-deep); background: #eef7ed; padding: 2px 8px; border-radius: 9999px; font-weight: 600;">● Online Slot Booking</span>
                   </div>
-                  <iframe src="https://cal.id/charakhealth?embed=true&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}" style="width: 100%; height: 480px; border: none;" title="Cal.id Inline Booking"></iframe>
+                  <iframe src="https://cal.id/charakhealth/consultation?embed=true&layout=month_view&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}" style="width: 100%; height: 480px; border: none;" title="Cal.id Inline Booking"></iframe>
                 </div>
 
                 <!-- Cashfree PG Option or Pay at Clinic -->

@@ -1,9 +1,12 @@
 // Clinic Configuration & Booking Integrations (Cal.id, Cashfree & Webinar.gg)
 window.BOOKING_LINKS = {
   // Cal.id booking link for in-clinic appointments & sessions
-  calBase: 'https://cal.id/charakhealth',
-  consultation: 'https://cal.id/charakhealth',
-  experienceSession: 'https://cal.id/charakhealth',
+  calBase: 'https://cal.id/charakhealth/consultation',
+  consultation: 'https://cal.id/charakhealth/consultation',
+  experienceSession: 'https://cal.id/charakhealth/consultation',
+  calLink: 'charakhealth/consultation',
+  embedJsUrl: 'https://cal.id/embed-link/embed.js',
+  calOrigin: 'https://cal.id',
   
   // Clinic appointment desk direct email
   clinicPhone: '',
@@ -27,6 +30,56 @@ window.BOOKING_LINKS = {
 };
 
 // ============================================================================
+// OFFICIAL CAL.ID EMBED RUNTIME INITIALIZATION
+// ============================================================================
+(function (C, A, L) {
+  let p = function (a, ar) { a.q.push(ar); };
+  let d = C.document;
+  C.Cal = C.Cal || function () {
+    let cal = C.Cal;
+    let ar = arguments;
+    if (!cal.loaded) {
+      cal.ns = {};
+      cal.q = cal.q || [];
+      const s = d.createElement("script");
+      s.src = A;
+      s.async = true;
+      d.head.appendChild(s);
+      cal.loaded = true;
+    }
+    if (ar[0] === L) {
+      const api = function () { p(api, arguments); };
+      const namespace = ar[1];
+      api.q = api.q || [];
+      if (typeof namespace === "string") {
+        cal.ns[namespace] = cal.ns[namespace] || api;
+        p(cal.ns[namespace], ar);
+        p(cal, ["initNamespace", namespace]);
+      } else p(cal, ar);
+      return;
+    }
+    p(cal, ar);
+  };
+})(window, "https://cal.id/embed-link/embed.js", "init");
+
+// Configure default namespace
+if (window.Cal) {
+  try {
+    window.Cal("init", "default", { origin: "https://cal.id" });
+    window.Cal("ui", {
+      cssVarsPerTheme: {
+        light: { "cal-brand": "#143026" },
+        dark: { "cal-brand": "#fafafa" }
+      },
+      hideEventTypeDetails: false,
+      layout: "month_view"
+    });
+  } catch (e) {
+    console.warn("Cal.id init note:", e.message);
+  }
+}
+
+// ============================================================================
 // 1. INLINE CAL.ID EMBEDDED MODAL (NO EXTERNAL REDIRECTION)
 // ============================================================================
 window.openCalModal = function(options) {
@@ -45,13 +98,13 @@ window.openCalModal = function(options) {
   }
 
   // Build Cal.id embedded URL with prefilled parameters
-  const params = new URLSearchParams({ embed: 'true' });
+  const params = new URLSearchParams({ embed: 'true', layout: 'month_view' });
   if (name) params.set('name', name);
   if (phone) params.set('phone', phone);
   if (email) params.set('email', email);
   if (notes) params.set('notes', notes);
 
-  const calUrl = 'https://cal.id/charakhealth?' + params.toString();
+  const calUrl = 'https://cal.id/charakhealth/consultation?' + params.toString();
 
   if (iframe) {
     iframe.src = calUrl;
