@@ -1265,6 +1265,135 @@ img {
   overflow-y: auto;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
   position: relative;
+  transition: max-width 0.25s ease;
+}
+
+.quiz-modal-container.is-consultation-step {
+  max-width: 1060px;
+  width: 96%;
+  max-height: 94vh;
+}
+
+/* Consultation 2-Column Responsive Layout */
+.booking-grid-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+@media (min-width: 820px) {
+  .booking-grid-layout {
+    grid-template-columns: 330px 1fr;
+    gap: 20px;
+    align-items: stretch;
+  }
+}
+
+.booking-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.booking-calendar-main {
+  background: #ffffff;
+  border: 1.5px solid var(--border-light);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  min-height: 520px;
+}
+
+.calendar-header-bar {
+  background: var(--bg-sand);
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--primary-deep);
+  flex-shrink: 0;
+}
+
+.auto-slot-badge {
+  font-size: 0.72rem;
+  color: #166534;
+  background: #eef7ed;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-weight: 600;
+}
+
+.booking-calendar-main iframe {
+  width: 100%;
+  flex: 1;
+  min-height: 480px;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+@media (min-width: 820px) {
+  .booking-calendar-main iframe {
+    min-height: 540px;
+  }
+}
+
+/* Standalone Cal Modal Card (#cal-modal) */
+.cal-modal-card {
+  max-width: 1080px;
+  width: 96%;
+  height: 90vh;
+  max-height: 92vh;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+}
+
+.cal-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background: #faf8f5;
+  border-bottom: 1px solid #e7dfd5;
+  flex-shrink: 0;
+}
+
+.cal-modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #556b60;
+  line-height: 1;
+  padding: 0 6px;
+}
+
+.cal-modal-iframe-wrap {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: #ffffff;
+  position: relative;
+  display: flex;
+}
+
+.cal-modal-iframe-wrap iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
 }
 
 .quiz-modal-header {

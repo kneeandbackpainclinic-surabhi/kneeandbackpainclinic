@@ -142,6 +142,8 @@
   function openQuiz() {
     currentStep = 0;
     userAnswers = [];
+    const modalContainer = quizModal ? quizModal.querySelector('.quiz-modal-container') : null;
+    if (modalContainer) modalContainer.classList.remove('is-consultation-step');
     renderQuiz();
     if (quizModal) {
       quizModal.style.display = 'flex';
@@ -152,6 +154,8 @@
 
   function closeQuiz() {
     if (quizModal) {
+      const modalContainer = quizModal.querySelector('.quiz-modal-container');
+      if (modalContainer) modalContainer.classList.remove('is-consultation-step');
       quizModal.style.display = 'none';
       quizModal.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
@@ -294,7 +298,9 @@
       }
 
       // BRANCH 1: IN-CLINIC DIAGNOSTIC CONSULTATION (WITH DIRECT EMBEDDED CAL.ID FORM)
+      const modalContainer = quizModal ? quizModal.querySelector('.quiz-modal-container') : null;
       if (branch === 'consultation') {
+        if (modalContainer) modalContainer.classList.add('is-consultation-step');
         resultHtml = `
           <div class="quiz-result-single" style="border-color: var(--accent-gold);">
             <div style="font-size: 0.72rem; font-weight: 700; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">
@@ -313,58 +319,61 @@
               <div class="flow-node">3. Targeted Protocol</div>
             </div>
 
-            <div style="background: var(--bg-sand); padding: 10px 14px; border-radius: 6px; font-size: 0.82rem; color: var(--primary-deep); margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
-              <span>📍 <strong>Location:</strong> Cura 304, Raymond TenX Habitat, Thane West</span>
-              <span>⏱️ <strong>Duration:</strong> 30 Minutes</span>
-            </div>
-
-            <!-- Booking Form With Cal.id Embedded Directly -->
+            <!-- Booking Form With Cal.id Embedded in Responsive 2-Column Grid -->
             <form id="quiz-booking-form">
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-                <div class="form-field" style="margin-bottom: 0;">
-                  <label for="booking-name" style="font-size: 0.8rem; font-weight: 600; color: var(--primary-deep); margin-bottom: 4px; display: block;">Your Full Name *</label>
-                  <input type="text" id="booking-name" required placeholder="Enter full name" minlength="2" style="width: 100%; padding: 8px 10px; font-size: 0.85rem; border: 1px solid var(--border-light); border-radius: 6px;">
-                </div>
-                <div class="form-field" style="margin-bottom: 0;">
-                  <label for="booking-phone" style="font-size: 0.8rem; font-weight: 600; color: var(--primary-deep); margin-bottom: 4px; display: block;">Mobile Phone *</label>
-                  <input type="tel" id="booking-phone" required placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" maxlength="10" style="width: 100%; padding: 8px 10px; font-size: 0.85rem; border: 1px solid var(--border-light); border-radius: 6px;">
-                </div>
-              </div>
+              <div class="booking-grid-layout">
+                
+                <!-- Left Sidebar: Patient Details, Pricing & Action Buttons -->
+                <div class="booking-sidebar">
+                  <div class="form-field" style="margin-bottom: 6px;">
+                    <label for="booking-name" style="font-size: 0.8rem; font-weight: 600; color: var(--primary-deep); margin-bottom: 3px; display: block;">Your Full Name *</label>
+                    <input type="text" id="booking-name" required placeholder="Enter full name" minlength="2" style="width: 100%; padding: 8px 10px; font-size: 0.85rem; border: 1px solid var(--border-light); border-radius: 6px;">
+                  </div>
+                  <div class="form-field" style="margin-bottom: 8px;">
+                    <label for="booking-phone" style="font-size: 0.8rem; font-weight: 600; color: var(--primary-deep); margin-bottom: 3px; display: block;">Mobile Phone (WhatsApp) *</label>
+                    <input type="tel" id="booking-phone" required placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" maxlength="10" style="width: 100%; padding: 8px 10px; font-size: 0.85rem; border: 1px solid var(--border-light); border-radius: 6px;">
+                  </div>
 
-              <!-- Direct Cal.id Scheduler Embed (Next Available Slot Auto-Focused) -->
-              <div style="background: #ffffff; border: 1.5px solid var(--border-light); border-radius: 8px; overflow: hidden; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-                <div style="background: var(--bg-sand); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light);">
-                  <span style="font-size: 0.82rem; font-weight: 700; color: var(--primary-deep);">📅 Select Appointment Slot (Cal.id Live Calendar)</span>
-                  <span style="font-size: 0.72rem; color: #166534; background: #eef7ed; padding: 2px 8px; border-radius: 9999px; font-weight: 600;">● Next Slot Auto-Selected</span>
-                </div>
-                <iframe id="quiz-cal-embed-frame" src="https://cal.id/charakhealth/consultation?embed=true&layout=week_view&hideEventTypeDetails=true&date=${nextAvailableDate}" style="width: 100%; height: 490px; border: none; display: block;" title="Cal.id Booking Calendar"></iframe>
-              </div>
+                  <!-- Consultation Fee & Action Box -->
+                  <div style="background: var(--bg-sand); padding: 12px; border-radius: 8px; border: 1px solid var(--border-light);">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+                      <span style="font-size: 0.82rem; color: var(--text-muted);">Consultation Fee:</span>
+                      <strong style="font-size: 1.15rem; color: var(--primary-deep);">₹1,000</strong>
+                    </div>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px; line-height: 1.35;">
+                      Select your preferred date &amp; time on the calendar, then click below to confirm your booking:
+                    </p>
+                    <div style="display: flex; gap: 8px; flex-direction: column;">
+                      <button type="submit" id="confirm-clinic-slot-btn" class="btn btn-primary btn-lg" style="width: 100%; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 700; font-size: 0.88rem;">
+                        <span>✅</span> Confirm Booking &amp; Pay at Clinic
+                      </button>
+                      <button type="button" id="pay-cashfree-consult-btn" class="btn btn-secondary" style="width: 100%; padding: 8px 10px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.82rem;">
+                        <span>💳</span> Or Pay ₹1,000 Online via Cashfree
+                      </button>
+                    </div>
+                  </div>
 
-              <!-- Payment / Confirmation Options directly linked to booking -->
-              <div style="background: var(--bg-sand); padding: 14px; border-radius: 8px; margin-bottom: 14px;">
-                <div style="font-weight: 700; font-size: 0.88rem; color: var(--primary-deep); margin-bottom: 4px;">Consultation Fee: ₹1,000</div>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">
-                  Pick your slot on the calendar above. Once scheduled, click below to confirm your booking:
-                </p>
-                <div style="display: flex; gap: 10px; flex-direction: column;">
-                  <button type="submit" id="confirm-clinic-slot-btn" class="btn btn-primary btn-lg" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;">
-                    <span>✅</span> Confirm Booking &amp; Pay ₹1,000 at Clinic
-                  </button>
-                  <button type="button" id="pay-cashfree-consult-btn" class="btn btn-secondary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                    <span>💳</span> Or Pay ₹1,000 Online via Cashfree Now
-                  </button>
+                  <div style="background: #faf8f5; border: 1px solid var(--border-light); padding: 8px 10px; border-radius: 6px; font-size: 0.72rem; color: var(--text-muted); line-height: 1.4;">
+                    📍 <strong>Clinic Address:</strong> Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West. Desk: kneeandbackpainclinic@gmail.com
+                  </div>
                 </div>
-              </div>
 
-              <div style="background: #faf8f5; border: 1px solid var(--border-light); padding: 8px 12px; border-radius: 6px; font-size: 0.75rem; color: var(--text-muted); text-align: left;">
-                📍 <strong>Clinic Address:</strong> Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West. Desk: kneeandbackpainclinic@gmail.com
+                <!-- Right Main: Live Cal.id Calendar Embed -->
+                <div class="booking-calendar-main">
+                  <div class="calendar-header-bar">
+                    <span>📅 Select Appointment Slot (Cal.id Live Calendar)</span>
+                    <span class="auto-slot-badge">● Live Availability</span>
+                  </div>
+                  <iframe id="quiz-cal-embed-frame" src="https://cal.id/charakhealth/consultation?embed=true&layout=week_view&hideEventTypeDetails=true&date=${nextAvailableDate}" title="Cal.id Booking Calendar"></iframe>
+                </div>
+
               </div>
             </form>
           </div>
         `;
-      }
-      // BRANCH 2: ONLY LIVE HINDI WEBINAR MASTERCLASS (₹201)
-      else {
+      } else {
+        if (modalContainer) modalContainer.classList.remove('is-consultation-step');
+        // BRANCH 2: ONLY LIVE HINDI WEBINAR MASTERCLASS (₹201)
         resultHtml = `
           <div class="quiz-result-single" style="border-color: var(--primary-sage);">
             <div style="font-size: 0.72rem; font-weight: 700; color: var(--primary-sage); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">
