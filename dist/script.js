@@ -337,7 +337,7 @@
                   <span style="font-size: 0.82rem; font-weight: 700; color: var(--primary-deep);">📅 Select Appointment Slot (Cal.id Live Calendar)</span>
                   <span style="font-size: 0.72rem; color: #166534; background: #eef7ed; padding: 2px 8px; border-radius: 9999px; font-weight: 600;">● Next Slot Auto-Selected</span>
                 </div>
-                <iframe id="quiz-cal-embed-frame" src="https://cal.id/charakhealth/consultation?embed=true&layout=month_view&date=${nextAvailableDate}" style="width: 100%; height: 490px; border: none; display: block;" title="Cal.id Booking Calendar"></iframe>
+                <iframe id="quiz-cal-embed-frame" src="https://cal.id/charakhealth/consultation?embed=true&layout=week_view&hideEventTypeDetails=true&date=${nextAvailableDate}" style="width: 100%; height: 490px; border: none; display: block;" title="Cal.id Booking Calendar"></iframe>
               </div>
 
               <!-- Payment / Confirmation Options directly linked to booking -->
@@ -469,7 +469,7 @@
           const phoneVal = phoneInput ? phoneInput.value.trim() : '';
           if (phoneVal.length === 10) {
             saveConsultationLead(nameVal, phoneVal, '', 'Unpaid');
-            const newUrl = `https://cal.id/charakhealth/consultation?embed=true&layout=month_view&date=${nextAvailableDate}&name=${encodeURIComponent(nameVal)}&phone=${encodeURIComponent(phoneVal)}`;
+            const newUrl = `https://cal.id/charakhealth/consultation?embed=true&layout=week_view&hideEventTypeDetails=true&date=${nextAvailableDate}&name=${encodeURIComponent(nameVal)}&phone=${encodeURIComponent(phoneVal)}`;
             if (calFrame.src !== newUrl) {
               calFrame.src = newUrl;
             }
