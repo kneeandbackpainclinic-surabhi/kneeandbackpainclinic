@@ -43,7 +43,16 @@ export default async function handler(req, res) {
           if (searchResp.ok) {
             const matches = await searchResp.json();
             if (matches && matches.length > 0) {
-              const leadId = matches[0].id;
+              const matchedLead = matches[0];
+              const leadId = matchedLead.id;
+              const leadName = matchedLead.name || 'Patient';
+
+              // Determine appropriate confirmation template
+              const isWebinarOrder = Number(orderAmount) === 201 || (orderId && orderId.toLowerCase().includes('webinar'));
+              const templateName = isWebinarOrder ? 'webinar_joining_details_v1' : 'consultation_booking_confirmation_v1';
+              const nowIso = new Date().toISOString();
+
+              // Update Supabase lead record
               await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${leadId}`, {
                 method: 'PATCH',
                 headers: {
@@ -55,9 +64,42 @@ export default async function handler(req, res) {
                   status: 'Paid & Confirmed',
                   payment_status: `Paid (₹${orderAmount})`,
                   payment_order_id: orderId,
-                  payment_updated_at: new Date().toISOString()
+                  payment_updated_at: nowIso,
+                  delivered_message: templateName,
+                  delivered_message_time: nowIso
                 })
               });
+
+              // Dispatch WhatsApp Confirmation via AgentBandhu
+              const agentBandhuKey = (process.env.AGENTBANDHU_API_KEY || process.env.META_WHATSAPP_ACCESS_TOKEN || '').trim();
+              if (agentBandhuKey) {
+                try {
+                  const { formatPhoneNumber, buildAgentBandhuPayload, AGENTBANDHU_MESSAGES_ENDPOINT } = await import('./whatsapp-templates.js');
+                  const variables = isWebinarOrder
+                    ? [leadName, 'Sunday, 18 October 2026', '11:00 AM IST']
+                    : [leadName, 'Upcoming Clinic Hours', 'Flexible'];
+
+                  const waPayload = buildAgentBandhuPayload({
+                    to: formatPhoneNumber(customerPhone || matchedLead.phone),
+                    templateName,
+                    variables,
+                    reference: `pay_${orderId || Date.now()}`
+                  });
+
+                  await fetch(AGENTBANDHU_MESSAGES_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${agentBandhuKey}`,
+                      'x-api-key': agentBandhuKey,
+                      'api-key': agentBandhuKey
+                    },
+                    body: JSON.stringify(waPayload)
+                  });
+                } catch (waErr) {
+                  console.warn('AgentBandhu Webhook WhatsApp Dispatch Warning:', waErr.message);
+                }
+              }
             }
           }
         } catch (dbErr) {

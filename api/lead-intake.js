@@ -60,8 +60,54 @@ export default async function handler(req, res) {
       }
     }
 
-    // 2. Trigger Meta WhatsApp Business Cloud API if configured
-    if (process.env.META_WHATSAPP_ACCESS_TOKEN && process.env.META_WHATSAPP_PHONE_NUMBER_ID) {
+    // 2. Trigger AgentBandhu WhatsApp Cloud API if configured
+    const agentBandhuKey = (process.env.AGENTBANDHU_API_KEY || process.env.META_WHATSAPP_ACCESS_TOKEN || '').trim();
+    if (agentBandhuKey) {
+      try {
+        const isWebinar = (lead.recommendedStep || '').toLowerCase().includes('webinar') || (lead.recommendedStep || '').toLowerCase().includes('masterclass');
+        const templateName = isWebinar ? 'webinar_registration_confirmation_v1' : 'consultation_booking_confirmation_v1';
+        const variables = isWebinar
+          ? [lead.name || 'Patient', 'Sunday, 18 October 2026', '11:00 AM IST']
+          : [lead.name || 'Patient', lead.slotPreference || 'Upcoming Clinic Hours', 'Flexible'];
+
+        const { formatPhoneNumber, buildAgentBandhuPayload, AGENTBANDHU_MESSAGES_ENDPOINT } = await import('./whatsapp-templates.js');
+        const waPayload = buildAgentBandhuPayload({
+          to: formatPhoneNumber(lead.phone),
+          templateName,
+          variables,
+          reference: `lead_${lead.id || Date.now()}`
+        });
+
+        const waResp = await fetch(AGENTBANDHU_MESSAGES_ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${agentBandhuKey}`,
+            'x-api-key': agentBandhuKey,
+            'api-key': agentBandhuKey
+          },
+          body: JSON.stringify(waPayload)
+        });
+
+        if (waResp.ok && supabaseUrl && supabaseKey) {
+          await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${lead.id}`, {
+            method: 'PATCH',
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              delivered_message: templateName,
+              delivered_message_time: new Date().toISOString()
+            })
+          }).catch(() => {});
+        }
+      } catch (waErr) {
+        console.warn('AgentBandhu WhatsApp Intake Dispatch Warning:', waErr.message);
+      }
+    } else if (process.env.META_WHATSAPP_PHONE_NUMBER_ID && process.env.META_WHATSAPP_ACCESS_TOKEN) {
+      // Fallback: Direct Meta Graph API if phone number ID is set
       const cleanPhone = lead.phone.replace(/[^0-9]/g, '');
       const fullPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
 
@@ -79,7 +125,7 @@ export default async function handler(req, res) {
             body: `Namaste ${lead.name || 'Patient'} ji, thank you for completing the pain assessment with Dr. Surabhi Vaidya Clinic (Charak Health Solutions). We have received your request for ${lead.recommendedStep || 'consultation'}. Our clinic team will connect shortly.`
           }
         })
-      });
+      }).catch(() => {});
     }
 
     // 3. Trigger External Webhook (e.g. Make.com / Zapier / Google Sheets) if configured

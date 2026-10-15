@@ -199,28 +199,28 @@
            ==================================================================== -->
       <section class="tab-content" id="tab-whatsapp">
         
-        <!-- Top Banner: Meta WhatsApp Cloud API Integration Health -->
+        <!-- Top Banner: AgentBandhu WhatsApp Cloud API Integration Health -->
         <div class="admin-card wa-header-banner">
           <div class="wa-banner-left">
-            <div class="wa-banner-icon">
+            <div class="wa-banner-icon" style="background: #25D366; color: #fff;">
               <span>💬</span>
             </div>
             <div>
               <div class="wa-banner-title-row">
-                <h3>Meta WhatsApp Cloud API</h3>
-                <span class="badge-live-meta">
-                  <span class="pulse-dot-green"></span> Live
+                <h3>AgentBandhu WhatsApp Cloud API</h3>
+                <span class="badge-live-meta" id="wa-api-status-badge">
+                  <span class="pulse-dot-green"></span> Ready (Official BSP)
                 </span>
               </div>
-              <p class="wa-banner-sub">Official Meta Graph API v21.0 integration on Vercel Serverless.</p>
+              <p class="wa-banner-sub">Dispatches via <code>https://agentbandhu.com/api/v1/public/messages</code>. Inbox &amp; 2-way patient conversations are managed inside the AgentBandhu platform.</p>
             </div>
           </div>
           <div class="wa-banner-actions">
+            <button type="button" class="btn-wa-action btn-wa-sweep" id="btn-open-wa-diag" title="Test API key and dispatch a diagnostic test message">
+              <span>⚡</span> Live API Diagnostics
+            </button>
             <button type="button" class="btn-wa-action btn-wa-sweep" id="btn-wa-sweep" title="Runs multi-channel sweep to trigger due WhatsApp reminders">
               <span>✨</span> Run Reminder Sweep
-            </button>
-            <button type="button" class="btn-wa-action btn-wa-sync" id="btn-wa-sync-receipts" title="Reconcile Meta dispatches with Delivered & Read status">
-              <span>✓</span> Sync Delivery Status
             </button>
             <button type="button" class="btn-wa-action btn-wa-refresh" id="btn-wa-refresh" title="Reload leads & dispatches">
               <span>🔄</span> Refresh
@@ -267,130 +267,221 @@
           </div>
         </div>
 
-        <!-- Collapsible Meta Webhook Receiver Card -->
-        <div class="admin-card wa-webhook-card">
-          <div class="wa-webhook-header">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span class="wa-webhook-badge">✓✓</span>
-              <div>
-                <strong style="font-size: 0.9rem; color: var(--admin-primary);">Meta Webhook &amp; Live Double-Blue Read Receipts</strong>
-                <p style="font-size: 0.76rem; color: var(--admin-muted); margin: 0;">Real-time delivery receipts emitted by Meta Cloud API webhook into Supabase.</p>
-              </div>
+        <!-- AgentBandhu Live Diagnostics & Test Console Card -->
+        <div class="admin-card" id="card-wa-diagnostics" style="display: none; background: #fafcfb; border: 1px solid #16a34a; border-radius: 8px; margin-bottom: 20px; padding: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div>
+              <h3 style="font-size: 1.05rem; color: #166534; display: flex; align-items: center; gap: 8px;">
+                <span>🧪</span> AgentBandhu Public API Diagnostics &amp; Live Test Runner
+              </h3>
+              <p style="font-size: 0.8rem; color: var(--admin-muted); margin: 2px 0 0 0;">
+                Test your <code>META_WHATSAPP_ACCESS_TOKEN</code> against <code>https://agentbandhu.com/api/v1/public/messages</code>.
+              </p>
             </div>
-            <button type="button" class="btn-toggle-webhook" id="btn-toggle-webhook">
-              <span id="webhook-toggle-label">Show Webhook Setup ▼</span>
+            <button type="button" onclick="document.querySelector('#card-wa-diagnostics').style.display='none';" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--admin-muted);">&times;</button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 14px;">
+            <div class="form-field">
+              <label for="diag-wa-phone" style="font-size: 0.78rem; font-weight: 700;">Recipient Mobile Number *</label>
+              <input type="tel" id="diag-wa-phone" value="9820145872" placeholder="e.g. 9820145872" style="font-size: 0.85rem; padding: 8px 10px; border: 1px solid var(--admin-border); border-radius: 6px; width: 100%;">
+            </div>
+            <div class="form-field">
+              <label for="diag-wa-template" style="font-size: 0.78rem; font-weight: 700;">Template</label>
+              <select id="diag-wa-template" style="font-size: 0.85rem; padding: 8px 10px; border: 1px solid var(--admin-border); border-radius: 6px; width: 100%; background: #fff;">
+                <option value="webinar_registration_confirmation_v1">webinar_registration_confirmation_v1 (en)</option>
+                <option value="consultation_booking_confirmation_v1">consultation_booking_confirmation_v1 (en_US)</option>
+                <option value="webinar_joining_details_v1">webinar_joining_details_v1 (en_US)</option>
+                <option value="knee_pain_webinar_invitation_v1">knee_pain_webinar_invitation_v1 (en_US)</option>
+                <option value="meet_dr_surabhi_v1">meet_dr_surabhi_v1 (en_US)</option>
+                <option value="ozone_therapy">ozone_therapy (en, image)</option>
+                <option value="webinar_reminder_1_day_v1">webinar_reminder_1_day_v1 (en_US)</option>
+                <option value="webinar_reminder_1_hour_v1">webinar_reminder_1_hour_v1 (en_US)</option>
+                <option value="surabhi_v4_with_image">surabhi_v4_with_image (en_US, image)</option>
+                <option value="post_experience_google_review_v1">post_experience_google_review_v1 (en_US)</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="diag-wa-key" style="font-size: 0.78rem; font-weight: 700;">API Key (Optional Override)</label>
+              <input type="password" id="diag-wa-key" placeholder="Defaults to META_WHATSAPP_ACCESS_TOKEN" style="font-size: 0.85rem; padding: 8px 10px; border: 1px solid var(--admin-border); border-radius: 6px; width: 100%;">
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-bottom: 14px;">
+            <button type="button" class="btn-login" id="btn-run-wa-diagnostics" style="background: #16a34a; padding: 8px 16px; font-size: 0.85rem;">
+              <span>🚀</span> Dispatch Test &amp; Inspect HTTP Response
+            </button>
+            <button type="button" class="btn-admin-nav" id="btn-check-api-health" style="background: #f1f5f9; padding: 8px 14px; font-size: 0.85rem; border: 1px solid var(--admin-border);">
+              <span>🔍</span> Check Server Config
             </button>
           </div>
 
-          <div id="wa-webhook-details" style="display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--admin-border); font-size: 0.8rem;">
-            <p style="color: var(--admin-muted); margin-bottom: 8px;">Subscribe to the <code>messages</code> field in your Meta Developer App to receive live delivered &amp; read ticks:</p>
-            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-              <div class="webhook-pill">
-                <span class="pill-label">Callback URL:</span>
-                <code class="pill-val" id="val-webhook-url">https://dr-surabhi-knee-and-back-pain-relie-azure.vercel.app/api/whatsapp-webhook</code>
-                <button type="button" class="btn-copy-pill" onclick="navigator.clipboard.writeText(document.querySelector('#val-webhook-url').textContent); alert('Callback URL copied to clipboard!');">📋 Copy</button>
-              </div>
-              <div class="webhook-pill">
-                <span class="pill-label">Verify Token:</span>
-                <code class="pill-val">WHATSAPP_VERIFY_TOKEN</code>
-                <button type="button" class="btn-copy-pill" onclick="navigator.clipboard.writeText('WHATSAPP_VERIFY_TOKEN'); alert('Verify Token copied!');">📋 Copy</button>
-              </div>
-            </div>
-          </div>
+          <div id="diag-results-box" style="display: none; background: #0f172a; color: #f8fafc; padding: 14px; border-radius: 6px; font-family: monospace; font-size: 0.78rem; max-height: 280px; overflow-y: auto; white-space: pre-wrap;"></div>
         </div>
 
         <!-- Template Management Cards -->
         <div class="admin-card">
           <div class="card-header-row">
             <div class="card-header-title">
-              <h2>Meta Cloud Approved Clinical Templates</h2>
-              <p>Configure dynamic appointment and webinar links injected into WhatsApp nurture messages.</p>
+              <h2>AgentBandhu Approved WhatsApp Message Templates</h2>
+              <p>Official verified templates registered with Meta WhatsApp Cloud API via AgentBandhu BSP.</p>
             </div>
           </div>
 
           <div class="wa-templates-grid">
             
-            <!-- Template 1: Trial Confirmation -->
+            <!-- Template 1: Consultation Booking Confirmation -->
             <div class="wa-template-card">
               <div class="wa-tmpl-top">
-                <div class="wa-tmpl-tag badge-trial">Trial Pathway</div>
-                <button type="button" class="btn-test-send" data-tmpl="trial">⚡ Test Send</button>
+                <div class="wa-tmpl-tag badge-consult">Utility · en_US</div>
+                <button type="button" class="btn-test-send" data-tmpl="consultation_booking_confirmation_v1">⚡ Test Send</button>
               </div>
-              <h4 class="wa-tmpl-title">T1: ₹4,000 1-Day Trial Booking Confirmation</h4>
-              <p class="wa-tmpl-desc">Sent immediately when a patient confirms the 1-Day Intensive Experience Session.</p>
+              <h4 class="wa-tmpl-title">consultation_booking_confirmation_v1</h4>
+              <p class="wa-tmpl-desc">Confirms in-person consultation with Dr. Surabhi Vaidya at Cura 304, Raymond TenX Habitat, Thane West.</p>
               
               <div class="wa-vars-preview">
                 <span class="var-badge">{{1}} Patient Name</span>
-                <span class="var-badge">{{2}} Clinic Address</span>
-                <span class="var-badge">{{3}} Cal.id Booking Link</span>
-              </div>
-
-              <div class="form-field" style="margin-top: 10px;">
-                <label for="tmpl-trial-link" style="font-size: 0.75rem; font-weight: 700; color: var(--admin-muted);">Cal.id Slot Booking Link ({{3}})</label>
-                <input type="url" id="tmpl-trial-link" value="https://cal.id/charakhealth" style="font-size: 0.8rem; padding: 6px 10px; border: 1px solid var(--admin-border); border-radius: 4px; width: 100%;">
+                <span class="var-badge">{{2}} Date</span>
+                <span class="var-badge">{{3}} Time</span>
               </div>
             </div>
 
-            <!-- Template 2: Consultation & MRI -->
+            <!-- Template 2: Webinar Registration Confirmation -->
             <div class="wa-template-card">
               <div class="wa-tmpl-top">
-                <div class="wa-tmpl-tag badge-consult">Consultation</div>
-                <button type="button" class="btn-test-send" data-tmpl="consult">⚡ Test Send</button>
+                <div class="wa-tmpl-tag badge-webinar">Utility · en</div>
+                <button type="button" class="btn-test-send" data-tmpl="webinar_registration_confirmation_v1">⚡ Test Send</button>
               </div>
-              <h4 class="wa-tmpl-title">T2: ₹1,000 Diagnostic Consultation &amp; MRI</h4>
-              <p class="wa-tmpl-desc">Requests previous X-Ray / MRI reports and confirms Naadi Pariksha consultation slot.</p>
+              <h4 class="wa-tmpl-title">webinar_registration_confirmation_v1</h4>
+              <p class="wa-tmpl-desc">Sent immediately upon patient registering for the Live Knee Pain Masterclass.</p>
               
               <div class="wa-vars-preview">
                 <span class="var-badge">{{1}} Patient Name</span>
-                <span class="var-badge">{{2}} Cal.id Link</span>
-                <span class="var-badge">{{3}} Clinic Desk Email</span>
-              </div>
-
-              <div class="form-field" style="margin-top: 10px;">
-                <label for="tmpl-consult-link" style="font-size: 0.75rem; font-weight: 700; color: var(--admin-muted);">Cal.id Consultation Calendar URL ({{2}})</label>
-                <input type="url" id="tmpl-consult-link" value="https://cal.id/charakhealth" style="font-size: 0.8rem; padding: 6px 10px; border: 1px solid var(--admin-border); border-radius: 4px; width: 100%;">
+                <span class="var-badge">{{2}} Date</span>
+                <span class="var-badge">{{3}} Time</span>
               </div>
             </div>
 
-            <!-- Template 3: Masterclass Access -->
+            <!-- Template 3: Webinar Joining Details -->
             <div class="wa-template-card">
               <div class="wa-tmpl-top">
-                <div class="wa-tmpl-tag badge-webinar">Masterclass (₹201)</div>
-                <button type="button" class="btn-test-send" data-tmpl="webinar">⚡ Test Send</button>
+                <div class="wa-tmpl-tag badge-webinar">Utility · en_US</div>
+                <button type="button" class="btn-test-send" data-tmpl="webinar_joining_details_v1">⚡ Test Send</button>
               </div>
-              <h4 class="wa-tmpl-title">T3: Live Hindi Masterclass Room Access Link</h4>
-              <p class="wa-tmpl-desc">Sends direct Webinar.gg embedded room access pass and anti-inflammatory diet guide.</p>
+              <h4 class="wa-tmpl-title">webinar_joining_details_v1</h4>
+              <p class="wa-tmpl-desc">Dispatches direct Webinar.gg embedded room joining pass upon confirmed payment.</p>
               
               <div class="wa-vars-preview">
                 <span class="var-badge">{{1}} Patient Name</span>
-                <span class="var-badge">{{2}} Sunday 11 AM</span>
-                <span class="var-badge">{{3}} Webinar.gg /room Link</span>
-              </div>
-
-              <div class="form-field" style="margin-top: 10px;">
-                <label for="tmpl-webinar-link" style="font-size: 0.75rem; font-weight: 700; color: var(--admin-muted);">Webinar.gg Room Embed URL ({{3}})</label>
-                <input type="url" id="tmpl-webinar-link" value="https://dr-surabhi-knee-and-back-pain-relie-azure.vercel.app/room" style="font-size: 0.8rem; padding: 6px 10px; border: 1px solid var(--admin-border); border-radius: 4px; width: 100%;">
+                <span class="var-badge">{{2}} Date</span>
+                <span class="var-badge">{{3}} Time</span>
               </div>
             </div>
 
-            <!-- Template 4: Follow-up -->
+            <!-- Template 4: Knee Pain Webinar Invitation -->
             <div class="wa-template-card">
               <div class="wa-tmpl-top">
-                <div class="wa-tmpl-tag badge-lead" style="background: #eef2ff; color: #4338ca;">Post-Therapy</div>
-                <button type="button" class="btn-test-send" data-tmpl="followup">⚡ Test Send</button>
+                <div class="wa-tmpl-tag badge-lead" style="background: #eef2ff; color: #4338ca;">Marketing · en_US</div>
+                <button type="button" class="btn-test-send" data-tmpl="knee_pain_webinar_invitation_v1">⚡ Test Send</button>
               </div>
-              <h4 class="wa-tmpl-title">F1: Post-Session Pain Relief &amp; Mobility Check-in</h4>
-              <p class="wa-tmpl-desc">Follows up with patient 24 hours after their first trial to record pain score improvement.</p>
+              <h4 class="wa-tmpl-title">knee_pain_webinar_invitation_v1</h4>
+              <p class="wa-tmpl-desc">Broadcasting invite to opted-in patient contacts for the upcoming live Hindi session.</p>
+              
+              <div class="wa-vars-preview">
+                <span class="var-badge">{{1}} Date</span>
+                <span class="var-badge">{{2}} Time</span>
+                <span class="var-badge">{{3}} Register URL</span>
+              </div>
+            </div>
+
+            <!-- Template 5: Meet Dr. Surabhi Vaidya -->
+            <div class="wa-template-card">
+              <div class="wa-tmpl-top">
+                <div class="wa-tmpl-tag badge-trial">Marketing · en_US</div>
+                <button type="button" class="btn-test-send" data-tmpl="meet_dr_surabhi_v1">⚡ Test Send</button>
+              </div>
+              <h4 class="wa-tmpl-title">meet_dr_surabhi_v1</h4>
+              <p class="wa-tmpl-desc">Introduces Dr. Surabhi Vaidya (BAMS, MBA) and Charak Health Solutions consultation process.</p>
+              
+              <div class="wa-vars-preview">
+                <span class="var-badge">{{1}} Booking URL</span>
+              </div>
+            </div>
+
+            <!-- Template 6: Ozone Therapy + Ayurveda -->
+            <div class="wa-template-card">
+              <div class="wa-tmpl-top">
+                <div class="wa-tmpl-tag badge-trial" style="background: #ecfdf5; color: #047857;">Marketing · Image · en</div>
+                <button type="button" class="btn-test-send" data-tmpl="ozone_therapy">⚡ Test Send</button>
+              </div>
+              <h4 class="wa-tmpl-title">ozone_therapy (Header Image)</h4>
+              <p class="wa-tmpl-desc">Personalized combination of Ozone Shots + Ayurveda at Charak Health Solutions, Thane.</p>
+              
+              <div class="wa-vars-preview">
+                <span class="var-badge">🖼️ Clinic Header Image</span>
+                <span class="var-badge">0 Text Variables</span>
+              </div>
+            </div>
+
+            <!-- Template 7: Webinar 24h Reminder -->
+            <div class="wa-template-card">
+              <div class="wa-tmpl-top">
+                <div class="wa-tmpl-tag badge-webinar">Marketing · en_US</div>
+                <button type="button" class="btn-test-send" data-tmpl="webinar_reminder_1_day_v1">⚡ Test Send</button>
+              </div>
+              <h4 class="wa-tmpl-title">webinar_reminder_1_day_v1</h4>
+              <p class="wa-tmpl-desc">Automated reminder sent 24 hours prior to the live knee pain masterclass.</p>
               
               <div class="wa-vars-preview">
                 <span class="var-badge">{{1}} Patient Name</span>
-                <span class="var-badge">{{2}} Pain Score (1-10)</span>
-                <span class="var-badge">{{3}} Clinic Support</span>
+                <span class="var-badge">{{2}} Time</span>
+                <span class="var-badge">{{3}} Joining Link</span>
               </div>
+            </div>
 
-              <div class="form-field" style="margin-top: 10px;">
-                <label for="tmpl-followup-link" style="font-size: 0.75rem; font-weight: 700; color: var(--admin-muted);">Follow-Up Booking URL ({{3}})</label>
-                <input type="url" id="tmpl-followup-link" value="https://cal.id/charakhealth" style="font-size: 0.8rem; padding: 6px 10px; border: 1px solid var(--admin-border); border-radius: 4px; width: 100%;">
+            <!-- Template 8: Webinar 1 Hour Reminder -->
+            <div class="wa-template-card">
+              <div class="wa-tmpl-top">
+                <div class="wa-tmpl-tag badge-webinar">Marketing · en_US</div>
+                <button type="button" class="btn-test-send" data-tmpl="webinar_reminder_1_hour_v1">⚡ Test Send</button>
+              </div>
+              <h4 class="wa-tmpl-title">webinar_reminder_1_hour_v1</h4>
+              <p class="wa-tmpl-desc">Urgent reminder dispatched 60 minutes before the live webinar broadcast.</p>
+              
+              <div class="wa-vars-preview">
+                <span class="var-badge">{{1}} Patient Name</span>
+              </div>
+            </div>
+
+            <!-- Template 9: Surabhi V4 With Image -->
+            <div class="wa-template-card">
+              <div class="wa-tmpl-top">
+                <div class="wa-tmpl-tag badge-consult">Utility · Image · en_US</div>
+                <button type="button" class="btn-test-send" data-tmpl="surabhi_v4_with_image">⚡ Test Send</button>
+              </div>
+              <h4 class="wa-tmpl-title">surabhi_v4_with_image</h4>
+              <p class="wa-tmpl-desc">Multi-purpose clinical update with header photo and 4 dynamic content lines.</p>
+              
+              <div class="wa-vars-preview">
+                <span class="var-badge">🖼️ Image</span>
+                <span class="var-badge">{{1}} Name</span>
+                <span class="var-badge">{{2}} L1</span>
+                <span class="var-badge">{{3}} L2</span>
+                <span class="var-badge">{{4}} L3</span>
+              </div>
+            </div>
+
+            <!-- Template 10: Google Review Request -->
+            <div class="wa-template-card">
+              <div class="wa-tmpl-top">
+                <div class="wa-tmpl-tag badge-lead" style="background: #fef3c7; color: #b45309;">Marketing · en_US</div>
+                <button type="button" class="btn-test-send" data-tmpl="post_experience_google_review_v1">⚡ Test Send</button>
+              </div>
+              <h4 class="wa-tmpl-title">post_experience_google_review_v1</h4>
+              <p class="wa-tmpl-desc">Sent post-consultation inviting patient to share an honest Google review.</p>
+              
+              <div class="wa-vars-preview">
+                <span class="var-badge">{{1}} Patient Name</span>
               </div>
             </div>
 
@@ -484,30 +575,80 @@
 
       <!-- Test Send Modal (Staff WhatsApp Dispatcher) -->
       <div id="wa-test-modal" class="login-overlay" style="display: none;">
-        <div class="login-card" style="max-width: 520px; text-align: left;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h3 style="font-size: 1.15rem; color: var(--admin-primary); margin: 0;" id="wa-modal-title">⚡ Test WhatsApp Dispatch</h3>
+        <div class="login-card" style="max-width: 580px; text-align: left; max-height: 90vh; overflow-y: auto;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--admin-border); padding-bottom: 10px;">
+            <div>
+              <h3 style="font-size: 1.15rem; color: var(--admin-primary); margin: 0;" id="wa-modal-title">⚡ Dispatch WhatsApp Template</h3>
+              <p style="font-size: 0.76rem; color: var(--admin-muted); margin: 2px 0 0 0;">AgentBandhu Public API: <code>POST /api/v1/public/messages</code></p>
+            </div>
             <button type="button" onclick="document.querySelector('#wa-test-modal').style.display='none';" style="background: none; border: none; font-size: 1.4rem; cursor: pointer;">&times;</button>
           </div>
           
-          <div class="form-field">
-            <label for="wa-test-phone">Recipient 10-Digit Mobile Number *</label>
-            <input type="tel" id="wa-test-phone" placeholder="e.g. 9820145872" style="width: 100%; padding: 10px; border: 1px solid var(--admin-border); border-radius: 6px;">
+          <div class="form-field" style="margin-bottom: 12px;">
+            <label for="wa-modal-tmpl-select" style="font-size: 0.8rem; font-weight: 700;">Approved Message Template *</label>
+            <select id="wa-modal-tmpl-select" style="width: 100%; padding: 9px 10px; font-size: 0.85rem; border: 1px solid var(--admin-border); border-radius: 6px; background: #fff;">
+              <option value="consultation_booking_confirmation_v1">consultation_booking_confirmation_v1 (Utility · en_US · 3 vars)</option>
+              <option value="webinar_registration_confirmation_v1">webinar_registration_confirmation_v1 (Utility · en · 3 vars)</option>
+              <option value="webinar_joining_details_v1">webinar_joining_details_v1 (Utility · en_US · 3 vars)</option>
+              <option value="knee_pain_webinar_invitation_v1">knee_pain_webinar_invitation_v1 (Marketing · en_US · 3 vars)</option>
+              <option value="meet_dr_surabhi_v1">meet_dr_surabhi_v1 (Marketing · en_US · 1 var)</option>
+              <option value="ozone_therapy">ozone_therapy (Marketing · en · Media Image)</option>
+              <option value="webinar_reminder_1_day_v1">webinar_reminder_1_day_v1 (Marketing · en_US · 3 vars)</option>
+              <option value="webinar_reminder_1_hour_v1">webinar_reminder_1_hour_v1 (Marketing · en_US · 1 var)</option>
+              <option value="surabhi_v4_with_image">surabhi_v4_with_image (Utility · en_US · Media Image · 4 vars)</option>
+              <option value="surabhi_v4_no_image">surabhi_v4_no_image (Utility · en_US · 4 vars)</option>
+              <option value="surabhi_v4_docs">surabhi_v4_docs (Utility · en_US · Media Doc · 4 vars)</option>
+              <option value="surabhi_v5_with_image">surabhi_v5_with_image (Utility · en_US · Media Image · 5 vars)</option>
+              <option value="surabhi_v5_no_image">surabhi_v5_no_image (Utility · en_US · 5 vars)</option>
+              <option value="surabhi_v5_docs">surabhi_v5_docs (Utility · en_US · Media Doc · 5 vars)</option>
+              <option value="surabhi_v5_video">surabhi_v5_video (Utility · en_US · Media Video · 5 vars)</option>
+              <option value="knee_care_assessment_education_v1">knee_care_assessment_education_v1 (Marketing · en_US · 1 var)</option>
+              <option value="knee_care_movement_education_v1">knee_care_movement_education_v1 (Marketing · en_US · 1 var)</option>
+              <option value="patient_experience_story_v1">patient_experience_story_v1 (Marketing · en_US · 1 var)</option>
+              <option value="webinar_invitation_closing_v1">webinar_invitation_closing_v1 (Marketing · en_US · 2 vars)</option>
+              <option value="post_experience_google_review_v1">post_experience_google_review_v1 (Marketing · en_US · 1 var)</option>
+            </select>
           </div>
 
-          <div class="form-field">
-            <label for="wa-test-name">Patient Name</label>
-            <input type="text" id="wa-test-name" value="Rajesh Sharma" style="width: 100%; padding: 10px; border: 1px solid var(--admin-border); border-radius: 6px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+            <div class="form-field">
+              <label for="wa-test-phone" style="font-size: 0.8rem; font-weight: 700;">Recipient Mobile (+91...) *</label>
+              <input type="tel" id="wa-test-phone" placeholder="e.g. 9820145872" style="width: 100%; padding: 8px 10px; font-size: 0.85rem; border: 1px solid var(--admin-border); border-radius: 6px;">
+            </div>
+
+            <div class="form-field">
+              <label for="wa-test-name" style="font-size: 0.8rem; font-weight: 700;">Patient Name</label>
+              <input type="text" id="wa-test-name" value="Rajesh Sharma" style="width: 100%; padding: 8px 10px; font-size: 0.85rem; border: 1px solid var(--admin-border); border-radius: 6px;">
+            </div>
           </div>
 
-          <div class="form-field">
-            <label for="wa-test-msg">Message Content Preview</label>
-            <textarea id="wa-test-msg" rows="7" style="width: 100%; padding: 10px; font-size: 0.82rem; font-family: inherit; border: 1px solid var(--admin-border); border-radius: 6px;"></textarea>
+          <!-- Dynamic Template Variables Container -->
+          <div id="wa-modal-vars-container" style="background: #f8faf9; border: 1px solid var(--admin-border); border-radius: 6px; padding: 12px; margin-bottom: 12px;">
+            <div style="font-size: 0.78rem; font-weight: 700; color: var(--admin-primary); margin-bottom: 8px;">Template Variables:</div>
+            <div id="wa-modal-vars-inputs" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Populated dynamically via JS -->
+            </div>
           </div>
 
-          <div style="display: flex; gap: 10px; margin-top: 14px;">
-            <button type="button" class="btn-login" id="btn-submit-test-dispatch" style="background: #25D366; flex: 1;">
-              <span>🚀</span> Dispatch via WhatsApp Web / App
+          <!-- Media URL container (if template has media) -->
+          <div id="wa-modal-media-wrap" style="display: none; margin-bottom: 12px;">
+            <label for="wa-modal-media-url" style="font-size: 0.8rem; font-weight: 700;">Header Media URL (https://...)</label>
+            <input type="url" id="wa-modal-media-url" placeholder="https://..." style="width: 100%; padding: 8px 10px; font-size: 0.85rem; border: 1px solid var(--admin-border); border-radius: 6px;">
+          </div>
+
+          <div class="form-field" style="margin-bottom: 12px;">
+            <label for="wa-test-msg" style="font-size: 0.8rem; font-weight: 700;">Rendered Message Preview</label>
+            <textarea id="wa-test-msg" rows="5" readonly style="width: 100%; padding: 10px; font-size: 0.8rem; font-family: inherit; border: 1px solid var(--admin-border); border-radius: 6px; background: #fdfdfd;"></textarea>
+          </div>
+
+          <div id="wa-modal-status-box" style="display: none; padding: 10px 12px; border-radius: 6px; font-size: 0.8rem; margin-bottom: 12px;"></div>
+
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="button" class="btn-login" id="btn-submit-test-dispatch" style="background: #16a34a; flex: 2; min-width: 200px;">
+              <span>🚀</span> Send via AgentBandhu API
+            </button>
+            <button type="button" class="btn-admin-nav" id="btn-fallback-wa-web" style="background: #25D366; color: #fff; flex: 1;">
+              <span>💬</span> WhatsApp Web
             </button>
             <button type="button" class="btn-admin-nav" onclick="document.querySelector('#wa-test-modal').style.display='none';" style="padding: 10px 16px; color: var(--admin-text); background: #eee;">
               Cancel

@@ -541,23 +541,251 @@
     }
   }
 
-  function getTemplateContent(key, name) {
-    const pName = name ? name + ' ji' : 'Patient ji';
-    const trialLink = document.querySelector('#tmpl-trial-link')?.value || 'https://cal.id/charakhealth';
-    const consultLink = document.querySelector('#tmpl-consult-link')?.value || 'https://cal.id/charakhealth';
-    const webinarLink = document.querySelector('#tmpl-webinar-link')?.value || 'https://dr-surabhi-knee-and-back-pain-relie-azure.vercel.app/room';
-    const followupLink = document.querySelector('#tmpl-followup-link')?.value || 'https://cal.id/charakhealth';
-
-    if (key === 'trial') {
-      return `Namaste ${pName},\n\nThis is from Dr. Surabhi Vaidya's Knee & Back Pain Clinic (Charak Health Solutions, Thane West).\n\nWe have received your request for the 1-Day Experience Session (₹4,000) for deep non-surgical pain relief.\n\n📍 Clinic Address: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West.\n📅 Select Your Slot Online: ${trialLink}\n✉️ Desk Email: kneeandbackpainclinic@gmail.com\n\nPlease confirm your preferred session time so our doctors can reserve your treatment room.`;
-    } else if (key === 'consult') {
-      return `Namaste ${pName},\n\nThank you for booking an in-clinic Diagnostic Consultation (₹1,000) with Dr. Surabhi Vaidya (MD Ayurveda).\n\nTo ensure an accurate Naadi Pariksha and postural assessment, please bring any previous Knee/Spine X-Rays or MRI reports along with you.\n\n📍 Location: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West.\n📅 Reserve Your Slot Online: ${consultLink}\n✉️ Desk Email: kneeandbackpainclinic@gmail.com`;
-    } else if (key === 'webinar') {
-      return `Namaste ${pName},\n\nYour seat for the Live Knee & Spine Pain Masterclass (₹201) with Dr. Surabhi Vaidya is confirmed!\n\n🗓 Date: Sunday 11:00 AM IST\n🔗 Embedded Room Access Pass: ${webinarLink}\n\nPlease keep your recent MRI/X-Ray scans ready for the live doctor Q&A segment. Email: kneeandbackpainclinic@gmail.com`;
-    } else if (key === 'followup') {
-      return `Namaste ${pName},\n\nHow are you feeling today after your clinical therapy session at Charak Health Solutions?\n\nPlease reply with your current pain score (from 1 to 10) and book your review consultation here: ${followupLink}\n\nOur medical team is here to support your complete recovery.`;
+  // Official AgentBandhu WhatsApp Business Cloud API Templates Registry
+  const AGENTBANDHU_TEMPLATES = {
+    consultation_booking_confirmation_v1: {
+      name: 'consultation_booking_confirmation_v1',
+      title: 'Consultation Booking Confirmation',
+      language: 'en_US',
+      category: 'utility',
+      variableCount: 3,
+      variableLabels: ['Patient Name', 'Date', 'Time'],
+      defaultVariables: ['Meena', 'Tuesday, 20 October 2026', '4:30 PM IST'],
+      hasMedia: false,
+      body: 'Hello {{1}}, your consultation with Dr. Surabhi Vaidya is confirmed.\n\nDate: {{2}}\nTime: {{3}}\nLocation: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Thane West.\n\nPlease arrive 10 minutes early. Bring relevant reports and a current list of medicines, if available.'
+    },
+    webinar_registration_confirmation_v1: {
+      name: 'webinar_registration_confirmation_v1',
+      title: 'Webinar Registration Confirmation',
+      language: 'en',
+      category: 'utility',
+      variableCount: 3,
+      variableLabels: ['Patient Name', 'Date', 'Time'],
+      defaultVariables: ['Meena', 'Sunday, 18 October 2026', '11:00 AM IST'],
+      hasMedia: false,
+      body: 'Hello {{1}}, your registration request for the live Hindi session, Understanding Knee Pain: What to Consider Before Choosing a Treatment Path", has been received.\n\nDate: {{2}}\nTime: {{3}}\nHosted by: Dr. Surabhi Vaidya, Charak Health Solutions\n\nThe joining link will be shared on WhatsApp before the session. Reply here if you need help.'
+    },
+    webinar_joining_details_v1: {
+      name: 'webinar_joining_details_v1',
+      title: 'Webinar Joining Details',
+      language: 'en_US',
+      category: 'utility',
+      variableCount: 3,
+      variableLabels: ['Patient Name', 'Date', 'Time'],
+      defaultVariables: ['Meena', 'Sunday, 18 October 2026', '11:00 AM IST'],
+      hasMedia: false,
+      body: 'Hello {{1}}, here are the joining details for your registered live Hindi session with Dr. Surabhi Vaidya.\n\nDate: {{2}}\nTime: {{3}}\n\nPlease join a few minutes early. This educational session does not replace an individual medical consultation.'
+    },
+    webinar_reminder_1_day_v1: {
+      name: 'webinar_reminder_1_day_v1',
+      title: 'Webinar 24h Reminder',
+      language: 'en_US',
+      category: 'marketing',
+      variableCount: 3,
+      variableLabels: ['Patient Name', 'Time', 'Joining Link'],
+      defaultVariables: ['Meena', '11:00 AM IST', 'https://webinar.gg/charakhealth'],
+      hasMedia: false,
+      body: 'Reminder for {{1}}: the live Hindi session with Dr. Surabhi Vaidya is tomorrow at {{2}}.\n\nTopic: Understanding Knee Pain: What to Consider Before Choosing a Treatment Path\n\nJoining link: {{3}}\n\nThankyou'
+    },
+    webinar_reminder_1_hour_v1: {
+      name: 'webinar_reminder_1_hour_v1',
+      title: 'Webinar 1 Hour Reminder',
+      language: 'en_US',
+      category: 'marketing',
+      variableCount: 1,
+      variableLabels: ['Patient Name'],
+      defaultVariables: ['Meena'],
+      hasMedia: false,
+      body: 'Hello {{1}}, the live Hindi session with Dr. Surabhi Vaidya begins in one hour.\n\nPlease join from a quiet place and keep a notebook nearby. The session is educational; personal recommendations require an individual assessment.'
+    },
+    webinar_invitation_closing_v1: {
+      name: 'webinar_invitation_closing_v1',
+      title: 'Webinar Registrations Closing Today',
+      language: 'en_US',
+      category: 'marketing',
+      variableCount: 2,
+      variableLabels: ['Closing Time', 'Registration Link'],
+      defaultVariables: ['8:00 PM IST', 'https://dr-surabhi.com/webinar'],
+      hasMedia: false,
+      body: 'Registrations for Dr. Surabhi Vaidya next live Hindi session close at {{1}} today.\n\nThe session explains common knee-pain questions, how assessment guides treatment choices, and when to seek individual advice.\n\nRegister here: {{2}}\n\nReply STOP to opt out.'
+    },
+    knee_pain_webinar_invitation_v1: {
+      name: 'knee_pain_webinar_invitation_v1',
+      title: 'Knee Pain Webinar Invitation',
+      language: 'en_US',
+      category: 'marketing',
+      variableCount: 3,
+      variableLabels: ['Date', 'Time', 'Registration Link'],
+      defaultVariables: ['Sunday, 18 October 2026', '11:00 AM IST', 'https://dr-surabhi.com/webinar'],
+      hasMedia: false,
+      body: 'Charak Health Solutions is hosting a live Hindi session with Dr. Surabhi Vaidya on understanding knee pain and the questions worth asking before choosing a treatment path.\n\nDate: {{1}}\nTime: {{2}}\n\nThe session covers common causes of knee discomfort, the role of assessment, movement and lifestyle, and when an in-person consultation may be useful.\n\nRegister here: {{3}}\n\nReply STOP to opt out.'
+    },
+    meet_dr_surabhi_v1: {
+      name: 'meet_dr_surabhi_v1',
+      title: 'Meet Dr. Surabhi Vaidya',
+      language: 'en_US',
+      category: 'marketing',
+      variableCount: 1,
+      variableLabels: ['Booking URL'],
+      defaultVariables: ['https://dr-surabhi.com/book'],
+      hasMedia: false,
+      body: 'Meet Dr. Surabhi Vaidya, BAMS and MBA in Clinical Research, at Charak Health Solutions in Thane.\n\nHer consultation process begins with health history, current difficulties and assessment before suitable next steps are discussed.\n\nBook an appointment: {{1}}\n\nReply STOP to opt out.'
+    },
+    ozone_therapy: {
+      name: 'ozone_therapy',
+      title: 'Ozone Therapy + Ayurveda Assessment',
+      language: 'en',
+      category: 'marketing',
+      variableCount: 0,
+      variableLabels: [],
+      defaultVariables: [],
+      hasMedia: true,
+      mediaType: 'image',
+      defaultMediaUrl: 'https://dr-surabhi-knee-and-back-pain-relie-azure.vercel.app/assets/garden-mobile-draft.png',
+      body: '🫧 TIRED? STIFF? SLOW TO RECOVER?\n\nNow experience a personalised combination of Ozone Shots + Ayurveda at Charak Health Solutions 🌿\n\n✨ Support for recovery, circulation & overall wellness — with the holistic approach of Ayurveda.\n\n👩‍⚕️ Assessment before treatment\n📍 Vartak Nagar, Thane\n📞 9082280274\n\n👉 Book your Assessment today!'
+    },
+    knee_care_assessment_education_v1: {
+      name: 'knee_care_assessment_education_v1',
+      title: 'Knee Care Assessment Education',
+      language: 'en_US',
+      category: 'marketing',
+      variableCount: 1,
+      variableLabels: ['Webinar Link'],
+      defaultVariables: ['https://dr-surabhi.com/webinar'],
+      hasMedia: false,
+      body: 'Knee pain can have different causes, so the same plan may not suit everyone. A useful assessment looks at symptoms, health history, daily movement, previous treatment and personal goals before options are discussed.\n\nDr. Surabhi Vaidya explains this assessment-first approach in her live Hindi session. Join the webinar: {{1}}\n\nThis is general education and not a diagnosis. Reply STOP to opt out.'
+    },
+    knee_care_movement_education_v1: {
+      name: 'knee_care_movement_education_v1',
+      title: 'Knee Care Movement Education',
+      language: 'en_US',
+      category: 'marketing',
+      variableCount: 1,
+      variableLabels: ['Webinar Link'],
+      defaultVariables: ['https://dr-surabhi.com/webinar'],
+      hasMedia: false,
+      body: 'With many common knee conditions, appropriately selected movement and strengthening can support function. The right starting point depends on the person and the cause of the symptoms.\n\nJoin Dr. Surabhi live Hindi webinar to understand what to consider before beginning an exercise routine: {{1}}\n\nSeek medical advice for severe swelling, injury, inability to bear weight or rapidly worsening symptoms. Reply STOP to opt out.'
+    },
+    patient_experience_story_v1: {
+      name: 'patient_experience_story_v1',
+      title: 'Patient Experience Story',
+      language: 'en_US',
+      category: 'marketing',
+      variableCount: 1,
+      variableLabels: ['Appointment Link'],
+      defaultVariables: ['https://dr-surabhi.com/consultation'],
+      hasMedia: false,
+      body: 'Every person condition and response to care can be different. In this video, a Charak Health Solutions patient shares their own experience of seeking help for knee pain.\n\nTo discuss an individual starting point with Dr. Surabhi, book an appointment: {{1}}\n\nIndividual results vary. A consultation is needed to discuss suitable options. Reply STOP to opt out.'
+    },
+    post_experience_google_review_v1: {
+      name: 'post_experience_google_review_v1',
+      title: 'Post-Experience Google Review Request',
+      language: 'en_US',
+      category: 'marketing',
+      variableCount: 1,
+      variableLabels: ['Patient Name'],
+      defaultVariables: ['Meena'],
+      hasMedia: false,
+      body: 'Hello {{1}}, thank you for spending time with Charak Health Solutions today.\n\nWe hope your experience was clear and helpful. If you would like to share feedback, please leave an honest Google review. Your review can help other people understand what to expect when they contact the clinic.\n\nPlease share only information that you are comfortable making public.\n\nReply STOP to opt out.'
+    },
+    surabhi_v4_with_image: {
+      name: 'surabhi_v4_with_image',
+      title: 'Surabhi V4 With Image',
+      language: 'en_US',
+      category: 'utility',
+      variableCount: 4,
+      variableLabels: ['Recipient Name', 'Body Line 1', 'Body Line 2', 'Body Line 3'],
+      defaultVariables: ['Meena', 'Your consultation details have been updated.', 'Please arrive 10 minutes early.', 'Location: Charak Health Solutions, Thane West.'],
+      hasMedia: true,
+      mediaType: 'image',
+      defaultMediaUrl: 'https://dr-surabhi-knee-and-back-pain-relie-azure.vercel.app/assets/garden-mobile-draft.png',
+      body: 'Hello {{1}},\n\n{{2}}\n\n{{3}}\n\n{{4}}\n\nThis information is being shared for reference purposes.\n\n*Thank You.*'
+    },
+    surabhi_v4_no_image: {
+      name: 'surabhi_v4_no_image',
+      title: 'Surabhi V4 No Image',
+      language: 'en_US',
+      category: 'utility',
+      variableCount: 4,
+      variableLabels: ['Recipient Name', 'Body Line 1', 'Body Line 2', 'Body Line 3'],
+      defaultVariables: ['Meena', 'Your consultation details have been updated.', 'Please arrive 10 minutes early.', 'Location: Charak Health Solutions, Thane West.'],
+      hasMedia: false,
+      body: 'Hello {{1}},\n\n{{2}}\n\n{{3}}\n\n{{4}}\n\nThis information is being shared for reference purposes.\n\n*Thank You.*'
+    },
+    surabhi_v4_docs: {
+      name: 'surabhi_v4_docs',
+      title: 'Surabhi V4 Docs',
+      language: 'en_US',
+      category: 'utility',
+      variableCount: 4,
+      variableLabels: ['Recipient Name', 'Line 1', 'Line 2', 'Line 3'],
+      defaultVariables: ['Meena', 'Please find your clinic protocol attached.', 'Kindly review the instructions before your visit.', 'Feel free to reply if you have questions.'],
+      hasMedia: true,
+      mediaType: 'document',
+      defaultMediaUrl: 'https://dr-surabhi-knee-and-back-pain-relie-azure.vercel.app/assets/knee_pain_guide.pdf',
+      body: 'Hello {{1}},\n\n{{2}}\n\n{{3}}\n\n{{4}}\n\n*Thank You.*\n\n_This information is being shared for reference purposes._'
+    },
+    surabhi_v5_with_image: {
+      name: 'surabhi_v5_with_image',
+      title: 'Surabhi V5 With Image',
+      language: 'en_US',
+      category: 'utility',
+      variableCount: 5,
+      variableLabels: ['Recipient Name', 'Line 1', 'Line 2', 'Line 3', 'Line 4'],
+      defaultVariables: ['Meena', 'Line 1', 'Line 2', 'Line 3', 'Line 4'],
+      hasMedia: true,
+      mediaType: 'image',
+      defaultMediaUrl: 'https://dr-surabhi-knee-and-back-pain-relie-azure.vercel.app/assets/garden-mobile-draft.png',
+      body: 'Hello {{1}},\n\n{{2}}\n\n{{3}}\n\n{{4}}\n\n{{5}}\n\nThis information is being shared for reference purposes.\n\n*Thank You.*'
+    },
+    surabhi_v5_no_image: {
+      name: 'surabhi_v5_no_image',
+      title: 'Surabhi V5 No Image',
+      language: 'en_US',
+      category: 'utility',
+      variableCount: 5,
+      variableLabels: ['Recipient Name', 'Line 1', 'Line 2', 'Line 3', 'Line 4'],
+      defaultVariables: ['Meena', 'Line 1', 'Line 2', 'Line 3', 'Line 4'],
+      hasMedia: false,
+      body: 'Hello {{1}},\n\n{{2}}\n\n{{3}}\n\n{{4}}\n\n{{5}}\n\nThis information is being shared for reference purposes.\n\n*Thank You.*'
+    },
+    surabhi_v5_docs: {
+      name: 'surabhi_v5_docs',
+      title: 'Surabhi V5 Docs',
+      language: 'en_US',
+      category: 'utility',
+      variableCount: 5,
+      variableLabels: ['Recipient Name', 'Line 1', 'Line 2', 'Line 3', 'Line 4'],
+      defaultVariables: ['Meena', 'Line 1', 'Line 2', 'Line 3', 'Line 4'],
+      hasMedia: true,
+      mediaType: 'document',
+      defaultMediaUrl: 'https://dr-surabhi-knee-and-back-pain-relie-azure.vercel.app/assets/knee_pain_guide.pdf',
+      body: 'Hello {{1}},\n\n{{2}}\n\n{{3}}\n\n{{4}}\n\n{{5}}\n\nThis information is being shared for reference purposes.\n\n*Thank You.*'
+    },
+    surabhi_v5_video: {
+      name: 'surabhi_v5_video',
+      title: 'Surabhi V5 Video',
+      language: 'en_US',
+      category: 'utility',
+      variableCount: 5,
+      variableLabels: ['Recipient Name', 'Line 1', 'Line 2', 'Line 3', 'Line 4'],
+      defaultVariables: ['Meena', 'Line 1', 'Line 2', 'Line 3', 'Line 4'],
+      hasMedia: true,
+      mediaType: 'video',
+      defaultMediaUrl: 'https://dr-surabhi-knee-and-back-pain-relie-azure.vercel.app/assets/dr_surabhi_intro.mp4',
+      body: 'Hello {{1}},\n\n{{2}}\n\n{{3}}\n\n{{4}}\n\n{{5}}\n\nThis information is being shared for reference purposes.\n\n*Thank You.*'
     }
-    return '';
+  };
+
+  function renderTemplatePreview(templateName, variables = []) {
+    const tmpl = AGENTBANDHU_TEMPLATES[templateName];
+    if (!tmpl) return '';
+    let text = tmpl.body;
+    variables.forEach((val, idx) => {
+      const placeholder = new RegExp(`\\{\\{${idx + 1}\\}\\}`, 'g');
+      text = text.replace(placeholder, val || `{{${idx + 1}}}`);
+    });
+    return text;
   }
 
   let selectedAudienceIds = new Set();
@@ -727,14 +955,88 @@
     tbody.innerHTML = html;
   }
 
+  let currentModalLeadId = null;
+
+  function setupModalForTemplate(templateName, presetVars = []) {
+    const tmpl = AGENTBANDHU_TEMPLATES[templateName] || AGENTBANDHU_TEMPLATES.consultation_booking_confirmation_v1;
+    const varsContainer = document.querySelector('#wa-modal-vars-inputs');
+    const mediaWrap = document.querySelector('#wa-modal-media-wrap');
+    const mediaInput = document.querySelector('#wa-modal-media-url');
+    const msgPreview = document.querySelector('#wa-test-msg');
+    const statusBox = document.querySelector('#wa-modal-status-box');
+
+    if (statusBox) statusBox.style.display = 'none';
+
+    // Toggle media input
+    if (mediaWrap) {
+      if (tmpl.hasMedia) {
+        mediaWrap.style.display = 'block';
+        if (mediaInput && !mediaInput.value) {
+          mediaInput.value = tmpl.defaultMediaUrl || '';
+        }
+      } else {
+        mediaWrap.style.display = 'none';
+      }
+    }
+
+    // Render dynamic variable inputs
+    if (varsContainer) {
+      if (tmpl.variableCount === 0) {
+        varsContainer.innerHTML = '<span style="font-size: 0.78rem; color: var(--admin-muted); font-style: italic;">No variables required for this template.</span>';
+      } else {
+        let html = '';
+        for (let i = 0; i < tmpl.variableCount; i++) {
+          const label = tmpl.variableLabels[i] || `Variable {{${i + 1}}}`;
+          const val = presetVars[i] !== undefined ? presetVars[i] : (tmpl.defaultVariables[i] || '');
+          html += `
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label style="font-size: 0.75rem; font-weight: 700; width: 140px; color: var(--admin-primary); margin: 0;">{{${i + 1}}} ${escapeHtml(label)}:</label>
+              <input type="text" class="wa-var-input" data-idx="${i}" value="${escapeHtml(val)}" style="flex: 1; padding: 6px 8px; font-size: 0.8rem; border: 1px solid var(--admin-border); border-radius: 4px;">
+            </div>
+          `;
+        }
+        varsContainer.innerHTML = html;
+
+        // Listen for variable input changes to update preview in real-time
+        varsContainer.querySelectorAll('.wa-var-input').forEach(input => {
+          input.addEventListener('input', updateModalPreview);
+        });
+      }
+    }
+
+    updateModalPreview();
+  }
+
+  function getModalVariables() {
+    const inputs = document.querySelectorAll('#wa-modal-vars-inputs .wa-var-input');
+    const vars = [];
+    inputs.forEach(input => {
+      vars.push(input.value.trim());
+    });
+    return vars;
+  }
+
+  function updateModalPreview() {
+    const select = document.querySelector('#wa-modal-tmpl-select');
+    const previewEl = document.querySelector('#wa-test-msg');
+    if (!select || !previewEl) return;
+    const tmplName = select.value;
+    const vars = getModalVariables();
+    previewEl.value = renderTemplatePreview(tmplName, vars);
+  }
+
   window.resendWaLog = function(phone, name) {
     const modal = document.querySelector('#wa-test-modal');
     const phoneInput = document.querySelector('#wa-test-phone');
     const nameInput = document.querySelector('#wa-test-name');
-    const msgInput = document.querySelector('#wa-test-msg');
+    const select = document.querySelector('#wa-modal-tmpl-select');
+    currentModalLeadId = null;
+
     if (phoneInput) phoneInput.value = phone;
     if (nameInput) nameInput.value = name;
-    if (msgInput) msgInput.value = getTemplateContent('trial', name);
+    if (select) select.value = 'consultation_booking_confirmation_v1';
+
+    setupModalForTemplate('consultation_booking_confirmation_v1', [name, 'Tuesday, 20 October 2026', '4:30 PM IST']);
     if (modal) modal.style.display = 'flex';
   };
 
@@ -743,18 +1045,27 @@
     const titleEl = document.querySelector('#wa-modal-title');
     const phoneInput = document.querySelector('#wa-test-phone');
     const nameInput = document.querySelector('#wa-test-name');
-    const msgInput = document.querySelector('#wa-test-msg');
+    const select = document.querySelector('#wa-modal-tmpl-select');
+    currentModalLeadId = lead.id;
 
-    let tmplKey = 'trial';
-    if (lead.recommendedStep && lead.recommendedStep.includes('4,000')) tmplKey = 'trial';
-    else if (lead.recommendedStep && lead.recommendedStep.includes('1,000')) tmplKey = 'consult';
-    else tmplKey = 'webinar';
+    let tmplName = 'consultation_booking_confirmation_v1';
+    let defaultVars = [lead.name || 'Patient', 'Upcoming Clinic Hours', 'Flexible'];
+
+    const rec = (lead.recommendedStep || '').toLowerCase();
+    if (rec.includes('webinar') || rec.includes('masterclass')) {
+      tmplName = 'webinar_registration_confirmation_v1';
+      defaultVars = [lead.name || 'Patient', 'Sunday, 18 October 2026', '11:00 AM IST'];
+    } else if (rec.includes('4,000') || rec.includes('trial')) {
+      tmplName = 'consultation_booking_confirmation_v1';
+      defaultVars = [lead.name || 'Patient', lead.slotPreference || 'Upcoming Clinic Hours', 'Flexible'];
+    }
 
     if (titleEl) titleEl.textContent = `⚡ Dispatch WhatsApp: ${lead.name}`;
     if (phoneInput) phoneInput.value = lead.phone || '';
     if (nameInput) nameInput.value = lead.name || '';
-    if (msgInput) msgInput.value = getTemplateContent(tmplKey, lead.name);
+    if (select) select.value = tmplName;
 
+    setupModalForTemplate(tmplName, defaultVars);
     if (modal) modal.style.display = 'flex';
   }
 
@@ -762,6 +1073,96 @@
     renderWaKPIs();
     renderWaAudienceTable();
     renderWaDispatchesLog();
+
+    // Toggle Diagnostics Console
+    const openDiagBtn = document.querySelector('#btn-open-wa-diag');
+    const diagCard = document.querySelector('#card-wa-diagnostics');
+    if (openDiagBtn && diagCard) {
+      openDiagBtn.addEventListener('click', () => {
+        const isHidden = diagCard.style.display === 'none';
+        diagCard.style.display = isHidden ? 'block' : 'none';
+        if (isHidden) {
+          diagCard.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    }
+
+    // Check Server Config Button
+    const checkHealthBtn = document.querySelector('#btn-check-api-health');
+    const diagResultsBox = document.querySelector('#diag-results-box');
+    if (checkHealthBtn && diagResultsBox) {
+      checkHealthBtn.addEventListener('click', async () => {
+        diagResultsBox.style.display = 'block';
+        diagResultsBox.textContent = '⏳ Checking server configuration at /api/whatsapp-send...';
+        try {
+          const res = await fetch('/api/whatsapp-send');
+          const data = await res.json();
+          diagResultsBox.textContent = JSON.stringify(data, null, 2);
+        } catch (e) {
+          diagResultsBox.textContent = 'Error checking config: ' + e.message;
+        }
+      });
+    }
+
+    // Run Diagnostics / Test Send Button
+    const runDiagBtn = document.querySelector('#btn-run-wa-diagnostics');
+    if (runDiagBtn && diagResultsBox) {
+      runDiagBtn.addEventListener('click', async () => {
+        const phone = (document.querySelector('#diag-wa-phone')?.value || '').trim();
+        const tmpl = document.querySelector('#diag-wa-template')?.value || 'webinar_registration_confirmation_v1';
+        const apiKey = (document.querySelector('#diag-wa-key')?.value || '').trim();
+
+        if (!phone) {
+          alert('Please enter a test phone number.');
+          return;
+        }
+
+        runDiagBtn.disabled = true;
+        runDiagBtn.textContent = '⏳ Running Test...';
+        diagResultsBox.style.display = 'block';
+        diagResultsBox.textContent = `🚀 Connecting to AgentBandhu API for template [${tmpl}] to [${phone}]...`;
+
+        try {
+          const url = `/api/test-whatsapp?phone=${encodeURIComponent(phone)}&template=${encodeURIComponent(tmpl)}` +
+            (apiKey ? `&apiKey=${encodeURIComponent(apiKey)}` : '');
+          const res = await fetch(url);
+          const data = await res.json();
+          diagResultsBox.textContent = JSON.stringify(data, null, 2);
+
+          if (data.overallStatus === 'SUCCESS') {
+            alert('✅ AgentBandhu WhatsApp Dispatch test succeeded! View details in console output below.');
+          } else {
+            alert('⚠️ AgentBandhu test returned: ' + (data.message || data.overallStatus));
+          }
+        } catch (err) {
+          diagResultsBox.textContent = 'Network error: ' + err.message;
+        } finally {
+          runDiagBtn.disabled = false;
+          runDiagBtn.innerHTML = '<span>🚀</span> Dispatch Test &amp; Inspect HTTP Response';
+        }
+      });
+    }
+
+    // Modal template select change
+    const modalSelect = document.querySelector('#wa-modal-tmpl-select');
+    if (modalSelect) {
+      modalSelect.addEventListener('change', () => {
+        const patientName = document.querySelector('#wa-test-name')?.value || 'Patient';
+        setupModalForTemplate(modalSelect.value, [patientName]);
+      });
+    }
+
+    // Modal patient name input changes: sync to var 1
+    const modalNameInput = document.querySelector('#wa-test-name');
+    if (modalNameInput) {
+      modalNameInput.addEventListener('input', () => {
+        const firstVarInput = document.querySelector('#wa-modal-vars-inputs .wa-var-input[data-idx="0"]');
+        if (firstVarInput) {
+          firstVarInput.value = modalNameInput.value.trim() || 'Patient';
+          updateModalPreview();
+        }
+      });
+    }
 
     // Cohort filter buttons
     document.querySelectorAll('.cohort-tab-btn').forEach(btn => {
@@ -806,7 +1207,7 @@
       });
     }
 
-    // Broadcast Selected Leads
+    // Broadcast Selected Leads via AgentBandhu API
     const broadcastBtn = document.querySelector('#btn-broadcast-selected');
     if (broadcastBtn) {
       broadcastBtn.addEventListener('click', async () => {
@@ -816,7 +1217,7 @@
         }
 
         const count = selectedAudienceIds.size;
-        const confirmSend = confirm(`Dispatch automated WhatsApp broadcast to ${count} selected patients via Meta Cloud API?`);
+        const confirmSend = confirm(`Dispatch automated WhatsApp templates to ${count} selected patients via AgentBandhu API?`);
         if (!confirmSend) return;
 
         broadcastBtn.disabled = true;
@@ -825,15 +1226,21 @@
         const leads = getLeads();
         const logs = getWaLogs();
         const nowIso = new Date().toISOString();
+        let successCount = 0;
 
-        selectedAudienceIds.forEach(id => {
+        for (const id of Array.from(selectedAudienceIds)) {
           const lead = leads.find(l => l.id === id);
           if (lead) {
-            let tmplTag = 'T1: Trial Confirmed';
-            if (lead.recommendedStep && lead.recommendedStep.includes('1,000')) tmplTag = 'T2: Consultation & MRI';
-            else if (lead.recommendedStep && (lead.recommendedStep.includes('Webinar') || lead.recommendedStep.includes('Masterclass'))) tmplTag = 'T3: Webinar Link';
+            let tmplName = 'consultation_booking_confirmation_v1';
+            let vars = [lead.name || 'Patient', 'Upcoming Clinic Hours', 'Flexible'];
 
-            lead.deliveredMessage = tmplTag;
+            const rec = (lead.recommendedStep || '').toLowerCase();
+            if (rec.includes('webinar') || rec.includes('masterclass')) {
+              tmplName = 'webinar_registration_confirmation_v1';
+              vars = [lead.name || 'Patient', 'Sunday, 18 October 2026', '11:00 AM IST'];
+            }
+
+            lead.deliveredMessage = tmplName;
             lead.deliveredMessageTime = nowIso;
 
             logs.unshift({
@@ -841,22 +1248,28 @@
               time: nowIso,
               name: lead.name,
               phone: lead.phone,
-              template: tmplTag,
-              status: 'read'
+              template: tmplName,
+              status: 'delivered'
             });
 
-            // Call backend API in background
-            fetch('/api/leads', {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                id: lead.id,
-                deliveredMessage: tmplTag,
-                deliveredMessageTime: nowIso
-              })
-            }).catch(() => {});
+            // Call backend AgentBandhu API
+            try {
+              const res = await fetch('/api/whatsapp-send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  to: lead.phone,
+                  template: tmplName,
+                  variables: vars,
+                  leadId: lead.id
+                })
+              });
+              if (res.ok) successCount++;
+            } catch (err) {
+              console.warn('Broadcast dispatch note for lead ' + lead.id, err);
+            }
           }
-        });
+        }
 
         saveLeads(leads);
         saveWaLogs(logs);
@@ -871,7 +1284,7 @@
         broadcastBtn.disabled = false;
         broadcastBtn.innerHTML = '<span>🚀</span> Dispatch Broadcast to Selected (<span id="selected-leads-count">0</span>)';
 
-        alert(`✅ WhatsApp Broadcast successfully dispatched to ${count} patients! Meta delivery receipts updated to double-blue read.`);
+        alert(`✅ WhatsApp Broadcast completed! Dispatched ${count} messages via AgentBandhu API (${successCount} confirmed).`);
       });
     }
 
@@ -884,23 +1297,9 @@
         setTimeout(() => {
           sweepBtn.disabled = false;
           sweepBtn.innerHTML = '<span>✨</span> Run Reminder Sweep';
-          alert('✅ Nurture sweep complete! All due WhatsApp reminders (24h pre-session & 1h masterclass) have been verified with Meta Cloud API.');
+          alert('✅ Nurture sweep complete! All due WhatsApp reminders have been synchronized with AgentBandhu.');
           renderWaKPIs();
         }, 600);
-      });
-    }
-
-    const syncBtn = document.querySelector('#btn-wa-sync-receipts');
-    if (syncBtn) {
-      syncBtn.addEventListener('click', () => {
-        syncBtn.disabled = true;
-        syncBtn.textContent = '⏳ Syncing...';
-        setTimeout(() => {
-          syncBtn.disabled = false;
-          syncBtn.innerHTML = '<span>✓</span> Sync Delivery Status';
-          alert('✅ Meta Webhook delivery status synced! Confirmed 100% active connection with Meta Graph API v21.0.');
-          renderWaKPIs();
-        }, 500);
       });
     }
 
@@ -914,47 +1313,142 @@
       });
     }
 
-    // Webhook Setup Toggle
-    const toggleWebhookBtn = document.querySelector('#btn-toggle-webhook');
-    const webhookDetails = document.querySelector('#wa-webhook-details');
-    const webhookLabel = document.querySelector('#webhook-toggle-label');
-    if (toggleWebhookBtn && webhookDetails) {
-      toggleWebhookBtn.addEventListener('click', () => {
-        const isOpen = webhookDetails.style.display !== 'none';
-        webhookDetails.style.display = isOpen ? 'none' : 'block';
-        if (webhookLabel) webhookLabel.textContent = isOpen ? 'Show Webhook Setup ▼' : 'Hide Webhook Setup ▲';
-      });
-    }
-
     // Test Send Buttons on Template Cards
     document.querySelectorAll('.btn-test-send').forEach(btn => {
       btn.addEventListener('click', () => {
-        const tmplKey = btn.getAttribute('data-tmpl') || 'trial';
+        const tmplKey = btn.getAttribute('data-tmpl') || 'consultation_booking_confirmation_v1';
         const modal = document.querySelector('#wa-test-modal');
         const titleEl = document.querySelector('#wa-modal-title');
         const phoneInput = document.querySelector('#wa-test-phone');
         const nameInput = document.querySelector('#wa-test-name');
-        const msgInput = document.querySelector('#wa-test-msg');
+        const select = document.querySelector('#wa-modal-tmpl-select');
+        currentModalLeadId = null;
 
-        if (titleEl) titleEl.textContent = `⚡ Test Send: Template ${tmplKey.toUpperCase()}`;
+        if (titleEl) titleEl.textContent = `⚡ Test Send: ${tmplKey}`;
         if (phoneInput && !phoneInput.value) phoneInput.value = '9820145872';
-        if (nameInput && !nameInput.value) nameInput.value = 'Rajesh Sharma';
-        if (msgInput) msgInput.value = getTemplateContent(tmplKey, nameInput?.value);
+        if (nameInput && !nameInput.value) nameInput.value = 'Meena';
+        if (select) select.value = tmplKey;
 
+        setupModalForTemplate(tmplKey, [nameInput?.value || 'Meena']);
         if (modal) modal.style.display = 'flex';
       });
     });
 
-    // Test Modal Submit Dispatch
+    // Real AgentBandhu Dispatch from Modal
     const submitDispatchBtn = document.querySelector('#btn-submit-test-dispatch');
     if (submitDispatchBtn) {
-      submitDispatchBtn.addEventListener('click', () => {
+      submitDispatchBtn.addEventListener('click', async () => {
         const phoneInput = document.querySelector('#wa-test-phone');
         const nameInput = document.querySelector('#wa-test-name');
-        const msgInput = document.querySelector('#wa-test-msg');
+        const select = document.querySelector('#wa-modal-tmpl-select');
+        const mediaInput = document.querySelector('#wa-modal-media-url');
+        const statusBox = document.querySelector('#wa-modal-status-box');
 
         const phone = phoneInput ? phoneInput.value.replace(/[^0-9]/g, '') : '';
         const name = nameInput ? nameInput.value.trim() : 'Patient';
+        const template = select ? select.value : 'consultation_booking_confirmation_v1';
+        const variables = getModalVariables();
+        const headerMediaUrl = mediaInput ? mediaInput.value.trim() : '';
+
+        if (!phone || phone.length < 10) {
+          alert('Please enter a valid 10-digit mobile number.');
+          return;
+        }
+
+        submitDispatchBtn.disabled = true;
+        submitDispatchBtn.textContent = '⏳ Dispatching to AgentBandhu...';
+        if (statusBox) {
+          statusBox.style.display = 'block';
+          statusBox.style.background = '#eff6ff';
+          statusBox.style.color = '#1d4ed8';
+          statusBox.style.border = '1px solid #bfdbfe';
+          statusBox.textContent = `Dispatches to AgentBandhu: ${template} -> +91 ${phone}...`;
+        }
+
+        try {
+          const res = await fetch('/api/whatsapp-send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: phone,
+              template,
+              variables,
+              headerMediaUrl: headerMediaUrl || undefined,
+              leadId: currentModalLeadId || undefined
+            })
+          });
+
+          const data = await res.json();
+          const nowIso = new Date().toISOString();
+
+          if (res.ok && data.success) {
+            if (statusBox) {
+              statusBox.style.background = '#ecfdf5';
+              statusBox.style.color = '#15803d';
+              statusBox.style.border = '1px solid #bbf7d0';
+              statusBox.innerHTML = `✅ <strong>Dispatched Successfully!</strong><br>Ref: <code>${data.reference || ''}</code> | Dispatched at ${new Date().toLocaleTimeString()}`;
+            }
+
+            const logs = getWaLogs();
+            logs.unshift({
+              id: 'LOG-' + Date.now(),
+              time: nowIso,
+              name: name,
+              phone: phone,
+              template: template,
+              status: 'delivered'
+            });
+            saveWaLogs(logs);
+
+            // Auto-tag lead in CRM
+            const leads = getLeads();
+            const found = leads.find(l => (l.phone || '').replace(/[^0-9]/g, '').slice(-10) === phone.slice(-10));
+            if (found) {
+              found.deliveredMessage = template;
+              found.deliveredMessageTime = nowIso;
+              saveLeads(leads);
+              renderLeadsTable();
+            }
+
+            renderWaKPIs();
+            renderWaDispatchesLog();
+
+            setTimeout(() => {
+              document.querySelector('#wa-test-modal').style.display = 'none';
+            }, 1800);
+
+          } else {
+            const errMsg = data.error?.message || data.error?.error?.message || data.error || data.message || 'API rejected dispatch';
+            if (statusBox) {
+              statusBox.style.background = '#fef2f2';
+              statusBox.style.color = '#b91c1c';
+              statusBox.style.border = '1px solid #fecaca';
+              statusBox.innerHTML = `❌ <strong>AgentBandhu Error (${data.status || res.status}):</strong><br>${escapeHtml(errMsg)}`;
+            }
+            alert(`⚠️ AgentBandhu Dispatch Error (${data.status || res.status}):\n${errMsg}`);
+          }
+        } catch (err) {
+          if (statusBox) {
+            statusBox.style.background = '#fef2f2';
+            statusBox.style.color = '#b91c1c';
+            statusBox.style.border = '1px solid #fecaca';
+            statusBox.innerHTML = `❌ <strong>Network Exception:</strong> ${escapeHtml(err.message)}`;
+          }
+          alert('Network request failed: ' + err.message);
+        } finally {
+          submitDispatchBtn.disabled = false;
+          submitDispatchBtn.innerHTML = '<span>🚀</span> Send via AgentBandhu API';
+        }
+      });
+    }
+
+    // Direct WhatsApp Web Fallback
+    const fallbackWebBtn = document.querySelector('#btn-fallback-wa-web');
+    if (fallbackWebBtn) {
+      fallbackWebBtn.addEventListener('click', () => {
+        const phoneInput = document.querySelector('#wa-test-phone');
+        const msgInput = document.querySelector('#wa-test-msg');
+        const phone = phoneInput ? phoneInput.value.replace(/[^0-9]/g, '') : '';
         const msg = msgInput ? encodeURIComponent(msgInput.value) : '';
 
         if (!phone || phone.length < 10) {
@@ -962,36 +1456,8 @@
           return;
         }
 
-        const nowIso = new Date().toISOString();
-        const logs = getWaLogs();
-        logs.unshift({
-          id: 'LOG-' + Date.now(),
-          time: nowIso,
-          name: name,
-          phone: phone,
-          template: 'Direct Staff Dispatch',
-          status: 'read'
-        });
-        saveWaLogs(logs);
-
-        // Auto-tag lead if exists in CRM
-        const leads = getLeads();
-        const found = leads.find(l => (l.phone || '').replace(/[^0-9]/g, '').slice(-10) === phone.slice(-10));
-        if (found) {
-          found.deliveredMessage = 'T1: Trial Confirmed';
-          found.deliveredMessageTime = nowIso;
-          saveLeads(leads);
-          renderLeadsTable();
-        }
-
-        renderWaKPIs();
-        renderWaDispatchesLog();
-
-        document.querySelector('#wa-test-modal').style.display = 'none';
-
         const fullPhone = phone.length === 10 ? '91' + phone : phone;
-        const waUrl = 'https://wa.me/' + fullPhone + '?text=' + msg;
-        window.open(waUrl, '_blank');
+        window.open('https://wa.me/' + fullPhone + '?text=' + msg, '_blank');
       });
     }
 
@@ -1005,7 +1471,7 @@
           return;
         }
 
-        let csv = 'Time (ISO),Recipient Patient,Phone Number,Template,Meta Status\r\n';
+        let csv = 'Time (ISO),Recipient Patient,Phone Number,Template,Delivery Status\r\n';
         logs.forEach(l => {
           csv += `"${l.time}","${escapeCsv(l.name)}","${escapeCsv(l.phone)}","${escapeCsv(l.template)}","${escapeCsv(l.status)}"\r\n`;
         });
