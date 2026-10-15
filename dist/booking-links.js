@@ -75,9 +75,7 @@ window.mountCalInline = function(elementOrSelector, namespace, configOverrides) 
   const el = typeof elementOrSelector === "string" ? document.querySelector(elementOrSelector) : elementOrSelector;
   if (!el) return;
 
-  // Pop up window (#my-cal-inline) uses week_view; quiz inline assessment uses month_view
-  const isWeekly = (namespace === "default" || elementOrSelector === "#my-cal-inline");
-  const layout = isWeekly ? "week_view" : "month_view";
+  const layout = (configOverrides && configOverrides.layout) ? configOverrides.layout : "week_view";
 
   try {
     Cal("init", namespace, { origin: "https://cal.id" });
@@ -86,10 +84,34 @@ window.mountCalInline = function(elementOrSelector, namespace, configOverrides) 
     const baseConfig = { "layout": layout };
     const finalConfig = Object.assign(baseConfig, configOverrides || {});
 
+    // Build prefilled query params if name/phone/email provided to avoid Cal.id re-asking
+    let calLink = (configOverrides && configOverrides.calLink) ? configOverrides.calLink : "charakhealth/consultation";
+    if (!configOverrides || !configOverrides.calLink) {
+      const q = new URLSearchParams();
+      if (finalConfig.name) q.set('name', finalConfig.name);
+      if (finalConfig.phone) {
+        q.set('phone', finalConfig.phone);
+        q.set('smsReminderNumber', finalConfig.phone);
+        q.set('responses[phone]', finalConfig.phone);
+        q.set('responses[whatsapp]', finalConfig.phone);
+      }
+      if (finalConfig.email) {
+        q.set('email', finalConfig.email);
+        q.set('responses[email]', finalConfig.email);
+      }
+      if (finalConfig.name) {
+        q.set('responses[name]', finalConfig.name);
+      }
+      const qs = q.toString();
+      if (qs) {
+        calLink += (calLink.includes('?') ? '&' : '?') + qs;
+      }
+    }
+
     ns("inline", {
       elementOrSelector: elementOrSelector,
       config: finalConfig,
-      calLink: "charakhealth/consultation"
+      calLink: calLink
     });
 
     ns("ui", {
@@ -106,10 +128,17 @@ window.mountCalInline = function(elementOrSelector, namespace, configOverrides) 
 };
 
 // ============================================================================
-// 1. INLINE CAL.ID EMBEDDED MODAL (NO EXTERNAL REDIRECTION)
+// 1. INLINE CAL.ID EMBEDDED MODAL (DELEGATES TO 3-STAGE CONSULTATION FLOW)
 // ============================================================================
 window.openCalModal = function(options) {
   options = options || {};
+
+  // If unified 3-stage consultation flow is available, use it directly
+  if (typeof window.openConsultationModal === 'function') {
+    window.openConsultationModal(options);
+    return;
+  }
+
   const modal = document.querySelector('#cal-modal');
   const titleEl = document.querySelector('#cal-modal-title');
 
