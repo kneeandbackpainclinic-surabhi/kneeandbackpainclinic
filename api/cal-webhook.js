@@ -103,8 +103,8 @@ export default async function handler(req, res) {
           }
         }
 
-        const isCancelled = triggerEvent === 'BOOKING_CANCELLED';
-        const isRescheduled = triggerEvent === 'BOOKING_RESCHEDULED';
+        const isCancelled = /cancel/i.test(triggerEvent);
+        const isRescheduled = /resched/i.test(triggerEvent);
         const leadStatus = isCancelled ? 'Consultation Cancelled' : (isRescheduled ? 'Consultation Rescheduled' : 'Consultation Scheduled');
 
         if (existingLead) {

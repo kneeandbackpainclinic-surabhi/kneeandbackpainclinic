@@ -391,7 +391,7 @@
               </form>
             </div>
 
-            <!-- STAGE 2: LIVE CAL.ID EMBED (WEEKLY VIEW PREFILLED) -->
+            <!-- STAGE 2: DIRECT CAL.ID SCHEDULE PICKER (NO POPUP IFRAME) -->
             <div id="consult-stage-2" class="consult-stage-card" style="display: none;">
               <div style="display: flex; justify-content: space-between; align-items: center; background: #faf8f5; border: 1px solid var(--border-light); border-radius: 6px; padding: 10px 14px; margin-bottom: 12px;">
                 <div style="font-size: 0.84rem; color: var(--primary-deep);">
@@ -402,22 +402,26 @@
                 </button>
               </div>
 
-              <div style="background: #eef7ed; border: 1px solid #c7e8c6; border-radius: 6px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+              <div style="background: #eef7ed; border: 1px solid #c7e8c6; border-radius: 6px; padding: 8px 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
                 <div style="font-size: 0.82rem; color: #166534; font-weight: 600;">
                   📅 Step 2 of 3: Select your preferred day &amp; time slot below:
                 </div>
-                <span class="auto-slot-badge">● Live Doctor Schedule</span>
+                <span class="auto-slot-badge">● Live Cal.id Schedule</span>
               </div>
 
-              <div class="booking-calendar-main" style="min-height: 560px; margin-bottom: 12px; border-radius: 8px; overflow: hidden; border: 1.5px solid var(--border-light);">
-                <div id="my-cal-inline-quiz" style="width:100%;height:100%;min-height:560px;overflow:auto;"></div>
-              </div>
-
-              <div style="background: var(--bg-sand); border: 1px solid var(--border-light); border-radius: 8px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                <div style="font-size: 0.82rem; color: var(--text-muted);">
-                  Picked your slot above? Continue to payment method:
+              <!-- Direct Native Scheduler Container -->
+              <div id="direct-scheduler-mount">
+                <div style="text-align: center; padding: 36px 12px; color: var(--text-muted); background: #ffffff; border: 1.5px solid var(--border-light); border-radius: 10px;">
+                  <div style="display: inline-block; width: 26px; height: 26px; border: 3px solid #cbd5e1; border-top-color: var(--primary-deep); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+                  <div style="margin-top: 10px; font-size: 0.88rem; font-weight: 600;">Fetching live appointment slots...</div>
                 </div>
-                <button type="button" id="btn-to-stage-3" class="btn btn-primary" style="padding: 10px 18px; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+              </div>
+
+              <div id="stage-2-bottom-actions" style="margin-top: 12px; background: var(--bg-sand); border: 1px solid var(--border-light); border-radius: 8px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div id="stage-2-selected-status" style="font-size: 0.84rem; color: var(--text-muted);">
+                  👉 Select any open time slot above to continue
+                </div>
+                <button type="button" id="btn-to-stage-3" class="btn btn-primary" style="padding: 10px 18px; font-weight: 700; font-size: 0.9rem; display: none; align-items: center; gap: 6px;">
                   Next: Choose Payment Method (₹1,000) →
                 </button>
               </div>
@@ -596,7 +600,10 @@
           name: '',
           phone: '',
           email: '',
-          slotTime: 'Confirmed on Cal.id Calendar',
+          slotStart: '',
+          slotEnd: '',
+          slotTime: '',
+          eventTypeId: null,
           leadId: ''
         };
 
@@ -635,7 +642,7 @@
             if (nameEl) nameEl.textContent = consultState.name;
             if (phoneEl) phoneEl.textContent = '+91 ' + consultState.phone;
 
-            mountPrefilledCal();
+            initDirectScheduler();
           }
 
           if (stageNum === 3) {
@@ -644,43 +651,164 @@
             const s3Slot = quizBody.querySelector('#summary-stage3-slot');
             if (s3Name) s3Name.textContent = consultState.name;
             if (s3Phone) s3Phone.textContent = '+91 ' + consultState.phone;
-            if (s3Slot) s3Slot.textContent = consultState.slotTime || 'Confirmed on Cal.id Calendar';
+            if (s3Slot) s3Slot.textContent = consultState.slotTime || 'Earliest Available Schedule';
           }
         }
 
-        function mountPrefilledCal() {
-          const cleanPhone = (consultState.phone || '').replace(/[^0-9]/g, '').slice(-10);
-          const formattedPhone = cleanPhone ? ('+91' + cleanPhone) : '';
-          const emailVal = consultState.email || (cleanPhone ? `${cleanPhone}@patient.charakhealth.com` : 'patient@charakhealth.com');
+        // DIRECT CAL.ID SCHEDULER: Fetches available slots & allows 1-click selection without popup
+        function initDirectScheduler() {
+          const mount = quizBody.querySelector('#direct-scheduler-mount');
+          if (!mount) return;
 
-          const params = new URLSearchParams();
-          if (consultState.name) params.set('name', consultState.name);
-          if (formattedPhone) {
-            params.set('phone', formattedPhone);
-            params.set('smsReminderNumber', formattedPhone);
-            params.set('responses[phone]', formattedPhone);
-            params.set('responses[whatsapp]', formattedPhone);
-          }
-          if (emailVal) {
-            params.set('email', emailVal);
-            params.set('responses[email]', emailVal);
-          }
-          if (consultState.name) {
-            params.set('responses[name]', consultState.name);
-          }
+          mount.innerHTML = `
+            <div style="text-align: center; padding: 36px 12px; color: var(--text-muted); background: #ffffff; border: 1.5px solid var(--border-light); border-radius: 10px;">
+              <div style="display: inline-block; width: 26px; height: 26px; border: 3px solid #cbd5e1; border-top-color: var(--primary-deep); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+              <div style="margin-top: 10px; font-size: 0.88rem; font-weight: 600;">Fetching live appointment slots...</div>
+            </div>
+          `;
 
-          const calLinkWithPrefill = 'charakhealth/consultation?' + params.toString();
+          fetch('/api/cal-direct?action=slots&days=7')
+            .then(res => res.json())
+            .then(data => {
+              const days = (data && data.days) ? data.days : [];
+              if (!days.length) {
+                mount.innerHTML = '<div style="padding: 20px; text-align: center; color: #b91c1c;">Unable to load schedule. Please try again.</div>';
+                return;
+              }
 
-          if (window.mountCalInline) {
-            window.mountCalInline('#my-cal-inline-quiz', 'quiz', {
-              calLink: calLinkWithPrefill,
-              name: consultState.name,
-              email: emailVal,
-              phone: formattedPhone,
-              smsReminderNumber: formattedPhone,
-              layout: 'week_view'
+              if (data.eventTypeId) {
+                consultState.eventTypeId = data.eventTypeId;
+              }
+
+              let activeDayIdx = days.findIndex(d => d.slots && d.slots.length > 0);
+              if (activeDayIdx < 0) activeDayIdx = 0;
+
+              function renderScheduleUI() {
+                const activeDay = days[activeDayIdx] || days[0];
+
+                let daysHtml = days.map((d, idx) => {
+                  const isActive = (idx === activeDayIdx);
+                  const isOff = (!d.slots || d.slots.length === 0);
+                  return `
+                    <button type="button" class="scheduler-day-tab ${isActive ? 'active' : ''} ${isOff ? 'disabled' : ''}" data-day-idx="${idx}">
+                      <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">${d.weekdayName}</span>
+                      <span style="font-size: 1.25rem; font-weight: 800; line-height: 1;">${d.dayNum}</span>
+                      <span style="font-size: 0.7rem;">${d.monthName}</span>
+                    </button>
+                  `;
+                }).join('');
+
+                const morningSlots = (activeDay.slots || []).filter(s => s.period === 'morning');
+                const eveningSlots = (activeDay.slots || []).filter(s => s.period === 'evening');
+
+                const renderSlotBtns = (slots) => {
+                  if (!slots.length) {
+                    return '<div style="font-size: 0.8rem; color: #94a3b8; font-style: italic; padding: 4px 0;">No slots open in this session</div>';
+                  }
+                  return slots.map(s => {
+                    const isChosen = (consultState.slotStart === s.startIso);
+                    return `
+                      <button type="button" class="scheduler-slot-btn ${isChosen ? 'selected' : ''}"
+                        data-start="${s.startIso}"
+                        data-end="${s.endIso}"
+                        data-time="${s.time}">
+                        ${isChosen ? '✓ ' : ''}${s.time}
+                      </button>
+                    `;
+                  }).join('');
+                };
+
+                mount.innerHTML = `
+                  <div class="direct-scheduler-wrap">
+                    <div style="font-size: 0.76rem; font-weight: 700; color: var(--primary-deep); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
+                      1. Select Date:
+                    </div>
+                    <div id="scheduler-days-strip" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 14px; -webkit-overflow-scrolling: touch;">
+                      ${daysHtml}
+                    </div>
+
+                    <div style="font-size: 0.76rem; font-weight: 700; color: var(--primary-deep); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                      <span>2. Select Time (${activeDay.displayDate}):</span>
+                      <span style="font-size: 0.74rem; color: #166534; font-weight: 600;">30-Min Consultation</span>
+                    </div>
+
+                    <div style="margin-bottom: 12px;">
+                      <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
+                        <span>🌅</span> Morning Sessions (10:00 AM – 01:00 PM)
+                      </div>
+                      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 8px;">
+                        ${renderSlotBtns(morningSlots)}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
+                        <span>🌇</span> Evening Sessions (04:00 PM – 07:30 PM)
+                      </div>
+                      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 8px;">
+                        ${renderSlotBtns(eveningSlots)}
+                      </div>
+                    </div>
+                  </div>
+                `;
+
+                // Day tab switches
+                const dayTabs = mount.querySelectorAll('.scheduler-day-tab');
+                dayTabs.forEach(tab => {
+                  tab.addEventListener('click', function() {
+                    const idx = parseInt(tab.getAttribute('data-day-idx'), 10);
+                    if (!isNaN(idx) && days[idx] && days[idx].slots && days[idx].slots.length > 0) {
+                      activeDayIdx = idx;
+                      renderScheduleUI();
+                    }
+                  });
+                });
+
+                // Slot click: 1-click selection with zero popups
+                const slotBtns = mount.querySelectorAll('.scheduler-slot-btn');
+                slotBtns.forEach(btn => {
+                  btn.addEventListener('click', function() {
+                    slotBtns.forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+
+                    const sStart = btn.getAttribute('data-start');
+                    const sEnd = btn.getAttribute('data-end');
+                    const sTime = btn.getAttribute('data-time');
+
+                    consultState.slotStart = sStart;
+                    consultState.slotEnd = sEnd;
+                    consultState.slotTime = `${activeDay.displayDate} at ${sTime}`;
+
+                    const statusEl = quizBody.querySelector('#stage-2-selected-status');
+                    const toStage3Btn = quizBody.querySelector('#btn-to-stage-3');
+                    if (statusEl) {
+                      statusEl.innerHTML = `<strong>Selected Slot:</strong> <span style="color: #166534; font-weight: 700;">${consultState.slotTime}</span>`;
+                    }
+                    if (toStage3Btn) {
+                      toStage3Btn.style.display = 'inline-flex';
+                    }
+
+                    saveConsultationLead(
+                      consultState.name,
+                      consultState.phone,
+                      consultState.slotTime,
+                      'Slot Chosen - Pending Payment Method'
+                    );
+
+                    // Seamless transition to Stage 3 (no friction, no popup!)
+                    setTimeout(() => {
+                      setStage(3);
+                    }, 350);
+                  });
+                });
+              }
+
+              renderScheduleUI();
+            })
+            .catch(err => {
+              console.warn('Direct schedule fetch error:', err);
+              mount.innerHTML = '<div style="padding: 16px; text-align: center; color: #b91c1c;">Unable to load slots. Please check internet connection or call clinic desk directly.</div>';
             });
-          }
         }
 
         // STAGE 1: Form Submit & Immediate Drop-off Lead Capture with Consent
@@ -750,8 +878,8 @@
         const btnToStage3 = quizBody.querySelector('#btn-to-stage-3');
         if (btnToStage3) {
           btnToStage3.addEventListener('click', function() {
-            if (!consultState.slotTime || consultState.slotTime === 'Confirmed on Cal.id Calendar') {
-              consultState.slotTime = 'Slot Selected on Cal.id';
+            if (!consultState.slotTime) {
+              consultState.slotTime = 'Earliest Available Schedule';
             }
             saveConsultationLead(
               consultState.name,
@@ -762,40 +890,6 @@
             setStage(3);
           });
         }
-
-        // Cal.id postMessage listener (auto-captures slot confirmation event & advances to Stage 3)
-        const onCalMessage = function(ev) {
-          try {
-            const raw = ev.data;
-            if (!raw) return;
-            const str = typeof raw === 'string' ? raw : JSON.stringify(raw);
-            const isBooking = /bookingSuccessful/i.test(str) || /booking_successful/i.test(str);
-            if (isBooking) {
-              let slotTime = 'Confirmed on Cal.id Calendar';
-              try {
-                const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
-                const d = parsed.data || parsed.payload || parsed;
-                if (d && d.startTime) {
-                  slotTime = new Date(d.startTime).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
-                }
-              } catch (e) {}
-
-              consultState.slotTime = slotTime;
-              saveConsultationLead(
-                consultState.name || 'Patient',
-                consultState.phone,
-                slotTime,
-                'Slot Booked on Cal.id - Pending Payment Method'
-              );
-              // Auto-advance to Stage 3 to choose payment method
-              setStage(3);
-            }
-          } catch (e) {
-            // Ignore non-booking messages
-          }
-        };
-
-        window.addEventListener('message', onCalMessage);
 
         // STAGE 3: Return to Stage 2 (Change Slot)
         const btnBackTo2 = quizBody.querySelector('#btn-back-to-stage-2');
@@ -812,6 +906,24 @@
             payCashfreeBtn.disabled = true;
             payCashfreeBtn.textContent = 'Opening Cashfree Gateway...';
 
+            // Direct Cal.id API booking sync in background
+            fetch('/api/cal-direct', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                name: consultState.name,
+                phone: consultState.phone,
+                email: consultState.email,
+                slotStart: consultState.slotStart,
+                slotEnd: consultState.slotEnd,
+                slotDisplay: consultState.slotTime,
+                eventTypeId: consultState.eventTypeId,
+                paymentStatus: 'Paid Online via Cashfree',
+                paymentMethod: 'cashfree_online',
+                painArea: painArea
+              })
+            }).catch(e => console.warn('Cal Direct PG booking sync:', e));
+
             try {
               if (window.triggerCashfreeCheckout) {
                 await window.triggerCashfreeCheckout({
@@ -827,7 +939,6 @@
               renderConsultationSuccess(consultState.name, consultState.phone, consultState.slotTime, true);
             } catch (err) {
               console.warn('Consultation PG checkout error:', err);
-              // Fallback to confirmed with offline status if gateway was cancelled/bypassed
               saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Slot Confirmed (Pay Online Pending)');
               renderConsultationSuccess(consultState.name, consultState.phone, consultState.slotTime, false);
             }
@@ -837,9 +948,30 @@
         // STAGE 3: Option B - Pay at Clinic Desk
         const payClinicBtn = quizBody.querySelector('#stage3-pay-clinic-btn');
         if (payClinicBtn) {
-          payClinicBtn.addEventListener('click', function() {
+          payClinicBtn.addEventListener('click', async function() {
             payClinicBtn.disabled = true;
-            payClinicBtn.textContent = 'Registering Appointment...';
+            payClinicBtn.textContent = 'Confirming Appointment...';
+
+            try {
+              await fetch('/api/cal-direct', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  name: consultState.name,
+                  phone: consultState.phone,
+                  email: consultState.email,
+                  slotStart: consultState.slotStart,
+                  slotEnd: consultState.slotEnd,
+                  slotDisplay: consultState.slotTime,
+                  eventTypeId: consultState.eventTypeId,
+                  paymentStatus: 'Pay at Clinic Reception',
+                  paymentMethod: 'pay_at_clinic',
+                  painArea: painArea
+                })
+              });
+            } catch (e) {
+              console.warn('Cal Direct Booking API call:', e);
+            }
 
             saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Pay at Clinic Desk');
             renderConsultationSuccess(consultState.name, consultState.phone, consultState.slotTime, false);

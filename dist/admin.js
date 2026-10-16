@@ -296,9 +296,11 @@
           <td>
             <select class="status-select" data-id="${lead.id}" style="font-size: 0.78rem; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--admin-border);">
               <option value="New Lead" ${lead.status === 'New Lead' ? 'selected' : ''}>New Lead</option>
+              <option value="Stage 1 Completed - Pending Slot" ${lead.status && (lead.status.includes('Pending Slot') || lead.status.includes('Stage 1')) ? 'selected' : ''}>Stage 1 Drop-off (Pending Slot)</option>
+              <option value="Slot Chosen - Pending Payment Method" ${lead.status && lead.status.includes('Pending Payment') ? 'selected' : ''}>Slot Chosen (Pending Payment)</option>
               <option value="Contacted" ${lead.status === 'Contacted' ? 'selected' : ''}>Contacted</option>
-              <option value="Trial Scheduled" ${lead.status === 'Trial Scheduled' ? 'selected' : ''}>Trial Scheduled</option>
               <option value="Consultation Scheduled" ${lead.status === 'Consultation Scheduled' ? 'selected' : ''}>Consultation Scheduled</option>
+              <option value="Trial Scheduled" ${lead.status === 'Trial Scheduled' ? 'selected' : ''}>Trial Scheduled</option>
               <option value="Webinar Registered" ${lead.status === 'Webinar Registered' ? 'selected' : ''}>Webinar Registered</option>
               <option value="Enrolled in 21-Day Plan" ${lead.status === 'Enrolled in 21-Day Plan' ? 'selected' : ''}>Enrolled in 21-Day Plan</option>
             </select>

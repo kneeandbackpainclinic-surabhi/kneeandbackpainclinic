@@ -1730,3 +1730,94 @@ cal-inline {
   height: 100%;
   border: none;
 }
+
+/* ==========================================================================
+   DIRECT CAL.ID / CLINIC APPOINTMENT SCHEDULER (NO POPUP IFRAME)
+   ========================================================================== */
+.direct-scheduler-wrap {
+  background: #ffffff;
+  border: 1.5px solid var(--border-light);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.scheduler-day-tab {
+  flex: 0 0 74px;
+  min-width: 74px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px 6px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--primary-deep);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.scheduler-day-tab:hover {
+  border-color: var(--primary-sage);
+  background: #f8fafc;
+}
+
+.scheduler-day-tab.active {
+  background: var(--primary-deep);
+  border-color: var(--primary-deep);
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(30, 58, 47, 0.25);
+}
+
+.scheduler-day-tab.active span {
+  color: #ffffff !important;
+}
+
+.scheduler-day-tab.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  background: #f1f5f9;
+}
+
+.scheduler-slot-btn {
+  padding: 9px 8px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  user-select: none;
+}
+
+.scheduler-slot-btn:hover {
+  border-color: var(--primary-sage);
+  color: var(--primary-deep);
+  background: #f0fdf4;
+}
+
+.scheduler-slot-btn.selected {
+  background: var(--primary-sage);
+  border-color: var(--primary-sage);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(45, 90, 71, 0.3);
+}
+
+.scheduler-slot-btn.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
