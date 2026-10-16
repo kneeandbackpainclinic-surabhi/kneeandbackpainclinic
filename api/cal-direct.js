@@ -160,6 +160,7 @@ export default async function handler(req, res) {
               timeZone: 'Asia/Kolkata'
             }).toUpperCase();
             const istHour = parseInt(slotD.toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour12: false, hour: 'numeric' }), 10);
+            const endD = new Date(slotD.getTime() + 30 * 60 * 1000);
             daySlots.push({
               time: timeLabel,
               startIso: slotD.toISOString(),
