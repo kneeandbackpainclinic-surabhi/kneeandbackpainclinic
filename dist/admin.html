@@ -168,6 +168,9 @@
               <button type="button" class="btn-export" id="btn-export-csv">
                 <span>📥</span> Export CSV
               </button>
+              <button type="button" class="btn-export" style="background: #fef2f2; color: #dc2626; border-color: #fecaca;" onclick="window.clearAllPortalData()" title="Purge all leads and logs">
+                <span>🗑️</span> Clear All Leads
+              </button>
             </div>
           </div>
 
@@ -233,8 +236,8 @@
           <div class="metric-card">
             <div class="metric-info">
               <h3>Total Dispatches</h3>
-              <div class="value" id="wa-kpi-total">184</div>
-              <div class="kpi-subtext" id="wa-kpi-total-sub">184 queued / dispatched</div>
+              <div class="value" id="wa-kpi-total">0</div>
+              <div class="kpi-subtext" id="wa-kpi-total-sub">0 queued / dispatched</div>
             </div>
             <div class="metric-icon icon-wa-total">🚀</div>
           </div>
@@ -242,8 +245,8 @@
           <div class="metric-card">
             <div class="metric-info">
               <h3>Delivered</h3>
-              <div class="value" id="wa-kpi-delivered">181</div>
-              <div class="kpi-subtext" style="color: var(--admin-success);"><span id="wa-kpi-delivery-rate">98.4%</span> delivery rate</div>
+              <div class="value" id="wa-kpi-delivered">0</div>
+              <div class="kpi-subtext" style="color: var(--admin-success);"><span id="wa-kpi-delivery-rate">0.0%</span> delivery rate</div>
             </div>
             <div class="metric-icon icon-wa-delivered">✓</div>
           </div>
@@ -251,8 +254,8 @@
           <div class="metric-card">
             <div class="metric-info">
               <h3>Read Receipts</h3>
-              <div class="value" id="wa-kpi-read">159</div>
-              <div class="kpi-subtext" style="color: #2563eb;"><span id="wa-kpi-read-rate">86.4%</span> double-blue read rate</div>
+              <div class="value" id="wa-kpi-read">0</div>
+              <div class="kpi-subtext" style="color: #2563eb;"><span id="wa-kpi-read-rate">0.0%</span> double-blue read rate</div>
             </div>
             <div class="metric-icon icon-wa-read">👁️</div>
           </div>
@@ -260,8 +263,8 @@
           <div class="metric-card">
             <div class="metric-info">
               <h3>Failed</h3>
-              <div class="value" id="wa-kpi-failed" style="color: #dc2626;">3</div>
-              <div class="kpi-subtext" style="color: #dc2626;">invalid / blocked numbers</div>
+              <div class="value" id="wa-kpi-failed" style="color: #dc2626;">0</div>
+              <div class="kpi-subtext" style="color: #dc2626;">0 invalid / blocked</div>
             </div>
             <div class="metric-icon icon-wa-failed">⚠️</div>
           </div>
@@ -284,7 +287,7 @@
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 14px;">
             <div class="form-field">
               <label for="diag-wa-phone" style="font-size: 0.78rem; font-weight: 700;">Recipient Mobile Number *</label>
-              <input type="tel" id="diag-wa-phone" value="9820145872" placeholder="e.g. 9820145872" style="font-size: 0.85rem; padding: 8px 10px; border: 1px solid var(--admin-border); border-radius: 6px; width: 100%;">
+              <input type="tel" id="diag-wa-phone" value="" placeholder="e.g. 98XXXXXXXX" style="font-size: 0.85rem; padding: 8px 10px; border: 1px solid var(--admin-border); border-radius: 6px; width: 100%;">
             </div>
             <div class="form-field">
               <label for="diag-wa-template" style="font-size: 0.78rem; font-weight: 700;">Template</label>
@@ -618,7 +621,7 @@
 
             <div class="form-field">
               <label for="wa-test-name" style="font-size: 0.8rem; font-weight: 700;">Patient Name</label>
-              <input type="text" id="wa-test-name" value="Rajesh Sharma" style="width: 100%; padding: 8px 10px; font-size: 0.85rem; border: 1px solid var(--admin-border); border-radius: 6px;">
+              <input type="text" id="wa-test-name" value="" placeholder="Patient Full Name" style="width: 100%; padding: 8px 10px; font-size: 0.85rem; border: 1px solid var(--admin-border); border-radius: 6px;">
             </div>
           </div>
 
@@ -694,19 +697,19 @@
                 </div>
                 <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--admin-border);">
                   <span>Total Registered Attendees:</span>
-                  <strong id="stat-webinar-registered">142 Patients</strong>
+                  <strong id="stat-webinar-registered">0 Patients</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--admin-border);">
                   <span>Peak Live Users:</span>
-                  <strong id="stat-webinar-peak" style="color: var(--admin-primary);">97 Attendees</strong>
+                  <strong id="stat-webinar-peak" style="color: var(--admin-primary);">0 Attendees</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--admin-border);">
                   <span>Attendance Rate:</span>
-                  <strong id="stat-webinar-rate" style="color: var(--admin-success);">68.4%</strong>
+                  <strong id="stat-webinar-rate" style="color: var(--admin-success);">0.0%</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--admin-border);">
                   <span>Post-Webinar Clinic Consultations:</span>
-                  <strong style="color: var(--admin-accent);">34 Bookings</strong>
+                  <strong id="stat-webinar-consults" style="color: var(--admin-accent);">0 Bookings</strong>
                 </div>
               </div>
               <button type="button" class="btn-export" style="margin-top: 14px; width: 100%; justify-content: center; background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe;" id="btn-sync-webinar-metrics">

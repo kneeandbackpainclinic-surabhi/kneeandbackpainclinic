@@ -51,10 +51,10 @@ export default async function handler(req, res) {
           return res.status(200).json({
             success: true,
             webinarId: id,
-            totalUsers: num('totalUsers', 'totalAttendees', 'attendees', 'registrations') || 142,
-            peakUsers: num('peakUsers', 'peakLiveUsers', 'maxConcurrentUsers', 'peakConcurrent') || 97,
-            durationMinutes: num('durationMinutes', 'duration', 'lengthMinutes') || 90,
-            attendanceRate: '68.4%',
+            totalUsers: num('totalUsers', 'totalAttendees', 'attendees', 'registrations') || 0,
+            peakUsers: num('peakUsers', 'peakLiveUsers', 'maxConcurrentUsers', 'peakConcurrent') || 0,
+            durationMinutes: num('durationMinutes', 'duration', 'lengthMinutes') || 0,
+            attendanceRate: '0.0%',
             source: 'live_webinar_gg'
           });
         }
@@ -67,11 +67,11 @@ export default async function handler(req, res) {
     return res.status(200).json({
       success: true,
       webinarId: id,
-      totalUsers: 142,
-      peakUsers: 97,
-      durationMinutes: 90,
-      attendanceRate: '68.4%',
-      consultationsBooked: 34,
+      totalUsers: 0,
+      peakUsers: 0,
+      durationMinutes: 0,
+      attendanceRate: '0.0%',
+      consultationsBooked: 0,
       source: 'clinic_funnel_summary',
       notice: 'Webinar.gg live metrics will automatically sync when WEBINAR_GG_API_KEY is active.'
     });

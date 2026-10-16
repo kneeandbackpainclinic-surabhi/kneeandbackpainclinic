@@ -7,93 +7,34 @@
   const AI_SETTINGS_KEY = 'dr_surabhi_ai_settings';
   const PASSCODE = 'surabhi2026';
 
-  // Seed sample real-world leads from clinic intake data if none exist
-  function seedDefaultLeads() {
+  const DUMMY_LEAD_IDS = ['LEAD-101', 'LEAD-102', 'LEAD-103', 'LEAD-104', 'LEAD-105'];
+  const DUMMY_NAMES = ['Rajesh K. Sharma', 'Sunita Deshmukh', 'Arvind Mehta', 'Meena Parekh', 'Ramesh Kulkarni', 'Rajesh Sharma'];
+  const DUMMY_LOG_IDS = ['LOG-1', 'LOG-2', 'LOG-3', 'LOG-4', 'LOG-5'];
+
+  // Purge any legacy dummy / sample leads or logs
+  function purgeDummyData() {
     try {
       const existing = localStorage.getItem(STORAGE_KEY);
-      if (!existing || JSON.parse(existing).length === 0) {
-        const initialLeads = [
-          {
-            id: 'LEAD-101',
-            name: 'Rajesh K. Sharma',
-            phone: '9820145872',
-            city: 'Vartak Nagar, Thane',
-            painArea: 'Knee Joint (Osteoarthritis / Advised TKR)',
-            severity: 'Severe distress: Walking or stairs are agonizing',
-            priorTreatments: 'Total Knee Replacement advised by Orthopaedic',
-            readiness: 'Ready to begin treatment to avoid surgery',
-            recommendedStep: '₹4,000 1-Day Experience Session',
-            slotPreference: 'Tomorrow Morning (10:00 AM - 1:00 PM)',
-            status: 'Trial Scheduled',
-            createdAt: new Date(Date.now() - 3600000 * 2).toISOString()
-          },
-          {
-            id: 'LEAD-102',
-            name: 'Sunita Deshmukh',
-            phone: '9819234567',
-            city: 'Mulund West',
-            painArea: 'Lower Back & Spine (L4-L5 / Sciatica)',
-            severity: 'Advanced restriction: Getting up takes 2 minutes',
-            priorTreatments: 'Daily painkillers with only temporary relief',
-            readiness: 'Fairly ready and wants in-clinic consultation first',
-            recommendedStep: '₹1,000 Diagnostic Consultation',
-            slotPreference: 'This Weekend (Saturday)',
-            status: 'Consultation Scheduled',
-            createdAt: new Date(Date.now() - 3600000 * 6).toISOString()
-          },
-          {
-            id: 'LEAD-103',
-            name: 'Arvind Mehta',
-            phone: '9833451290',
-            city: 'Navi Mumbai',
-            painArea: 'Bilateral Knee Stiffness & Grinding',
-            severity: 'Severe distress: Cannot climb stairs',
-            priorTreatments: 'Physiotherapy & steroid injections',
-            readiness: 'Ready to begin treatment',
-            recommendedStep: '₹4,000 1-Day Experience Session',
-            slotPreference: 'Next Week',
-            status: 'New Lead',
-            createdAt: new Date(Date.now() - 3600000 * 18).toISOString()
-          },
-          {
-            id: 'LEAD-104',
-            name: 'Meena Parekh',
-            phone: '9821876543',
-            city: 'Borivali',
-            painArea: 'Neck & Cervical Spondylosis',
-            severity: 'Moderate restriction',
-            priorTreatments: 'Beginning to explore options',
-            readiness: 'Hesitant: Wants to learn more via masterclass first',
-            recommendedStep: '₹201 Live Hindi Masterclass',
-            slotPreference: 'Upcoming Sunday Webinar.gg Session',
-            status: 'Webinar Registered',
-            createdAt: new Date(Date.now() - 3600000 * 26).toISOString()
-          },
-          {
-            id: 'LEAD-105',
-            name: 'Ramesh Kulkarni',
-            phone: '9870123456',
-            city: 'Thane West',
-            painArea: 'Chronic Osteoarthritis',
-            severity: 'Advanced restriction',
-            priorTreatments: 'Painkillers & Ayur oils',
-            readiness: 'Completed 1-Day Trial',
-            recommendedStep: '₹4,000 1-Day Experience Session',
-            slotPreference: 'Completed Trial with 30% Relief',
-            status: 'Enrolled in 21-Day Plan',
-            createdAt: new Date(Date.now() - 3600000 * 72).toISOString()
-          }
-        ];
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(initialLeads));
+      if (existing) {
+        const parsed = JSON.parse(existing) || [];
+        const filtered = parsed.filter(l => !DUMMY_LEAD_IDS.includes(l.id) && !DUMMY_NAMES.includes(l.name));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+      }
+      const existingLogs = localStorage.getItem(WA_LOGS_KEY);
+      if (existingLogs) {
+        const parsedLogs = JSON.parse(existingLogs) || [];
+        const filteredLogs = parsedLogs.filter(l => !DUMMY_LOG_IDS.includes(l.id) && !DUMMY_NAMES.includes(l.name));
+        localStorage.setItem(WA_LOGS_KEY, JSON.stringify(filteredLogs));
       }
     } catch (e) {
-      console.warn('LocalStorage error:', e);
+      console.warn('Purge dummy data error:', e);
     }
   }
 
   function getLeads() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      return parsed.filter(l => !DUMMY_LEAD_IDS.includes(l.id) && !DUMMY_NAMES.includes(l.name));
     } catch {
       return [];
     }
@@ -208,7 +149,7 @@
   // DASHBOARD & CRM TABLE LOGIC
   // =========================================================================
   function initDashboard() {
-    seedDefaultLeads();
+    purgeDummyData();
     renderMetrics();
     renderLeadsTable();
     initFilters();
@@ -230,7 +171,8 @@
         const data = await resp.json();
         if (data.leads && data.leads.length > 0) {
           const current = getLeads();
-          const merged = [...data.leads];
+          const cleanLeads = data.leads.filter(l => !DUMMY_LEAD_IDS.includes(l.id) && !DUMMY_NAMES.includes(l.name));
+          const merged = [...cleanLeads];
           current.forEach(function(l) {
             if (!merged.some(function(m) { return m.id === l.id; })) {
               merged.push(l);
@@ -512,24 +454,18 @@
   // =========================================================================
   const WA_LOGS_KEY = 'dr_surabhi_wa_logs';
 
-  const defaultWaLogs = [
-    { id: 'LOG-1', time: new Date(Date.now() - 3600000 * 2).toISOString(), name: 'Rajesh K. Sharma', phone: '9820145872', template: 'T1: Trial Confirmed', status: 'read' },
-    { id: 'LOG-2', time: new Date(Date.now() - 3600000 * 5).toISOString(), name: 'Sunita Deshmukh', phone: '9819234567', template: 'T2: Consult & MRI', status: 'read' },
-    { id: 'LOG-3', time: new Date(Date.now() - 3600000 * 14).toISOString(), name: 'Arvind Mehta', phone: '9833451290', template: 'T1: Trial Confirmed', status: 'delivered' },
-    { id: 'LOG-4', time: new Date(Date.now() - 3600000 * 25).toISOString(), name: 'Meena Parekh', phone: '9821876543', template: 'T3: Webinar Link', status: 'delivered' },
-    { id: 'LOG-5', time: new Date(Date.now() - 3600000 * 68).toISOString(), name: 'Ramesh Kulkarni', phone: '9870123456', template: 'F1: Post-Session', status: 'read' }
-  ];
+  const defaultWaLogs = [];
 
   function getWaLogs() {
     try {
       const existing = localStorage.getItem(WA_LOGS_KEY);
       if (!existing) {
-        localStorage.setItem(WA_LOGS_KEY, JSON.stringify(defaultWaLogs));
-        return defaultWaLogs;
+        return [];
       }
-      return JSON.parse(existing) || [];
+      const logs = JSON.parse(existing) || [];
+      return logs.filter(l => !DUMMY_LOG_IDS.includes(l.id) && !DUMMY_NAMES.includes(l.name));
     } catch {
-      return defaultWaLogs;
+      return [];
     }
   }
 
@@ -793,15 +729,16 @@
 
   function renderWaKPIs() {
     const logs = getWaLogs();
-    const totalDispatches = 180 + logs.length;
-    const deliveredCount = 176 + logs.filter(l => l.status === 'delivered' || l.status === 'read').length;
-    const readCount = 154 + logs.filter(l => l.status === 'read').length;
-    const failedCount = logs.filter(l => l.status === 'failed').length + 3;
+    const totalDispatches = logs.length;
+    const deliveredCount = logs.filter(l => l.status === 'delivered' || l.status === 'read').length;
+    const readCount = logs.filter(l => l.status === 'read').length;
+    const failedCount = logs.filter(l => l.status === 'failed').length;
 
-    const deliveryRate = ((deliveredCount / totalDispatches) * 100).toFixed(1);
-    const readRate = ((readCount / totalDispatches) * 100).toFixed(1);
+    const deliveryRate = totalDispatches > 0 ? ((deliveredCount / totalDispatches) * 100).toFixed(1) : '0.0';
+    const readRate = totalDispatches > 0 ? ((readCount / totalDispatches) * 100).toFixed(1) : '0.0';
 
     const elTotal = document.querySelector('#wa-kpi-total');
+    const elTotalSub = document.querySelector('#wa-kpi-total-sub');
     const elDelivered = document.querySelector('#wa-kpi-delivered');
     const elRead = document.querySelector('#wa-kpi-read');
     const elFailed = document.querySelector('#wa-kpi-failed');
@@ -809,6 +746,7 @@
     const elReadRate = document.querySelector('#wa-kpi-read-rate');
 
     if (elTotal) elTotal.textContent = totalDispatches;
+    if (elTotalSub) elTotalSub.textContent = totalDispatches + ' queued / dispatched';
     if (elDelivered) elDelivered.textContent = deliveredCount;
     if (elRead) elRead.textContent = readCount;
     if (elFailed) elFailed.textContent = failedCount;
@@ -1524,6 +1462,19 @@
     if (!str) return '';
     return String(str).replace(/"/g, '""');
   }
+
+  window.clearAllPortalData = function() {
+    if (confirm('Are you sure you want to clear all leads and logs from the admin portal? This will remove all stored data.')) {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(WA_LOGS_KEY);
+      renderMetrics();
+      renderLeadsTable();
+      renderWaKPIs();
+      renderWaAudienceTable();
+      renderWaDispatchesLog();
+      alert('All portal data has been reset.');
+    }
+  };
 
   // Initialize
   document.addEventListener('DOMContentLoaded', () => {
