@@ -159,12 +159,12 @@ export default async function handler(req, res) {
               hour12: true,
               timeZone: 'Asia/Kolkata'
             }).toUpperCase();
-            const endD = new Date(slotD.getTime() + 30 * 60 * 1000);
+            const istHour = parseInt(slotD.toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour12: false, hour: 'numeric' }), 10);
             daySlots.push({
               time: timeLabel,
               startIso: slotD.toISOString(),
               endIso: endD.toISOString(),
-              period: slotD.getHours() < 14 ? 'morning' : 'evening'
+              period: istHour < 14 ? 'morning' : 'evening'
             });
           }
         } else if (!isSunday) {
@@ -253,19 +253,21 @@ export default async function handler(req, res) {
       // 1. If API key present, create booking via Cal.id API
       if (CAL_API_KEY && slotStart) {
         try {
+          const targetEventTypeId = Number(eventTypeId || 117395);
           const bookingPayload = {
-            eventTypeId: eventTypeId ? Number(eventTypeId) : undefined,
+            eventTypeId: targetEventTypeId,
             start: slotStart,
             end: slotEnd || new Date(new Date(slotStart).getTime() + 30 * 60 * 1000).toISOString(),
             responses: {
               name: name,
-              email: patientEmail,
+              attendeePhoneNumber: `+91${cleanPhone}`,
               phone: `+91${cleanPhone}`,
               whatsapp: `+91${cleanPhone}`,
+              email: patientEmail,
               timeZone: 'Asia/Kolkata',
               location: {
                 value: 'inPerson',
-                optionValue: 'Charak Health Solutions Clinic, Cura 304, Raymond TenX Habitat, Thane West'
+                optionValue: 'Charak Health Solutions Clinic, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Thane West.'
               }
             }
           };
