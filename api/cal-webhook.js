@@ -44,13 +44,19 @@ export default async function handler(req, res) {
     const name = firstAttendee.name || (responses.name && responses.name.value) || payload.name || 'Patient';
     const email = firstAttendee.email || (responses.email && responses.email.value) || payload.email || '';
 
-    let rawPhone = firstAttendee.phoneNumber || payload.phoneNumber || payload.phone || '';
+    let rawPhone = firstAttendee.phoneNumber || firstAttendee.attendeePhoneNumber || payload.attendeePhoneNumber || payload.phoneNumber || payload.phone || '';
     if (!rawPhone && responses) {
-      for (const key of Object.keys(responses)) {
-        if (/phone|mobile|contact|whatsapp/i.test(key)) {
-          const val = responses[key];
-          rawPhone = (typeof val === 'object' && val !== null) ? (val.value || '') : String(val);
-          if (rawPhone) break;
+      if (responses.attendeePhoneNumber) {
+        const val = responses.attendeePhoneNumber;
+        rawPhone = (typeof val === 'object' && val !== null) ? (val.value || '') : String(val);
+      }
+      if (!rawPhone) {
+        for (const key of Object.keys(responses)) {
+          if (/phone|mobile|contact|whatsapp|attendee/i.test(key)) {
+            const val = responses[key];
+            rawPhone = (typeof val === 'object' && val !== null) ? (val.value || '') : String(val);
+            if (rawPhone) break;
+          }
         }
       }
     }
@@ -58,10 +64,11 @@ export default async function handler(req, res) {
     const cleanPhone = (rawPhone || '').replace(/[^0-9]/g, '').slice(-10);
 
     // 2. Format Appointment Date & Time in IST (+05:30)
+    const startTimeIso = payload.startTime || payload.start || (payload.booking && (payload.booking.startTime || payload.booking.start));
     let formattedDate = 'Upcoming Date';
     let formattedTime = 'Upcoming Time';
-    if (payload.startTime) {
-      const dateObj = new Date(payload.startTime);
+    if (startTimeIso) {
+      const dateObj = new Date(startTimeIso);
       formattedDate = dateObj.toLocaleDateString('en-IN', {
         timeZone: 'Asia/Kolkata',
         weekday: 'long',
@@ -69,12 +76,13 @@ export default async function handler(req, res) {
         month: 'long',
         year: 'numeric'
       });
-      formattedTime = dateObj.toLocaleTimeString('en-IN', {
+      const t = dateObj.toLocaleTimeString('en-IN', {
         timeZone: 'Asia/Kolkata',
         hour: 'numeric',
         minute: '2-digit',
         hour12: true
-      });
+      }).toUpperCase();
+      formattedTime = `${t} IST`;
     }
 
     const slotString = `${formattedDate} at ${formattedTime}`;
@@ -86,12 +94,12 @@ export default async function handler(req, res) {
     const supabaseKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_nC7DTCfJj_vhf3YsK0LW9w_NKk54fd4';
 
     let leadId = `CAL-${String(bookingUid).slice(0, 8)}`;
+    let existingLead = null;
 
     if (supabaseUrl && supabaseKey) {
       try {
-        let existingLead = null;
         if (cleanPhone && cleanPhone.length === 10) {
-          const searchResp = await fetch(`${supabaseUrl}/rest/v1/leads?phone=like.*${cleanPhone}*&select=id,name,phone`, {
+          const searchResp = await fetch(`${supabaseUrl}/rest/v1/leads?phone=like.*${cleanPhone}*&select=id,name,phone,delivered_message,delivered_message_time`, {
             headers: {
               'apikey': supabaseKey,
               'Authorization': `Bearer ${supabaseKey}`
@@ -156,11 +164,19 @@ export default async function handler(req, res) {
     let whatsappError = null;
     const agentBandhuKey = (process.env.AGENTBANDHU_API_KEY || process.env.META_WHATSAPP_ACCESS_TOKEN || '').trim();
 
-    if (agentBandhuKey && cleanPhone && cleanPhone.length === 10 && triggerEvent !== 'BOOKING_CANCELLED') {
+    const templateName = 'consultation_booking_confirmation_v1';
+    let alreadySentRecently = false;
+    if (existingLead && existingLead.delivered_message === templateName && existingLead.delivered_message_time) {
+      const prevSent = new Date(existingLead.delivered_message_time).getTime();
+      if (Date.now() - prevSent < 10 * 60 * 1000) {
+        alreadySentRecently = true;
+      }
+    }
+
+    if (agentBandhuKey && cleanPhone && cleanPhone.length === 10 && triggerEvent !== 'BOOKING_CANCELLED' && !alreadySentRecently) {
       try {
         const { formatPhoneNumber, buildAgentBandhuPayload, AGENTBANDHU_MESSAGES_ENDPOINT } = await import('./whatsapp-templates.js');
         const formattedTo = formatPhoneNumber(cleanPhone);
-        const templateName = 'consultation_booking_confirmation_v1';
         const variables = [name || 'Patient', formattedDate, formattedTime];
 
         const waPayload = buildAgentBandhuPayload({

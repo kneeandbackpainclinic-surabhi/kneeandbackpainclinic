@@ -906,7 +906,7 @@
             payCashfreeBtn.disabled = true;
             payCashfreeBtn.textContent = 'Opening Cashfree Gateway...';
 
-            // Direct Cal.id API booking sync in background
+            // Direct Cal.id API booking sync & WhatsApp automation
             fetch('/api/cal-direct', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -922,6 +922,21 @@
                 paymentMethod: 'cashfree_online',
                 painArea: painArea
               })
+            }).then(r => r.json()).then(res => {
+              if (res && res.whatsappSent) {
+                try {
+                  const waLogs = JSON.parse(localStorage.getItem('dr_surabhi_wa_logs')) || [];
+                  waLogs.unshift({
+                    id: 'LOG-' + Date.now(),
+                    time: new Date().toISOString(),
+                    name: consultState.name,
+                    phone: consultState.phone,
+                    template: 'consultation_booking_confirmation_v1',
+                    status: 'delivered'
+                  });
+                  localStorage.setItem('dr_surabhi_wa_logs', JSON.stringify(waLogs.slice(0, 100)));
+                } catch (e) {}
+              }
             }).catch(e => console.warn('Cal Direct PG booking sync:', e));
 
             try {
@@ -953,7 +968,7 @@
             payClinicBtn.textContent = 'Confirming Appointment...';
 
             try {
-              await fetch('/api/cal-direct', {
+              const directResp = await fetch('/api/cal-direct', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -969,6 +984,21 @@
                   painArea: painArea
                 })
               });
+              const directData = await directResp.json();
+              if (directData && directData.whatsappSent) {
+                try {
+                  const waLogs = JSON.parse(localStorage.getItem('dr_surabhi_wa_logs')) || [];
+                  waLogs.unshift({
+                    id: 'LOG-' + Date.now(),
+                    time: new Date().toISOString(),
+                    name: consultState.name,
+                    phone: consultState.phone,
+                    template: 'consultation_booking_confirmation_v1',
+                    status: 'delivered'
+                  });
+                  localStorage.setItem('dr_surabhi_wa_logs', JSON.stringify(waLogs.slice(0, 100)));
+                } catch (e) {}
+              }
             } catch (e) {
               console.warn('Cal Direct Booking API call:', e);
             }

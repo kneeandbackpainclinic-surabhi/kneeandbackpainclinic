@@ -363,6 +363,8 @@ export default async function handler(req, res) {
 
       // 3. Dispatch WhatsApp Confirmation via AgentBandhu
       let whatsappSent = false;
+      let whatsappMessageId = null;
+      let whatsappError = null;
       const agentBandhuKey = (process.env.AGENTBANDHU_API_KEY || process.env.META_WHATSAPP_ACCESS_TOKEN || '').trim();
 
       if (agentBandhuKey && cleanPhone) {
@@ -383,12 +385,23 @@ export default async function handler(req, res) {
               month: 'long',
               year: 'numeric'
             });
-            timeStr = sDate.toLocaleTimeString('en-IN', {
+            const t = sDate.toLocaleTimeString('en-IN', {
               timeZone: 'Asia/Kolkata',
               hour: 'numeric',
               minute: '2-digit',
               hour12: true
-            });
+            }).toUpperCase();
+            timeStr = `${t} IST`;
+          }
+
+          if ((dateStr === 'Upcoming Date' || timeStr === 'Upcoming Time') && slotDisplay) {
+            if (slotDisplay.includes(' at ')) {
+              const parts = slotDisplay.split(' at ');
+              if (dateStr === 'Upcoming Date') dateStr = parts[0].trim();
+              if (timeStr === 'Upcoming Time') timeStr = `${parts[1].trim()} IST`;
+            } else {
+              dateStr = slotDisplay;
+            }
           }
 
           const variables = [name || 'Patient', dateStr, timeStr];
@@ -410,9 +423,36 @@ export default async function handler(req, res) {
             body: JSON.stringify(waPayload)
           });
 
-          whatsappSent = waResp.ok;
+          if (waResp.ok) {
+            whatsappSent = true;
+            try {
+              const waData = await waResp.json();
+              whatsappMessageId = waData.id || waData.data?.id || null;
+            } catch (e) {}
+
+            // Update delivered message status in Supabase CRM
+            if (supabaseUrl && supabaseKey) {
+              await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${leadId}`, {
+                method: 'PATCH',
+                headers: {
+                  'apikey': supabaseKey,
+                  'Authorization': `Bearer ${supabaseKey}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  delivered_message: templateName,
+                  delivered_message_time: nowIso
+                })
+              }).catch(() => {});
+            }
+          } else {
+            const errBody = await waResp.text();
+            whatsappError = errBody;
+            console.warn('AgentBandhu Direct Dispatch Failed:', waResp.status, errBody);
+          }
         } catch (waErr) {
-          console.warn('WhatsApp Direct Dispatch Warning:', waErr.message);
+          whatsappError = waErr.message;
+          console.warn('WhatsApp Direct Dispatch Exception:', waErr.message);
         }
       }
 
@@ -428,7 +468,9 @@ export default async function handler(req, res) {
         },
         slot: slotDisplay,
         paymentStatus,
-        whatsappSent
+        whatsappSent,
+        whatsappMessageId,
+        whatsappError: whatsappError || undefined
       });
 
     } catch (err) {
