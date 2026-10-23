@@ -265,7 +265,8 @@ Avoid: “Are you suffering from knee pain?”; “Your damaged knees can be cur
 
 ## Landing page VSL script
 
-**Recommended length:** 6 to 8 minutes  
+**Live YouTube VSL URL:** https://youtu.be/r9ckkmCa7Pw (Video ID: `r9ckkmCa7Pw`)  
+**Recommended length:** 3 to 5 minutes  
 **Primary CTA:** `Book appointment`  
 **Secondary CTA:** `Join webinar`  
 **Format:** Dr. Surabhi speaking to camera, supported by clinic footage, simple diagrams, patient activity shots and short consented testimonial excerpts.  

@@ -24,64 +24,96 @@
       const videoId = 's_OgsH07lCQ';
       if (vslHeader) vslHeader.textContent = 'MASTERCLASS VIDEO PRESENTATION';
       if (vslDuration) vslDuration.textContent = '3 MIN MASTERCLASS INVITATION';
-      if (vslWrap) vslWrap.setAttribute('data-video-id', videoId);
+      if (vslWrap) {
+        vslWrap.setAttribute('data-video-id', videoId);
+        vslWrap.setAttribute('onclick', `openVideoPlayer('${videoId}', 'Sunday Masterclass Invitation · Joint Restoration Blueprint')`);
+      }
       if (vslPoster) vslPoster.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
       if (vslTitle) vslTitle.innerHTML = 'Sunday Masterclass Invitation (₹201) · Joint Restoration Blueprint';
       if (vslDesc) vslDesc.innerHTML = 'Watch Dr. Surabhi Vaidya preview what will be revealed in the 90-minute live interactive webinar.gg masterclass.';
     } else {
-      const videoId = 'wrwncuc7zz8';
-      if (vslHeader) vslHeader.textContent = 'DOCTOR VIDEO PRESENTATION';
-      if (vslDuration) vslDuration.textContent = '5 MIN CLINICAL OVERVIEW';
-      if (vslWrap) vslWrap.setAttribute('data-video-id', videoId);
-      if (vslPoster) vslPoster.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-      if (vslTitle) vslTitle.innerHTML = 'How We Decompress Pinched Nerves &amp; Prevent Joint Surgery';
-      if (vslDesc) vslDesc.innerHTML = 'Watch Dr. Surabhi Vaidya explain our 4-pillar Marma &amp; Panchakarma protocol in simple patient language.';
+      const videoId = 'r9ckkmCa7Pw';
+      if (vslHeader) vslHeader.textContent = 'DR. SURABHI VAIDYA · CLINICAL GUIDE';
+      if (vslDuration) vslDuration.textContent = '3 MIN VIDEO';
+      if (vslWrap) {
+        vslWrap.setAttribute('data-video-id', videoId);
+        vslWrap.setAttribute('onclick', `openVideoPlayer('${videoId}', 'Knee or Back Pain? Take This 1 Minute Test to Find Your Next Step')`);
+      }
+      if (vslPoster) vslPoster.src = 'assets/youtube-vsl-thumbnail.jpg';
+      if (vslTitle) vslTitle.innerHTML = 'Find Your Exact Treatment Pathway in 60 Seconds';
+      if (vslDesc) vslDesc.innerHTML = 'In this clinical introduction, Dr. Surabhi Vaidya explains how our 60-second diagnostic assessment evaluates your pain severity and determines whether an <strong>In-Clinic Diagnostic Consultation</strong> or an <strong>Online Masterclass</strong> is your best next step.';
     }
   }
 
   // =========================================================================
   // 2. VIDEO MODAL PLAYER
   // =========================================================================
-  const videoModal = document.querySelector('#video-modal');
-  const modalIframe = document.querySelector('#modal-iframe');
-  const modalTitle = document.querySelector('#modal-video-title');
-  const modalCloseBtn = document.querySelector('#modal-close-btn');
-
   function openVideoModal(videoId, title) {
-    if (!videoModal || !modalIframe) return;
-    if (modalTitle && title) modalTitle.textContent = title;
-    modalIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-    videoModal.style.display = 'flex';
-    videoModal.setAttribute('aria-hidden', 'false');
+    if (typeof window.openVideoPlayer === 'function') {
+      window.openVideoPlayer(videoId, title);
+      return;
+    }
+    const modal = document.querySelector('#video-modal') || document.querySelector('#video-player-modal');
+    const iframe = document.querySelector('#modal-iframe') || document.querySelector('#video-player-iframe');
+    const titleEl = document.querySelector('#modal-video-title') || document.querySelector('#video-player-title');
+    if (!modal || !iframe) return;
+    if (titleEl && title) titleEl.textContent = title;
+    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+    modal.style.display = 'flex';
+    modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
   }
 
   function closeVideoModal() {
-    if (!videoModal || !modalIframe) return;
-    modalIframe.src = '';
-    videoModal.style.display = 'none';
-    videoModal.setAttribute('aria-hidden', 'true');
+    if (typeof window.closeVideoPlayer === 'function') {
+      window.closeVideoPlayer();
+      return;
+    }
+    const modal = document.querySelector('#video-modal') || document.querySelector('#video-player-modal');
+    const iframe = document.querySelector('#modal-iframe') || document.querySelector('#video-player-iframe');
+    if (!modal || !iframe) return;
+    iframe.src = '';
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
   }
 
+  const modalCloseBtn = document.querySelector('#modal-close-btn');
   if (modalCloseBtn) {
     modalCloseBtn.addEventListener('click', closeVideoModal);
   }
 
-  if (videoModal) {
-    videoModal.addEventListener('click', (e) => {
-      if (e.target === videoModal) closeVideoModal();
+  const legacyVideoModal = document.querySelector('#video-modal');
+  if (legacyVideoModal) {
+    legacyVideoModal.addEventListener('click', (e) => {
+      if (e.target === legacyVideoModal) closeVideoModal();
     });
   }
 
   // Bind VSL & Testimonial cards
   document.addEventListener('click', (e) => {
+    // If clicking on an element meant for assessment, don't trigger video
+    if (e.target.closest('[data-start-assessment]')) return;
+
     const card = e.target.closest('[data-video-id]');
     if (card) {
       e.preventDefault();
       const videoId = card.getAttribute('data-video-id');
-      const title = card.querySelector('h3, h4, .vsl-caption-bar h3')?.textContent || 'Dr. Surabhi Vaidya · Video Story';
+      const title = card.querySelector('h3, h4, .vsl-caption-bar h3')?.textContent || 'Dr. Surabhi Vaidya · Clinical Guide';
       openVideoModal(videoId, title);
+    }
+  });
+
+  // Keyboard accessibility for video triggers
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      const activeEl = document.activeElement;
+      if (activeEl && activeEl.matches && activeEl.matches('[data-video-id]')) {
+        e.preventDefault();
+        const videoId = activeEl.getAttribute('data-video-id');
+        const title = activeEl.querySelector('h3, h4, .vsl-caption-bar h3')?.textContent || 'Dr. Surabhi Vaidya · Clinical Guide';
+        openVideoModal(videoId, title);
+      }
     }
   });
 
@@ -239,7 +271,7 @@
         const cleanP = (phoneVal || '').replace(/[^0-9]/g, '').slice(-10);
         const displayName = nameVal || 'Patient';
         const displaySlot = slotVal || 'Earliest Available (Selected on Cal.id)';
-        const feeStatus = isPaid ? 'Paid Online via Cashfree ✓' : 'Pay ₹1,000 at Clinic Desk';
+        const feeStatus = isPaid ? 'Paid Online via PayU ✓' : 'Pay ₹1,000 at Clinic Desk';
 
         quizBody.innerHTML = `
           <div style="text-align: center; padding: 20px 12px;">
@@ -273,7 +305,7 @@
               </button>
               ${!isPaid ? `
               <button type="button" id="confirmed-pay-cashfree-btn" class="btn btn-secondary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                <span>💳</span> Or Pay ₹1,000 Online via Cashfree Now
+                <span>💳</span> Or Pay ₹1,000 Online via PayU Now
               </button>
               ` : ''}
             </div>
@@ -289,7 +321,7 @@
         if (payNowBtn) {
           payNowBtn.addEventListener('click', async function() {
             payNowBtn.disabled = true;
-            payNowBtn.textContent = 'Opening Cashfree Gateway...';
+            payNowBtn.textContent = 'Opening PayU Gateway...';
             try {
               if (window.triggerCashfreeCheckout) {
                 await window.triggerCashfreeCheckout({
@@ -303,7 +335,7 @@
             } catch (e) {
               console.warn('PG Checkout Note:', e);
               payNowBtn.disabled = false;
-              payNowBtn.textContent = 'Pay ₹1,000 Online via Cashfree';
+              payNowBtn.textContent = 'Pay ₹1,000 Online via PayU';
             }
           });
         }
@@ -451,11 +483,11 @@
               </h4>
 
               <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
-                <!-- Option A: Pay Online via Cashfree -->
+                <!-- Option A: Pay Online via PayU -->
                 <div style="border: 2px solid var(--primary-sage); border-radius: 8px; padding: 14px 16px; background: #ffffff;">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                     <span style="font-weight: 700; color: var(--primary-deep); font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
-                      <span>💳</span> Pay ₹1,000 Online via Cashfree
+                      <span>💳</span> Pay ₹1,000 Online via PayU
                     </span>
                     <span style="background: #dcfce7; color: #166534; font-size: 0.72rem; padding: 2px 8px; border-radius: 9999px; font-weight: 700;">
                       Instant Digital Pass
@@ -465,7 +497,7 @@
                     Instant confirmation via UPI (GPay, PhonePe, Paytm), Credit/Debit Cards, or Netbanking.
                   </p>
                   <button type="button" id="stage3-pay-cashfree-btn" class="btn btn-primary" style="width: 100%; padding: 10px; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <span>💳</span> Pay ₹1,000 Online via Cashfree →
+                    <span>💳</span> Pay ₹1,000 Online via PayU →
                   </button>
                 </div>
 
@@ -899,12 +931,12 @@
           });
         }
 
-        // STAGE 3: Option A - Pay Online via Cashfree
+        // STAGE 3: Option A - Pay Online via PayU
         const payCashfreeBtn = quizBody.querySelector('#stage3-pay-cashfree-btn');
         if (payCashfreeBtn) {
           payCashfreeBtn.addEventListener('click', async function() {
             payCashfreeBtn.disabled = true;
-            payCashfreeBtn.textContent = 'Opening Cashfree Gateway...';
+            payCashfreeBtn.textContent = 'Opening PayU Gateway...';
 
             // Direct Cal.id API booking sync & WhatsApp automation
             fetch('/api/cal-direct', {
@@ -918,8 +950,8 @@
                 slotEnd: consultState.slotEnd,
                 slotDisplay: consultState.slotTime,
                 eventTypeId: consultState.eventTypeId,
-                paymentStatus: 'Paid Online via Cashfree',
-                paymentMethod: 'cashfree_online',
+                paymentStatus: 'Paid Online via PayU',
+                paymentMethod: 'payu_online',
                 painArea: painArea
               })
             }).then(r => r.json()).then(res => {
@@ -950,7 +982,7 @@
                   leadId: consultState.leadId || `LEAD-${Date.now()}`
                 });
               }
-              saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Paid Online via Cashfree');
+              saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Paid Online via PayU');
               renderConsultationSuccess(consultState.name, consultState.phone, consultState.slotTime, true);
             } catch (err) {
               console.warn('Consultation PG checkout error:', err);
@@ -1028,7 +1060,7 @@
                   Confirm Your Masterclass Seat (₹201)
                 </h3>
                 <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
-                  Thank you, <strong>${name}</strong>. Secure your seat via Cashfree Payment Gateway to get your direct <strong>Webinar.gg</strong> joining pass.
+                  Thank you, <strong>${name}</strong>. Secure your seat via PayU Payment Gateway to get your direct <strong>Webinar.gg</strong> joining pass.
                 </p>
                 <div style="background: var(--bg-sand); padding: 14px; border-radius: 8px; margin-bottom: 16px; text-align: left;">
                   <div style="display: flex; justify-content: space-between; font-weight: 700; color: var(--primary-deep); margin-bottom: 4px;">
@@ -1039,7 +1071,7 @@
                 </div>
 
                 <button type="button" id="pay-cashfree-webinar-btn" class="btn btn-deep btn-lg" style="width: 100%; margin-bottom: 14px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                  <span>💳</span> Pay ₹201 via Cashfree (UPI / Cards) ↗
+                  <span>💳</span> Pay ₹201 via PayU (UPI / Cards) ↗
                 </button>
 
                 <div id="webinar-access-box" style="display: none; background: #eef7ed; border: 1px solid #c7e8c6; padding: 16px; border-radius: 8px; margin-bottom: 16px; text-align: left;">
@@ -1063,7 +1095,7 @@
             if (payBtn) {
               payBtn.addEventListener('click', async function() {
                 payBtn.disabled = true;
-                payBtn.textContent = 'Opening Cashfree Secure Checkout...';
+                payBtn.textContent = 'Opening PayU Secure Checkout...';
                 try {
                   if (window.triggerCashfreeCheckout) {
                     await window.triggerCashfreeCheckout({

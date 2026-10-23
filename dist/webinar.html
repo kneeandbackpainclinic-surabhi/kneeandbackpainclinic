@@ -121,24 +121,24 @@
             </div>
           </div>
 
-          <!-- Right: THE ONLY VSL SHOWCASE (ENCOURAGING ASSESSMENT) -->
-          <div class="vsl-card" data-start-assessment title="Click to start assessment">
+          <!-- Right: THE VSL SHOWCASE (WATCH VIDEO OR START ASSESSMENT) -->
+          <div class="vsl-card" id="vsl-showcase-card">
             <div class="vsl-header-bar">
               <div class="vsl-header-title">
-                <span>▶</span> <span>DR. SURABHI VAIDYA · CLINICAL GUIDE</span>
+                <span>▶</span> <span id="vsl-header-text">DR. SURABHI VAIDYA · CLINICAL GUIDE</span>
               </div>
-              <div class="vsl-duration-badge">60 SECONDS</div>
+              <div class="vsl-duration-badge" id="vsl-duration-text">3 MIN VIDEO</div>
             </div>
 
-            <div class="vsl-video-wrap">
-              <img src="assets/dr-surabhi-vsl-preview.jpg" alt="Dr. Surabhi Vaidya welcoming patients" fetchpriority="high">
+            <div class="vsl-video-wrap" id="vsl-trigger-wrap" data-video-id="r9ckkmCa7Pw" onclick="openVideoPlayer('r9ckkmCa7Pw', 'Knee or Back Pain? Take This 1 Minute Test to Find Your Next Step')" role="button" tabindex="0" aria-label="Watch Dr. Surabhi Vaidya video guide" title="Click to watch Dr. Surabhi Vaidya video">
+              <img id="vsl-poster-img" src="assets/youtube-vsl-thumbnail.jpg" alt="Dr. Surabhi Vaidya - Knee or Back Pain 1 Minute Test" fetchpriority="high">
               <div class="vsl-play-btn" aria-hidden="true">▶</div>
             </div>
 
             <div class="vsl-caption-bar">
-              <h3>Find Your Exact Treatment Pathway in 60 Seconds</h3>
-              <p>In this clinical introduction, Dr. Surabhi Vaidya explains how our 60-second diagnostic assessment evaluates your pain severity and determines whether an <strong>In-Clinic Diagnostic Consultation</strong> or an <strong>Online Masterclass</strong> is your best next step.</p>
-              <div class="vsl-caption-btn">
+              <h3 id="vsl-caption-title">Find Your Exact Treatment Pathway in 60 Seconds</h3>
+              <p id="vsl-caption-desc">In this clinical introduction, Dr. Surabhi Vaidya explains how our 60-second diagnostic assessment evaluates your pain severity and determines whether an <strong>In-Clinic Diagnostic Consultation</strong> or an <strong>Online Masterclass</strong> is your best next step.</p>
+              <div class="vsl-caption-btn" data-start-assessment role="button" tabindex="0" title="Click to start 60-second assessment">
                 <span>Click here to take the test and see your result →</span>
               </div>
             </div>
@@ -836,7 +836,7 @@
     </div>
   </div>
 
-  <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+  <!-- PayU payment gateway & booking orchestration -->
   <script src="booking-links.js"></script>
   <script src="script.js"></script>
   <script>
@@ -862,8 +862,15 @@
       }
     }
 
+    window.openVideoPlayer = openVideoPlayer;
+    window.closeVideoPlayer = closeVideoPlayer;
+
     document.getElementById('video-player-modal')?.addEventListener('click', function(e) {
       if (e.target === this) closeVideoPlayer();
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeVideoPlayer();
     });
   </script>
 </body>

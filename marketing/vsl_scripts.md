@@ -1,5 +1,6 @@
 # Dr. Surabhi Vaidya: Test-Led Landing Page VSL
 
+**Live YouTube VSL URL:** https://youtu.be/r9ckkmCa7Pw (Video ID: `r9ckkmCa7Pw`)  
 **Objective:** Encourage the visitor to complete the short test and receive a suggested next path.
 **Recommended length:** About 3 minutes
 **Single CTA:** `Take the test`
