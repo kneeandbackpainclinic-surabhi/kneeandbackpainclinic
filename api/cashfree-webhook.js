@@ -76,7 +76,7 @@ export default async function handler(req, res) {
                 try {
                   const { formatPhoneNumber, buildAgentBandhuPayload, AGENTBANDHU_MESSAGES_ENDPOINT } = await import('./whatsapp-templates.js');
                   const variables = isWebinarOrder
-                    ? [leadName, 'Sunday, 18 October 2026', '11:00 AM IST']
+                    ? [leadName, 'Sunday, 15 November 2026', '11:00 AM IST']
                     : [leadName, 'Upcoming Clinic Hours', 'Flexible'];
 
                   const waPayload = buildAgentBandhuPayload({

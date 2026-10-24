@@ -172,9 +172,9 @@ window.closeCalModal = function() {
 };
 
 // ============================================================================
-// 2. CASHFREE PAYMENT GATEWAY CHECKOUT INTEGRATION
+// 2. PAYU PAYMENT GATEWAY CHECKOUT INTEGRATION (PRIMARY INDIAN GATEWAY)
 // ============================================================================
-window.triggerCashfreeCheckout = async function(params) {
+window.triggerPayUCheckout = async function(params) {
   const amount = params.amount || 201;
   const name = params.name || 'Patient';
   const phone = params.phone || '';
@@ -183,7 +183,7 @@ window.triggerCashfreeCheckout = async function(params) {
   const leadId = params.leadId || '';
 
   try {
-    const res = await fetch('/api/create-cashfree-order', {
+    const res = await fetch('/api/create-payu-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -197,28 +197,116 @@ window.triggerCashfreeCheckout = async function(params) {
     });
 
     const data = await res.json();
-    if (!res.ok || !data.payment_session_id) {
-      throw new Error(data.error || 'Failed to initialize Cashfree session');
+    if (!res.ok || !data.success || !data.action || !data.params) {
+      throw new Error(data.error || data.details || 'Failed to initialize PayU payment');
     }
 
-    // Check if Cashfree JS SDK v3 is loaded
-    if (typeof window.Cashfree === 'function') {
-      const mode = data.environment === 'production' ? 'production' : 'sandbox';
-      const cashfree = window.Cashfree({ mode: mode });
+    // Submit PayU hosted payment form
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = data.action;
+    form.style.display = 'none';
 
-      return cashfree.checkout({
-        paymentSessionId: data.payment_session_id,
-        redirectTarget: '_modal'
-      });
-    } else {
-      console.warn('Cashfree SDK not loaded, using fallback modal');
-      return { success: true, simulated: true, orderId: data.order_id };
+    for (const [key, value] of Object.entries(data.params)) {
+      if (value !== undefined && value !== null) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+      }
     }
+
+    document.body.appendChild(form);
+    form.submit();
+    return { success: true, redirected: true, orderId: data.params.txnid };
   } catch (err) {
-    console.error('Cashfree checkout error:', err);
+    console.error('PayU checkout error:', err);
     throw err;
   }
 };
+
+// Aliases for seamless backward compatibility across consultation & webinar buttons
+window.triggerCashfreeCheckout = window.triggerPayUCheckout;
+window.triggerPaymentGatewayCheckout = window.triggerPayUCheckout;
+
+// Post-payment return handler (Shows confirmation popup upon redirect back from PayU)
+function showPaymentSuccessPopup(info) {
+  const isWebinar = (info.plan || '').toLowerCase().includes('masterclass') || (info.plan || '').toLowerCase().includes('webinar') || Number(info.amount) === 201;
+  const cleanPhone = (info.phone || '').replace(/[^0-9]/g, '').slice(-10);
+
+  const modalOverlay = document.createElement('div');
+  modalOverlay.id = 'payu-success-modal';
+  modalOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.75);backdrop-filter:blur(4px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn 0.2s ease;';
+
+  modalOverlay.innerHTML = `
+    <div style="background:#ffffff;border-radius:14px;max-width:440px;width:100%;padding:24px;box-shadow:0 20px 40px rgba(0,0,0,0.2);text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+      <div style="font-size:3.2rem;margin-bottom:8px;">🎉</div>
+      <h3 style="font-size:1.35rem;color:#1e3a2f;margin:0 0 6px 0;font-weight:700;">Payment &amp; Booking Confirmed!</h3>
+      <p style="font-size:0.88rem;color:#64748b;margin:0 0 16px 0;line-height:1.5;">
+        Thank you, <strong>${info.name || 'Patient'}</strong>. Your payment via <strong>PayU</strong> has been verified.
+      </p>
+
+      <div style="background:#eef7ed;border:1.5px solid #86efac;border-radius:8px;padding:12px 14px;text-align:left;margin-bottom:14px;">
+        <div style="font-weight:700;color:#166534;font-size:0.85rem;margin-bottom:4px;">📲 WhatsApp Confirmation Dispatched</div>
+        <div style="font-size:0.8rem;color:#15803d;line-height:1.4;">
+          Your receipt and appointment pass have been sent to <strong>+91 ${cleanPhone || info.phone}</strong>.
+        </div>
+      </div>
+
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;text-align:left;font-size:0.8rem;color:#334155;margin-bottom:16px;line-height:1.6;">
+        <div>🏷️ <strong>Booking:</strong> ${info.plan || 'Diagnostic Consultation'}</div>
+        <div>💳 <strong>Amount Paid:</strong> ₹${info.amount || 'Confirmed'}</div>
+        <div>🧾 <strong>Txn Reference:</strong> ${info.orderId || 'Verified'}</div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        ${isWebinar ? `
+        <a href="https://webinar.gg/charakhealth" target="_blank" rel="noopener" style="background:#1e3a2f;color:#ffffff;padding:12px;border-radius:8px;font-weight:700;text-decoration:none;font-size:0.9rem;display:flex;align-items:center;justify-content:center;gap:6px;">
+          <span>🎥</span> Enter Live Room on Webinar.gg ↗
+        </a>
+        ` : ''}
+        <button type="button" id="close-payu-success-modal" style="background:#f1f5f9;color:#334155;border:none;padding:10px;border-radius:8px;font-weight:600;font-size:0.88rem;cursor:pointer;">
+          ✓ Done &amp; Return to Page
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modalOverlay);
+  document.body.style.overflow = 'hidden';
+
+  const closeBtn = modalOverlay.querySelector('#close-payu-success-modal');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function() {
+      modalOverlay.remove();
+      document.body.style.overflow = '';
+      try {
+        const cleanUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+      } catch (e) {}
+    });
+  }
+}
+
+function initPaymentReturnCheck() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const status = (urlParams.get('status') || '').toUpperCase();
+    const gateway = (urlParams.get('gateway') || '').toLowerCase();
+    const orderId = urlParams.get('order_id');
+    const amount = urlParams.get('amount') || '';
+    const phone = urlParams.get('phone') || '';
+    const plan = urlParams.get('plan') || '';
+    const name = urlParams.get('name') || '';
+
+    if ((gateway === 'payu' || orderId) && (status === 'SUCCESS' || status === 'PAID')) {
+      showPaymentSuccessPopup({ orderId, amount, phone, plan, name });
+    }
+  } catch (e) {
+    console.warn('PayU payment return check notice:', e);
+  }
+}
 
 // ============================================================================
 // 3. WEBINAR.GG TOKEN & INLINE EMBEDDED MODAL (PLAN-ONE-PAGE PARITY)
@@ -314,7 +402,8 @@ window.closeWebinarModal = function() {
 
 // Global event listeners on load
 document.addEventListener('DOMContentLoaded', function() {
-  // Close Cal modal button
+  // Check for PayU payment return redirects (?status=SUCCESS&gateway=payu)
+  initPaymentReturnCheck();
 
   // Close Cal modal button
   const closeBtn = document.querySelector('#close-cal-modal-btn');

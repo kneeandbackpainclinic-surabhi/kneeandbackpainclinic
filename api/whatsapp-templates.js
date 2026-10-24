@@ -24,7 +24,7 @@ export const WHATSAPP_TEMPLATES = {
     category: 'utility',
     variableCount: 3,
     variableLabels: ['Patient Name', 'Date', 'Time'],
-    defaultVariables: ['Patient', 'Sunday, 18 October 2026', '11:00 AM IST'],
+    defaultVariables: ['Patient', 'Sunday, 15 November 2026', '11:00 AM IST'],
     hasMedia: false,
     body: 'Hello {{1}}, your registration request for the live Hindi session, Understanding Knee Pain: What to Consider Before Choosing a Treatment Path", has been received.\n\nDate: {{2}}\nTime: {{3}}\nHosted by: Dr. Surabhi Vaidya, Charak Health Solutions\n\nThe joining link will be shared on WhatsApp before the session. Reply here if you need help.'
   },
@@ -36,7 +36,7 @@ export const WHATSAPP_TEMPLATES = {
     category: 'utility',
     variableCount: 3,
     variableLabels: ['Patient Name', 'Date', 'Time'],
-    defaultVariables: ['Patient', 'Sunday, 18 October 2026', '11:00 AM IST'],
+    defaultVariables: ['Patient', 'Sunday, 15 November 2026', '11:00 AM IST'],
     hasMedia: false,
     body: 'Hello {{1}}, here are the joining details for your registered live Hindi session with Dr. Surabhi Vaidya.\n\nDate: {{2}}\nTime: {{3}}\n\nPlease join a few minutes early. This educational session does not replace an individual medical consultation.'
   },
@@ -84,7 +84,7 @@ export const WHATSAPP_TEMPLATES = {
     category: 'marketing',
     variableCount: 3,
     variableLabels: ['Date', 'Time', 'Registration Link'],
-    defaultVariables: ['Sunday, 18 October 2026', '11:00 AM IST', 'https://dr-surabhi.com/webinar'],
+    defaultVariables: ['Sunday, 15 November 2026', '11:00 AM IST', 'https://dr-surabhi.com/webinar'],
     hasMedia: false,
     body: 'Charak Health Solutions is hosting a live Hindi session with Dr. Surabhi Vaidya on understanding knee pain and the questions worth asking before choosing a treatment path.\n\nDate: {{1}}\nTime: {{2}}\n\nThe session covers common causes of knee discomfort, the role of assessment, movement and lifestyle, and when an in-person consultation may be useful.\n\nRegister here: {{3}}\n\nReply STOP to opt out.'
   },

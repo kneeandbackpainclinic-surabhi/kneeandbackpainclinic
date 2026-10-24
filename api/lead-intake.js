@@ -67,7 +67,7 @@ export default async function handler(req, res) {
         const isWebinar = (lead.recommendedStep || '').toLowerCase().includes('webinar') || (lead.recommendedStep || '').toLowerCase().includes('masterclass');
         const templateName = isWebinar ? 'webinar_registration_confirmation_v1' : 'consultation_booking_confirmation_v1';
         const variables = isWebinar
-          ? [lead.name || 'Patient', 'Sunday, 18 October 2026', '11:00 AM IST']
+          ? [lead.name || 'Patient', 'Sunday, 15 November 2026', '11:00 AM IST']
           : [lead.name || 'Patient', lead.slotPreference || 'Upcoming Clinic Hours', 'Flexible'];
 
         const { formatPhoneNumber, buildAgentBandhuPayload, AGENTBANDHU_MESSAGES_ENDPOINT } = await import('./whatsapp-templates.js');

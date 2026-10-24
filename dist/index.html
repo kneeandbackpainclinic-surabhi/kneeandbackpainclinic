@@ -121,23 +121,21 @@
             </div>
           </div>
 
-          <!-- Right: THE VSL SHOWCASE (WATCH VIDEO OR START ASSESSMENT) -->
+          <!-- Right: THE VSL SHOWCASE (EMBEDDED VIDEO PLAYER) -->
           <div class="vsl-card" id="vsl-showcase-card">
             <div class="vsl-header-bar">
               <div class="vsl-header-title">
                 <span>▶</span> <span id="vsl-header-text">DR. SURABHI VAIDYA · CLINICAL GUIDE</span>
               </div>
-              <div class="vsl-duration-badge" id="vsl-duration-text">3 MIN VIDEO</div>
             </div>
 
-            <div class="vsl-video-wrap" id="vsl-trigger-wrap" data-video-id="r9ckkmCa7Pw" onclick="openVideoPlayer('r9ckkmCa7Pw', 'Knee or Back Pain? Take This 1 Minute Test to Find Your Next Step')" role="button" tabindex="0" aria-label="Watch Dr. Surabhi Vaidya video guide" title="Click to watch Dr. Surabhi Vaidya video">
-              <img id="vsl-poster-img" src="assets/youtube-vsl-thumbnail.jpg" alt="Dr. Surabhi Vaidya - Knee or Back Pain 1 Minute Test" fetchpriority="high">
-              <div class="vsl-play-btn" aria-hidden="true">▶</div>
+            <div class="vsl-video-wrap" id="vsl-trigger-wrap">
+              <iframe id="vsl-inline-iframe" src="https://www.youtube.com/embed/r9ckkmCa7Pw?rel=0" title="Dr. Surabhi Vaidya · Knee &amp; Back Pain Relief Clinical Guide" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy" style="width: 100%; height: 100%; border: none; position: absolute; inset: 0;"></iframe>
             </div>
 
             <div class="vsl-caption-bar">
               <h3 id="vsl-caption-title">Find Your Exact Treatment Pathway in 60 Seconds</h3>
-              <p id="vsl-caption-desc">In this clinical introduction, Dr. Surabhi Vaidya explains how our 60-second diagnostic assessment evaluates your pain severity and determines whether an <strong>In-Clinic Diagnostic Consultation</strong> or an <strong>Online Masterclass</strong> is your best next step.</p>
+              <p id="vsl-caption-desc">In this clinical introduction, Dr. Surabhi Vaidya explains how our 60-second diagnostic assessment evaluates your pain severity and helps you choose between an <strong>Online Masterclass (Pathway 1)</strong> or an <strong>In-Clinic Diagnostic Consultation (Pathway 2)</strong>.</p>
               <div class="vsl-caption-btn" data-start-assessment role="button" tabindex="0" title="Click to start 60-second assessment">
                 <span>Click here to take the test and see your result →</span>
               </div>
@@ -206,47 +204,34 @@
       <div class="container">
         <div class="section-header">
           <span class="eyebrow">A CLEAR, TRANSPARENT JOURNEY</span>
-          <h2 id="flow-title">How we guide your <em>exact next step.</em></h2>
-          <p>We do not push one-size-fits-all packages. Depending on your pain severity and readiness, our 60-second assessment matches you to strictly the single most appropriate pathway.</p>
+          <h2 id="flow-title">Choose your <em>treatment pathway.</em></h2>
+          <p>We do not push one-size-fits-all packages. Choose the pathway that matches where you are today — learn online first, or book an in-person clinical assessment.</p>
         </div>
 
         <div class="flow-diagram">
           <!-- Pathway 1: Masterclass (₹201) -->
           <div class="flow-step-card">
-            <span class="flow-tag tag-explore">PATHWAY 1 · EXPLORING</span>
+            <span class="flow-tag tag-explore">PATHWAY 1 · EXPLORING ONLINE</span>
             <h3>Live Hindi Masterclass (₹201)</h3>
-            <p>If you are just beginning to explore, hesitant, or want to understand how Ayurveda compares with surgery before visiting the clinic.</p>
+            <p>If you are exploring options, hesitant, or want to understand how Ayurveda compares with surgery from home before visiting the clinic.</p>
             <div style="font-size: 0.85rem; font-weight: 700; color: var(--primary-sage); margin-bottom: 14px;">
-              Live on Webinar.gg · Fortnightly · ₹201 Fee
+              Next Live Batch: Sunday, 15th November 2026 (11:00 AM IST) · ₹201 Fee
             </div>
-            <button type="button" class="btn btn-secondary btn-sm" data-start-assessment>
-              Check If This Fits You ↗
+            <button type="button" class="btn btn-secondary btn-sm" onclick="openWebinarDirect()">
+              Choose Pathway 1: Register for Masterclass ↗
             </button>
           </div>
 
           <!-- Pathway 2: Consultation (₹1,000) -->
-          <div class="flow-step-card">
-            <span class="flow-tag tag-consult">PATHWAY 2 · FAIRLY READY</span>
-            <h3>Diagnostic Consultation (₹1,000)</h3>
-            <p>If you are at a fairly advanced stage and want a 30-minute clinical evaluation with Dr. Surabhi Vaidya to analyze your pulse (Naadi) and posture.</p>
-            <div style="font-size: 0.85rem; font-weight: 700; color: #92400e; margin-bottom: 14px;">
-              In-Clinic Thane · ₹1,000 Diagnosis Fee
-            </div>
-            <button type="button" class="btn btn-secondary btn-sm" data-start-assessment>
-              Check If This Fits You ↗
-            </button>
-          </div>
-
-          <!-- Pathway 3: Experience Session (₹4,000) -->
           <div class="flow-step-card highlight">
-            <span class="flow-tag tag-trial">PATHWAY 3 · SEVERE DISTRESS / READY</span>
-            <h3>1-Day Experience Session (₹4,000)</h3>
-            <p>If you are in severe pain or looking to avoid advised knee/spine surgery. Experience 7 intensive therapies with 20% to 30% pain relief on Day 1.</p>
-            <div style="font-size: 0.85rem; font-weight: 700; color: #b91c1c; margin-bottom: 14px;">
-              Full Day · 7 Treatments · Day 1 Relief
+            <span class="flow-tag tag-consult">PATHWAY 2 · IN-CLINIC EVALUATION</span>
+            <h3>Diagnostic Consultation (₹1,000)</h3>
+            <p>If you have active knee or spine pain and want a 30-minute in-person evaluation with Dr. Surabhi Vaidya to analyze your pulse (Naadi), MRI reports, and posture.</p>
+            <div style="font-size: 0.85rem; font-weight: 700; color: #92400e; margin-bottom: 14px;">
+              In-Clinic Thane West · 30 Minutes · ₹1,000 Fee
             </div>
-            <button type="button" class="btn btn-primary btn-sm" data-start-assessment>
-              Claim Experience Session ↗
+            <button type="button" class="btn btn-primary btn-sm" onclick="openConsultationModal()">
+              Choose Pathway 2: Book Consultation ↗
             </button>
           </div>
         </div>
@@ -444,7 +429,7 @@
             </div>
             <div class="video-story-body">
               <h3>Regained Mobility &amp; Independence</h3>
-              <p>"Morning stiffness used to paralyze my first hour. The 1-Day Trial gave me 25% instant ease, and the full protocol gave me my life back."</p>
+              <p>"Morning stiffness used to paralyze my first hour. Dr. Surabhi's Ayurvedic protocol gave me 25% instant ease, and within weeks I had my pain-free life back."</p>
               <div class="patient-meta">
                 <strong>Patient Video Testimonial</strong> · Thane West
               </div>
@@ -456,57 +441,59 @@
     </section>
 
     <!-- ======================================================================
-         10. TRANSPARENT PRICING & TREATMENT PACKAGES
+         10. TRANSPARENT PRICING & PATHWAYS
          ====================================================================== -->
     <section class="section-padding bg-sand" id="pricing" aria-labelledby="pricing-title">
       <div class="container">
         <div class="section-header">
-          <span class="eyebrow">TRANSPARENT TREATMENT PLANS</span>
-          <h2 id="pricing-title">Clear, honest pricing with <em>0% interest EMI options.</em></h2>
-          <p>No hidden charges, no sudden surprise bills. Choose the treatment level that suits your clinical need and comfort.</p>
+          <span class="eyebrow">TRANSPARENT PRICING</span>
+          <h2 id="pricing-title">Choose your pathway. <em>No hidden charges.</em></h2>
+          <p>Select the option that best fits your current stage — start with our educational masterclass online, or visit Dr. Surabhi Vaidya in Thane for a comprehensive in-person consultation.</p>
         </div>
 
         <div class="pricing-grid">
           
-          <!-- Plan 0: Masterclass (₹201) -->
+          <!-- Pathway 1: Masterclass (₹201) -->
           <div class="pricing-card">
-            <h3 class="pricing-tier-name">Live Masterclass</h3>
-            <div class="pricing-duration">90-Minute Live Webinar.gg Session</div>
+            <span class="pricing-badge" style="background: var(--primary-light); color: var(--primary-sage); border: 1px solid var(--border-light);">PATHWAY 1 · ONLINE</span>
+            <h3 class="pricing-tier-name" style="margin-top: 10px;">Live Hindi Masterclass</h3>
+            <div class="pricing-duration">Next Session: Sunday, 15th November 2026 (11:00 AM IST)</div>
             <div class="pricing-price">₹201</div>
-            <div class="pricing-subprice">Online batch access fee</div>
+            <div class="pricing-subprice">Interactive Webinar.gg access fee</div>
             <ul class="pricing-features">
               <li>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Live root-cause masterclass with Dr. Surabhi</span>
+                <span>90-minute live interactive masterclass with Dr. Surabhi</span>
               </li>
               <li>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>How to avoid knee replacement &amp; disc surgery</span>
+                <span>How to avoid knee replacement &amp; spinal disc surgery</span>
               </li>
               <li>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Live Q&amp;A for MRI and X-Ray report queries</span>
+                <span>Live Q&amp;A for MRI, X-Ray, and symptom queries</span>
               </li>
               <li>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>7-Day Anti-Inflammatory Ayurvedic Diet PDF</span>
+                <span>7-Day Anti-Inflammatory Ayurvedic Diet Protocol PDF</span>
               </li>
             </ul>
-            <button type="button" class="btn btn-secondary" data-start-assessment>
-              Register for Masterclass (₹201) ↗
+            <button type="button" class="btn btn-secondary" onclick="openWebinarDirect()">
+              Select Pathway 1: Register (₹201) ↗
             </button>
           </div>
 
-          <!-- Plan 1: Consultation -->
-          <div class="pricing-card">
-            <h3 class="pricing-tier-name">Diagnostic Consultation</h3>
-            <div class="pricing-duration">30-Minute In-Clinic Assessment</div>
+          <!-- Pathway 2: Consultation (₹1,000) -->
+          <div class="pricing-card featured">
+            <span class="pricing-badge">PATHWAY 2 · IN-CLINIC RECOMMENDED</span>
+            <h3 class="pricing-tier-name" style="margin-top: 10px;">Diagnostic Consultation</h3>
+            <div class="pricing-duration">30-Minute In-Person Doctor Assessment</div>
             <div class="pricing-price">₹1,000</div>
-            <div class="pricing-subprice">One-time consultation fee</div>
+            <div class="pricing-subprice">Pay online or at clinic reception</div>
             <ul class="pricing-features">
               <li>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Detailed medical &amp; pain history analysis</span>
+                <span>Detailed medical &amp; chronic pain history analysis</span>
               </li>
               <li>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -514,85 +501,22 @@
               </li>
               <li>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Postural &amp; muscle strength testing</span>
+                <span>Joint alignment, posture, &amp; spinal nerve testing</span>
               </li>
               <li>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Personalized roadmap &amp; surgical risk review</span>
+                <span>Personalized surgery-prevention roadmap by Dr. Surabhi</span>
               </li>
             </ul>
-            <button type="button" class="btn btn-secondary" data-start-assessment>
-              Book Consultation (₹1,000) ↗
+            <button type="button" class="btn btn-primary" onclick="openConsultationModal()">
+              Select Pathway 2: Book Consultation (₹1,000) ↗
             </button>
           </div>
 
-          <!-- Plan 2: 1-Day Trial (FEATURED) -->
-          <div class="pricing-card featured">
-            <span class="pricing-badge">SIGNATURE TRIAL</span>
-            <h3 class="pricing-tier-name">1-Day Experience Session</h3>
-            <div class="pricing-duration">7 Comprehensive Therapies · Single Day</div>
-            <div class="pricing-price">₹4,000</div>
-            <div class="pricing-subprice">Expect 20% to 30% instant relief</div>
-            <ul class="pricing-features">
-              <li>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span><strong>Includes complete doctor consultation</strong></span>
-              </li>
-              <li>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Marma Chikitsa (Vital point alignment)</span>
-              </li>
-              <li>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Pottali Sekam (Hot herbal bolus fomentation)</span>
-              </li>
-              <li>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Full-body medicated steam with herbal decoction</span>
-              </li>
-              <li>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Targeted Lepam (anti-inflammatory paste)</span>
-              </li>
-              <li>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Personalized diet &amp; mobility counselling</span>
-              </li>
-            </ul>
-            <button type="button" class="btn btn-primary" data-start-assessment>
-              Claim Experience Session ↗
-            </button>
-          </div>
+        </div>
 
-          <!-- Plan 3: 7-Day Intensive -->
-          <div class="pricing-card">
-            <h3 class="pricing-tier-name">7-Day Intensive Protocol</h3>
-            <div class="pricing-duration">7 Daily Clinical Sessions</div>
-            <div class="pricing-price">₹30,000</div>
-            <div class="pricing-subprice">0% Interest EMI Available</div>
-            <ul class="pricing-features">
-              <li>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Daily intensive Marma &amp; Panchakarma</span>
-              </li>
-              <li>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Deep anti-inflammatory detox</span>
-              </li>
-              <li>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Targeted pain relief for Sciatica / Acute Knee</span>
-              </li>
-              <li>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Doctor monitoring at every session</span>
-              </li>
-            </ul>
-            <button type="button" class="btn btn-secondary" data-start-assessment>
-              Inquire 7-Day Plan ↗
-            </button>
-          </div>
-
+        <div style="text-align: center; margin-top: 24px; font-size: 0.88rem; color: var(--text-muted); max-width: 680px; margin-left: auto; margin-right: auto; line-height: 1.5;">
+          Need multi-session therapy? Individual rehabilitative protocols (such as Panchakarma, Janu Basti, and Marma alignment) are custom-prescribed by Dr. Surabhi Vaidya following your diagnostic consultation.
         </div>
       </div>
     </section>

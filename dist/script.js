@@ -3,7 +3,7 @@
   'use strict';
 
   // =========================================================================
-  // 1. DYNAMIC VSL SLUG & VIDEO INITIALIZER
+  // 1. DYNAMIC VSL SLUG & INLINE VIDEO INITIALIZER (PLAYS DIRECTLY ON PAGE)
   // =========================================================================
   function initVslSlug() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -12,41 +12,27 @@
     const activeVsl = vslParam ? vslParam.toLowerCase() : defaultVsl;
 
     const vslHeader = document.querySelector('#vsl-header-text');
-    const vslDuration = document.querySelector('#vsl-duration-text');
-    const vslWrap = document.querySelector('#vsl-trigger-wrap');
-    const vslPoster = document.querySelector('#vsl-poster-img');
+    const vslIframe = document.querySelector('#vsl-inline-iframe');
     const vslTitle = document.querySelector('#vsl-caption-title');
     const vslDesc = document.querySelector('#vsl-caption-desc');
 
-    if (!vslWrap) return;
-
     if (activeVsl === 'webinar') {
       const videoId = 's_OgsH07lCQ';
-      if (vslHeader) vslHeader.textContent = 'MASTERCLASS VIDEO PRESENTATION';
-      if (vslDuration) vslDuration.textContent = '3 MIN MASTERCLASS INVITATION';
-      if (vslWrap) {
-        vslWrap.setAttribute('data-video-id', videoId);
-        vslWrap.setAttribute('onclick', `openVideoPlayer('${videoId}', 'Sunday Masterclass Invitation · Joint Restoration Blueprint')`);
-      }
-      if (vslPoster) vslPoster.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+      if (vslHeader) vslHeader.textContent = 'DR. SURABHI VAIDYA · WEBINAR PRESENTATION';
+      if (vslIframe) vslIframe.src = `https://www.youtube.com/embed/${videoId}?rel=0`;
       if (vslTitle) vslTitle.innerHTML = 'Sunday Masterclass Invitation (₹201) · Joint Restoration Blueprint';
-      if (vslDesc) vslDesc.innerHTML = 'Watch Dr. Surabhi Vaidya preview what will be revealed in the 90-minute live interactive webinar.gg masterclass.';
+      if (vslDesc) vslDesc.innerHTML = 'Watch Dr. Surabhi Vaidya preview what will be revealed in the live interactive Webinar.gg masterclass on <strong>Sunday, 15th November 2026</strong>.';
     } else {
       const videoId = 'r9ckkmCa7Pw';
       if (vslHeader) vslHeader.textContent = 'DR. SURABHI VAIDYA · CLINICAL GUIDE';
-      if (vslDuration) vslDuration.textContent = '3 MIN VIDEO';
-      if (vslWrap) {
-        vslWrap.setAttribute('data-video-id', videoId);
-        vslWrap.setAttribute('onclick', `openVideoPlayer('${videoId}', 'Knee or Back Pain? Take This 1 Minute Test to Find Your Next Step')`);
-      }
-      if (vslPoster) vslPoster.src = 'assets/youtube-vsl-thumbnail.jpg';
+      if (vslIframe) vslIframe.src = `https://www.youtube.com/embed/${videoId}?rel=0`;
       if (vslTitle) vslTitle.innerHTML = 'Find Your Exact Treatment Pathway in 60 Seconds';
-      if (vslDesc) vslDesc.innerHTML = 'In this clinical introduction, Dr. Surabhi Vaidya explains how our 60-second diagnostic assessment evaluates your pain severity and determines whether an <strong>In-Clinic Diagnostic Consultation</strong> or an <strong>Online Masterclass</strong> is your best next step.';
+      if (vslDesc) vslDesc.innerHTML = 'In this clinical introduction, Dr. Surabhi Vaidya explains how our 60-second diagnostic assessment evaluates your pain severity and helps you choose between an <strong>Online Masterclass (Pathway 1)</strong> or an <strong>In-Clinic Diagnostic Consultation (Pathway 2)</strong>.';
     }
   }
 
   // =========================================================================
-  // 2. VIDEO MODAL PLAYER
+  // 2. VIDEO MODAL PLAYER (FOR TESTIMONIAL STORIES ONLY - VSL PLAYS INLINE)
   // =========================================================================
   function openVideoModal(videoId, title) {
     if (typeof window.openVideoPlayer === 'function') {
@@ -90,16 +76,17 @@
     });
   }
 
-  // Bind VSL & Testimonial cards
+  // Bind Testimonial cards (VSL card excluded so it plays directly inline)
   document.addEventListener('click', (e) => {
-    // If clicking on an element meant for assessment, don't trigger video
+    // If clicking on an element meant for assessment or VSL card, don't trigger modal popup
     if (e.target.closest('[data-start-assessment]')) return;
+    if (e.target.closest('#vsl-showcase-card') || e.target.closest('#vsl-trigger-wrap')) return;
 
     const card = e.target.closest('[data-video-id]');
     if (card) {
       e.preventDefault();
       const videoId = card.getAttribute('data-video-id');
-      const title = card.querySelector('h3, h4, .vsl-caption-bar h3')?.textContent || 'Dr. Surabhi Vaidya · Clinical Guide';
+      const title = card.querySelector('h3, h4, .vsl-caption-bar h3')?.textContent || 'Dr. Surabhi Vaidya · Patient Recovery Story';
       openVideoModal(videoId, title);
     }
   });
@@ -186,8 +173,19 @@
 
   window.openConsultationModal = function(options) {
     options = options || {};
-    currentStep = quizQuestions.length; // Jump directly to consultation recommendation
-    userAnswers = [0, 0, 0, 0]; // Default consultation branch
+    currentStep = quizQuestions.length; // Jump directly to consultation recommendation (Pathway 2)
+    userAnswers = [0, 0, 0, 0]; // Consultation branch
+    renderQuiz();
+    if (quizModal) {
+      quizModal.style.display = 'flex';
+      quizModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  window.openWebinarDirect = function() {
+    currentStep = quizQuestions.length; // Jump directly to webinar recommendation (Pathway 1)
+    userAnswers = [0, 0, 0, 3]; // Webinar branch
     renderQuiz();
     if (quizModal) {
       quizModal.style.display = 'flex';
@@ -356,6 +354,13 @@
             <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
               You are at a suitable stage to get an in-depth 30-minute clinical assessment with Dr. Surabhi Vaidya for your <strong>${painArea}</strong>. She will perform Ayurvedic Naadi Pariksha (pulse analysis), evaluate your MRI / X-Rays, and map your surgical prevention plan.
             </p>
+
+            <div style="background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <span style="font-size: 0.82rem; color: var(--text-muted);">Prefer attending the live online masterclass first?</span>
+              <button type="button" id="switch-to-webinar-btn" style="background: none; border: none; color: var(--primary-sage); font-weight: 700; font-size: 0.84rem; cursor: pointer; text-decoration: underline;">
+                Switch to Pathway 1: Live Masterclass (₹201) →
+              </button>
+            </div>
 
             <!-- 3-Stage Progress Stepper -->
             <div class="consultation-stepper">
@@ -551,8 +556,16 @@
               <div class="flow-node">3. In-Clinic Care</div>
             </div>
 
-            <div style="background: var(--bg-sand); padding: 12px 14px; border-radius: 6px; font-size: 0.82rem; color: var(--primary-deep); margin-bottom: 16px;">
-              <strong>Includes:</strong> 90-Min Live Interactive Webinar.gg Session + Live Doctor Q&amp;A + Anti-Inflammatory Ayurvedic Diet Guide.
+            <div style="background: var(--bg-sand); padding: 12px 14px; border-radius: 6px; font-size: 0.82rem; color: var(--primary-deep); margin-bottom: 12px;">
+              <div>📅 <strong>Next Live Masterclass:</strong> Sunday, 15th November 2026 (11:00 AM IST)</div>
+              <div style="margin-top: 4px;"><strong>Includes:</strong> 90-Min Live Interactive Webinar.gg Session + Live Doctor Q&amp;A + Anti-Inflammatory Ayurvedic Diet Guide.</div>
+            </div>
+
+            <div style="background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <span style="font-size: 0.82rem; color: var(--text-muted);">Want an in-person clinical checkup in Thane instead?</span>
+              <button type="button" id="switch-to-consult-btn" style="background: none; border: none; color: #92400e; font-weight: 700; font-size: 0.84rem; cursor: pointer; text-decoration: underline;">
+                Switch to Pathway 2: Diagnostic Consultation (₹1,000) →
+              </button>
             </div>
 
             <form id="quiz-booking-form">
@@ -843,6 +856,15 @@
             });
         }
 
+        // Switch to Webinar Pathway Button
+        const switchWebinarBtn = quizBody.querySelector('#switch-to-webinar-btn');
+        if (switchWebinarBtn) {
+          switchWebinarBtn.addEventListener('click', function() {
+            userAnswers[3] = 3; // Switch to webinar branch
+            renderQuiz();
+          });
+        }
+
         // STAGE 1: Form Submit & Immediate Drop-off Lead Capture with Consent
         const formStage1 = quizBody.querySelector('#consult-form-stage1');
         if (formStage1) {
@@ -1041,6 +1063,15 @@
         }
       }
 
+      // Switch to Consultation Pathway Button
+      const switchConsultBtn = quizBody.querySelector('#switch-to-consult-btn');
+      if (switchConsultBtn) {
+        switchConsultBtn.addEventListener('click', function() {
+          userAnswers[3] = 0; // Switch to consultation branch
+          renderQuiz();
+        });
+      }
+
       // Wire submit form for Webinar branch
       const form = quizBody.querySelector('#quiz-booking-form');
       if (form && branch === 'webinar') {
@@ -1064,7 +1095,7 @@
                 </p>
                 <div style="background: var(--bg-sand); padding: 14px; border-radius: 8px; margin-bottom: 16px; text-align: left;">
                   <div style="display: flex; justify-content: space-between; font-weight: 700; color: var(--primary-deep); margin-bottom: 4px;">
-                    <span>90-Min Live Masterclass Access</span>
+                    <span>90-Min Live Masterclass (Sunday, 15th Nov, 11:00 AM)</span>
                     <span>₹201</span>
                   </div>
                   <div style="font-size: 0.78rem; color: var(--text-muted);">Includes Live Q&amp;A + Anti-Inflammatory Ayurvedic Nutrition Protocol</div>

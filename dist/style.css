@@ -616,9 +616,11 @@ img {
   gap: 20px;
 }
 
-@media (min-width: 992px) {
+@media (min-width: 768px) {
   .flow-diagram {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 860px;
+    margin: 0 auto;
   }
 }
 
@@ -995,12 +997,8 @@ img {
 @media (min-width: 640px) {
   .pricing-grid {
     grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .pricing-grid {
-    grid-template-columns: repeat(4, 1fr);
+    max-width: 820px;
+    margin: 0 auto;
   }
 }
 
