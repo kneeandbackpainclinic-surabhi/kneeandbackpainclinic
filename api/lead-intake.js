@@ -70,7 +70,7 @@ export default async function handler(req, res) {
           ? [lead.name || 'Patient', 'Sunday, 15 November 2026', '11:00 AM IST']
           : [lead.name || 'Patient', lead.slotPreference || 'Upcoming Clinic Hours', 'Flexible'];
 
-        const { formatPhoneNumber, buildAgentBandhuPayload, AGENTBANDHU_MESSAGES_ENDPOINT } = await import('./whatsapp-templates.js');
+        const { formatPhoneNumber, buildAgentBandhuPayload, AGENTBANDHU_MESSAGES_ENDPOINT } = await import('./_lib/whatsapp-templates.js');
         const waPayload = buildAgentBandhuPayload({
           to: formatPhoneNumber(lead.phone),
           templateName,

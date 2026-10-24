@@ -6,7 +6,7 @@ import {
   WHATSAPP_TEMPLATES,
   formatPhoneNumber,
   buildAgentBandhuPayload
-} from './whatsapp-templates.js';
+} from '../_lib/whatsapp-templates.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);

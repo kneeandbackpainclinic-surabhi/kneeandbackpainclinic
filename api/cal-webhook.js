@@ -175,7 +175,7 @@ export default async function handler(req, res) {
 
     if (agentBandhuKey && cleanPhone && cleanPhone.length === 10 && triggerEvent !== 'BOOKING_CANCELLED' && !alreadySentRecently) {
       try {
-        const { formatPhoneNumber, buildAgentBandhuPayload, AGENTBANDHU_MESSAGES_ENDPOINT } = await import('./whatsapp-templates.js');
+        const { formatPhoneNumber, buildAgentBandhuPayload, AGENTBANDHU_MESSAGES_ENDPOINT } = await import('./_lib/whatsapp-templates.js');
         const formattedTo = formatPhoneNumber(cleanPhone);
         const variables = [name || 'Patient', formattedDate, formattedTime];
 

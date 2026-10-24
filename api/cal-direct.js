@@ -369,7 +369,7 @@ export default async function handler(req, res) {
 
       if (agentBandhuKey && cleanPhone) {
         try {
-          const { formatPhoneNumber, buildAgentBandhuPayload, AGENTBANDHU_MESSAGES_ENDPOINT } = await import('./whatsapp-templates.js');
+          const { formatPhoneNumber, buildAgentBandhuPayload, AGENTBANDHU_MESSAGES_ENDPOINT } = await import('./_lib/whatsapp-templates.js');
           const formattedTo = formatPhoneNumber(cleanPhone);
           const templateName = 'consultation_booking_confirmation_v1';
 

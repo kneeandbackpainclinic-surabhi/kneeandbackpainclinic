@@ -5,6 +5,9 @@
   "rewrites": [
     { "source": "/admin", "destination": "/admin.html" },
     { "source": "/webinar", "destination": "/webinar.html" },
-    { "source": "/room", "destination": "/room.html" }
+    { "source": "/room", "destination": "/room.html" },
+    { "source": "/confirmation", "destination": "/confirmation.html" },
+    { "source": "/thank-you", "destination": "/confirmation.html" },
+    { "source": "/api/test-whatsapp", "destination": "/api/whatsapp-send?test=true" }
   ]
 }

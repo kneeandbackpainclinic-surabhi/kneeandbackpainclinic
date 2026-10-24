@@ -171,7 +171,7 @@ export default async function handler(req, res) {
       const agentBandhuKey = (process.env.AGENTBANDHU_API_KEY || process.env.META_WHATSAPP_ACCESS_TOKEN || '').trim();
       if (agentBandhuKey && cleanPhone) {
         try {
-          const { formatPhoneNumber, buildAgentBandhuPayload, AGENTBANDHU_MESSAGES_ENDPOINT } = await import('./whatsapp-templates.js');
+          const { formatPhoneNumber, buildAgentBandhuPayload, AGENTBANDHU_MESSAGES_ENDPOINT } = await import('./_lib/whatsapp-templates.js');
           const variables = isWebinarOrder
             ? [firstname || 'Patient', 'Sunday, 15 November 2026', '11:00 AM IST']
             : [firstname || 'Patient', 'Upcoming Clinic Hours', 'Flexible'];

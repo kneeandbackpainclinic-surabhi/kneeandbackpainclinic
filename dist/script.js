@@ -299,7 +299,7 @@
 
             <div style="display: flex; gap: 10px; flex-direction: column;">
               <button type="button" id="confirmed-done-close-btn" class="btn btn-primary btn-lg" style="width: 100%; font-weight: 700;">
-                ✓ Done &amp; Close Window
+                ✓ View Confirmation Pass &amp; Clinic Directions →
               </button>
               ${!isPaid ? `
               <button type="button" id="confirmed-pay-cashfree-btn" class="btn btn-secondary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
@@ -310,10 +310,21 @@
           </div>
         `;
 
+        const confUrl = `/confirmation?name=${encodeURIComponent(displayName)}&phone=${encodeURIComponent(cleanP || phoneVal)}&slot=${encodeURIComponent(displaySlot)}&paid=${isPaid ? '1' : '0'}`;
+
         const doneCloseBtn = quizBody.querySelector('#confirmed-done-close-btn');
         if (doneCloseBtn) {
-          doneCloseBtn.addEventListener('click', closeQuiz);
+          doneCloseBtn.addEventListener('click', function() {
+            window.location.href = confUrl;
+          });
         }
+
+        // Auto-redirect to dedicated confirmation URL for Google Ads & Analytics conversion tracking
+        setTimeout(function() {
+          if (quizModal && quizModal.style.display !== 'none') {
+            window.location.href = confUrl;
+          }
+        }, 1500);
 
         const payNowBtn = quizBody.querySelector('#confirmed-pay-cashfree-btn');
         if (payNowBtn) {

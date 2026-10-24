@@ -24,6 +24,7 @@ window.BOOKING_LINKS = {
   
   // Clinic Address
   clinicAddress: 'Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West, Maharashtra 400606',
+  confirmationUrl: 'https://kneeandbackpainclinic.vercel.app/confirmation',
   
   // Webinar start ISO
   webinarStartIso: '2026-09-27T11:30:00Z'

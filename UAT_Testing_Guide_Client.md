@@ -29,6 +29,7 @@ In web design, a **"Slug"** is simply the ending part of a website address that 
 | **`/?vsl=webinar`** | **Webinar Video Version** | Automatically switches the top video to preview the Sunday, 15th November Live Masterclass. | Visitors clicking Sunday Webinar ads |
 | **`/webinar`** (or `/webinar.html`) | **Dedicated Webinar Page** | Clean ad landing page focused entirely on enrolling patients into the Live Masterclass. | Paid Ad campaigns (Facebook/Instagram) |
 | **`/room`** (or `/room.html`) | **Live Masterclass Room** | The digital room where patients check in with their mobile number to watch the live webinar. | Registered webinar ticket holders |
+| **`/confirmation`** (or `/thank-you`) | **Consultation Confirmation Page** | The official post-booking confirmation pass showing clinic directions, what to bring, and tracking Google Ads conversions. | Patients who complete consultation booking |
 | **`/admin`** (or `/admin.html`) | **Staff & Doctor CRM Portal** | Password-protected clinic desk dashboard to view incoming patient leads, send WhatsApp messages, and adjust settings. | Dr. Surabhi & Clinic Staff only |
 
 ---
