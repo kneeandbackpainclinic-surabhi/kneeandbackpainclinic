@@ -42,7 +42,8 @@ export default async function handler(req, res) {
     const proto = req.headers['x-forwarded-proto'] || 'https';
     const baseUrl = `${proto}://${host}`;
 
-    const payuSalt = (process.env.PAYU_MERCHANT_SALT || process.env.PAYU_SALT || '').trim();
+    const defaultUatSalt = 'B57aH6MOoX3T9Gs0XOi15fow7UfjfdQq';
+    const payuSalt = (process.env.PAYU_MERCHANT_SALT || process.env.PAYU_SALT || defaultUatSalt).trim();
 
     const status = (payload.status || '').toLowerCase();
     const txnid = payload.txnid || payload.mihpayid || ('TXN_' + Date.now());

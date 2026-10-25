@@ -39,8 +39,11 @@ export default async function handler(req, res) {
     const proto = req.headers['x-forwarded-proto'] || 'https';
     const baseUrl = `${proto}://${host}`;
 
-    const payuKey = (process.env.PAYU_MERCHANT_KEY || process.env.PAYU_KEY || '').trim();
-    const payuSalt = (process.env.PAYU_MERCHANT_SALT || process.env.PAYU_SALT || '').trim();
+    const defaultUatKey = '46AxYt';
+    const defaultUatSalt = 'B57aH6MOoX3T9Gs0XOi15fow7UfjfdQq';
+
+    const payuKey = (process.env.PAYU_MERCHANT_KEY || process.env.PAYU_KEY || defaultUatKey).trim();
+    const payuSalt = (process.env.PAYU_MERCHANT_SALT || process.env.PAYU_SALT || defaultUatSalt).trim();
     const environment = (process.env.PAYU_ENVIRONMENT || 'sandbox').toLowerCase().trim();
     const isProduction = environment === 'production' || environment === 'live';
 

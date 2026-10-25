@@ -72,6 +72,9 @@
       </nav>
 
       <div class="header-cta">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="openConsultationModal()" style="font-weight: 700; border: 1.5px solid var(--primary-sage); color: var(--primary-deep); margin-right: 6px;">
+          Book Consultation (₹1,000)
+        </button>
         <button type="button" class="btn btn-primary btn-sm" data-start-assessment>
           Start Assessment ↗
         </button>
@@ -111,8 +114,11 @@
 
             <div class="hero-cta-group">
               <div class="hero-buttons">
-                <button type="button" class="btn btn-primary btn-lg" data-start-assessment style="width: 100%; max-width: 520px; font-size: 1.12rem; box-shadow: 0 10px 25px rgba(194, 94, 59, 0.35);">
-                  Take 60-Second Pain Assessment &amp; Get Treatment Plan ↗
+                <button type="button" class="btn btn-primary btn-lg" onclick="openConsultationModal()" style="width: 100%; max-width: 520px; font-size: 1.1rem; box-shadow: 0 10px 25px rgba(194, 94, 59, 0.35); margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                  <span>🏥</span> Book In-Clinic Consultation Directly (₹1,000) →
+                </button>
+                <button type="button" class="btn btn-secondary btn-lg" data-start-assessment style="width: 100%; max-width: 520px; font-size: 1.02rem;">
+                  Or Take 60-Second Pain Assessment First ↗
                 </button>
               </div>
 
@@ -285,7 +291,7 @@
             <p>Take our 60-second clinical assessment to see if you are a candidate for non-surgical Marma &amp; Panchakarma restoration.</p>
           </div>
           <button type="button" class="btn btn-primary btn-lg" data-start-assessment>
-            Take 60-Second Pain Assessment ↗
+            📋 60-Sec Assessment
           </button>
         </div>
       </div>
@@ -368,7 +374,7 @@
 
             <div style="margin-top: 24px;">
               <button type="button" class="btn btn-primary btn-lg" data-start-assessment>
-                Take 60-Second Pain Assessment ↗
+                📋 60-Sec Assessment
               </button>
             </div>
           </div>
@@ -601,7 +607,7 @@
 
         <div>
           <button type="button" class="btn btn-primary btn-lg" data-start-assessment style="padding: 15px 32px; font-size: 1.15rem;">
-            Take 60-Second Pain Assessment ↗
+            📋 60-Sec Assessment
           </button>
         </div>
 
@@ -670,8 +676,11 @@
        ====================================================================== -->
   <div class="sticky-bottom-bar" id="sticky-bar">
     <div class="sticky-inner" style="justify-content: center;">
-      <button type="button" class="btn btn-primary" data-start-assessment style="width: 100%; max-width: 480px; box-shadow: 0 4px 16px rgba(194, 94, 59, 0.4);">
-        Take 60-Second Pain Assessment ↗
+      <button type="button" class="btn btn-primary" onclick="openConsultationModal()" style="width: 100%; max-width: 240px; font-size: 0.88rem; font-weight: 700; padding: 12px 8px; box-shadow: 0 4px 16px rgba(194, 94, 59, 0.4); margin-right: 6px;">
+        🏥 Book Consultation (₹1,000)
+      </button>
+      <button type="button" class="btn btn-secondary" data-start-assessment style="width: 100%; max-width: 220px; font-size: 0.88rem; font-weight: 600; padding: 12px 8px;">
+        📋 60-Sec Assessment
       </button>
     </div>
   </div>

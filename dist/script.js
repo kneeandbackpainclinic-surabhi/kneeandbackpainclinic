@@ -159,6 +159,7 @@
   let userAnswers = [];
 
   function openQuiz() {
+    window.forcedBranch = null;
     currentStep = 0;
     userAnswers = [];
     const modalContainer = quizModal ? quizModal.querySelector('.quiz-modal-container') : null;
@@ -172,6 +173,7 @@
   }
 
   window.openConsultationModal = function(options) {
+    window.forcedBranch = 'consultation';
     options = options || {};
     currentStep = quizQuestions.length; // Jump directly to consultation recommendation (Pathway 2)
     userAnswers = [0, 0, 0, 0]; // Consultation branch
@@ -254,8 +256,8 @@
       // ONLY TWO BRANCHES:
       // Hesitant, skeptical, just exploring -> Recommend Webinar Masterclass (₹201)
       // Otherwise (active pain, ready, seeking doctor diagnosis) -> In-Clinic Consultation (₹1,000, 30-Min)
-      let branch = 'consultation';
-      if (qReadiness === 2 || qReadiness === 3 || qPrior === 3) {
+      let branch = window.forcedBranch || (qReadiness === 2 || qReadiness === 3 || qPrior === 3 ? 'webinar' : 'consultation');
+      if (!window.forcedBranch && (qReadiness === 2 || qReadiness === 3 || qPrior === 3)) {
         branch = 'webinar';
       } else {
         branch = 'consultation';
@@ -871,6 +873,7 @@
         const switchWebinarBtn = quizBody.querySelector('#switch-to-webinar-btn');
         if (switchWebinarBtn) {
           switchWebinarBtn.addEventListener('click', function() {
+            window.forcedBranch = 'webinar';
             userAnswers[3] = 3; // Switch to webinar branch
             renderQuiz();
           });
@@ -1078,7 +1081,8 @@
       const switchConsultBtn = quizBody.querySelector('#switch-to-consult-btn');
       if (switchConsultBtn) {
         switchConsultBtn.addEventListener('click', function() {
-          userAnswers[3] = 0; // Switch to consultation branch
+          window.forcedBranch = 'consultation';
+          userAnswers = [0, 0, 0, 0]; // Switch to consultation branch
           renderQuiz();
         });
       }
