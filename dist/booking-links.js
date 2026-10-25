@@ -175,13 +175,64 @@ window.closeCalModal = function() {
 // ============================================================================
 // 2. PAYU PAYMENT GATEWAY CHECKOUT INTEGRATION (PRIMARY INDIAN GATEWAY)
 // ============================================================================
+function createCenteredPayUPopup(url, title, w, h) {
+  const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX;
+  const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY;
+  const width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+  const height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+  const systemZoom = width / (window.screen.availWidth || width);
+  const left = (width - w) / 2 / systemZoom + dualScreenLeft;
+  const top = (height - h) / 2 / systemZoom + dualScreenTop;
+  const newWindow = window.open(
+    url,
+    title,
+    `scrollbars=yes,width=${Math.round(w / systemZoom)},height=${Math.round(h / systemZoom)},top=${Math.round(top)},left=${Math.round(left)},status=no,toolbar=no,menubar=no,resizable=yes`
+  );
+  if (window.focus && newWindow) newWindow.focus();
+  return newWindow;
+}
+
 window.triggerPayUCheckout = async function(params) {
+  params = params || {};
   const amount = params.amount || 201;
   const name = params.name || 'Patient';
   const phone = params.phone || '';
   const email = params.email || '';
   const planType = params.planType || 'Knee & Back Pain Masterclass';
   const leadId = params.leadId || '';
+  const onSuccess = params.onSuccess || null;
+  const onDismiss = params.onDismiss || null;
+
+  // Open centered popup window synchronously on user click to prevent popup blockers
+  const popupWindow = createCenteredPayUPopup('about:blank', 'PayUSecureWindow', 540, 740);
+  if (popupWindow) {
+    try {
+      popupWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Connecting to PayU Secure Gateway...</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #faf8f5; color: #1e3a2f; text-align: center; }
+            .card { padding: 32px 24px; max-width: 380px; width: 90%; background: #ffffff; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.06); }
+            .spinner { border: 3px solid #f1f5f9; border-top: 3px solid #c25e3b; border-radius: 50%; width: 36px; height: 36px; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+            h3 { font-size: 1.15rem; margin: 0 0 6px 0; color: #1e3a2f; }
+            p { font-size: 0.85rem; color: #64748b; margin: 0; line-height: 1.4; }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <div class="spinner"></div>
+            <h3>Connecting to PayU Secure Gateway...</h3>
+            <p>Please wait while we prepare your secure checkout screen. Do not refresh.</p>
+          </div>
+        </body>
+        </html>
+      `);
+    } catch (e) {}
+  }
 
   try {
     const res = await fetch('/api/create-payu-order', {
@@ -199,13 +250,60 @@ window.triggerPayUCheckout = async function(params) {
 
     const data = await res.json();
     if (!res.ok || !data.success || !data.action || !data.params) {
+      if (popupWindow) popupWindow.close();
       throw new Error(data.error || data.details || 'Failed to initialize PayU payment');
     }
 
-    // Submit PayU hosted payment form
+    // Set up message listener for payment completion postMessage from popup
+    let paymentHandled = false;
+    const messageListener = function(event) {
+      if (event.data && event.data.type === 'PAYU_PAYMENT_RESULT') {
+        paymentHandled = true;
+        window.removeEventListener('message', messageListener);
+
+        if (event.data.status === 'SUCCESS') {
+          showPaymentSuccessPopup({
+            orderId: event.data.orderId || data.params.txnid,
+            amount: event.data.amount || data.params.amount,
+            phone: event.data.phone || phone,
+            plan: event.data.plan || planType,
+            name: event.data.name || name
+          });
+          if (typeof onSuccess === 'function') {
+            onSuccess(event.data);
+          }
+        } else {
+          alert('Payment was not completed. You may try again or select Pay at Clinic Reception.');
+          if (typeof onDismiss === 'function') {
+            onDismiss();
+          }
+        }
+      }
+    };
+    window.addEventListener('message', messageListener);
+
+    // Watch for popup close if user dismisses the window
+    if (popupWindow) {
+      const checkClosedTimer = setInterval(() => {
+        if (popupWindow.closed) {
+          clearInterval(checkClosedTimer);
+          setTimeout(() => {
+            if (!paymentHandled) {
+              window.removeEventListener('message', messageListener);
+              if (typeof onDismiss === 'function') {
+                onDismiss();
+              }
+            }
+          }, 800);
+        }
+      }, 700);
+    }
+
+    // Submit PayU hosted payment form targeting the popup window
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = data.action;
+    form.target = popupWindow ? 'PayUSecureWindow' : '_self';
     form.style.display = 'none';
 
     for (const [key, value] of Object.entries(data.params)) {
@@ -220,9 +318,15 @@ window.triggerPayUCheckout = async function(params) {
 
     document.body.appendChild(form);
     form.submit();
-    return { success: true, redirected: true, orderId: data.params.txnid };
+    setTimeout(() => form.remove(), 1000);
+
+    return { success: true, popup: true, orderId: data.params.txnid };
   } catch (err) {
+    if (popupWindow) popupWindow.close();
     console.error('PayU checkout error:', err);
+    if (typeof onDismiss === 'function') {
+      onDismiss();
+    }
     throw err;
   }
 };

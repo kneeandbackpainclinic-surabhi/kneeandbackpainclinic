@@ -62,7 +62,8 @@ export default async function handler(req, res) {
 
     // 2. Trigger AgentBandhu WhatsApp Cloud API if configured
     const agentBandhuKey = (process.env.AGENTBANDHU_API_KEY || process.env.META_WHATSAPP_ACCESS_TOKEN || '').trim();
-    if (agentBandhuKey) {
+    const shouldSendWhatsApp = (lead.triggerWhatsApp === true);
+    if (agentBandhuKey && shouldSendWhatsApp) {
       try {
         const isWebinar = (lead.recommendedStep || '').toLowerCase().includes('webinar') || (lead.recommendedStep || '').toLowerCase().includes('masterclass');
         const templateName = isWebinar ? 'webinar_registration_confirmation_v1' : 'consultation_booking_confirmation_v1';

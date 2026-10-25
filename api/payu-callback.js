@@ -212,13 +212,12 @@ export default async function handler(req, res) {
       ? `${baseUrl}/?order_id=${encodeURIComponent(txnid)}&status=SUCCESS&gateway=payu&amount=${encodeURIComponent(amount)}&plan=${encodeURIComponent(productinfo)}&phone=${encodeURIComponent(cleanPhone)}&name=${encodeURIComponent(firstname)}`
       : `${baseUrl}/?order_id=${encodeURIComponent(txnid)}&status=FAILED&gateway=payu&error=${encodeURIComponent(errorMessage)}`;
 
-    // Return HTML meta refresh and 303 Redirect so all browser types redirect reliably
-    res.writeHead(303, { Location: redirectTarget });
+    // Return HTML response that supports both in-page popup window (postMessage & auto-close) and standard browser redirect
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(`<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="refresh" content="0;url=${redirectTarget}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${isPaid ? 'Payment Confirmed' : 'Payment Status'} - Dr. Surabhi Clinic</title>
   <style>
@@ -236,10 +235,43 @@ export default async function handler(req, res) {
   <div class="card">
     <div class="spinner"></div>
     <div class="icon">${isPaid ? '✓' : '⚠️'}</div>
-    <h2>${isPaid ? 'Payment Confirmed!' : 'Processing Payment...'}</h2>
-    <p>${isPaid ? 'Your booking has been secured. Redirecting you to your confirmation screen...' : 'Returning you back to the clinic website...'}</p>
+    <h2>${isPaid ? 'Payment Confirmed!' : 'Payment Incomplete'}</h2>
+    <p id="callback-status-msg">${isPaid ? 'Your booking has been secured. Syncing with clinic...' : 'Payment was not completed. Returning to clinic...'}</p>
     <a class="redirect-link" href="${redirectTarget}">Click here if not redirected automatically</a>
   </div>
+  <script>
+    (function() {
+      var payload = {
+        type: 'PAYU_PAYMENT_RESULT',
+        status: '${isPaid ? "SUCCESS" : "FAILED"}',
+        orderId: '${txnid}',
+        amount: '${amount}',
+        plan: '${productinfo}',
+        phone: '${cleanPhone}',
+        name: '${firstname}',
+        error: '${errorMessage}'
+      };
+
+      if (window.opener && !window.opener.closed) {
+        try {
+          window.opener.postMessage(payload, '*');
+          var msgEl = document.getElementById('callback-status-msg');
+          if (msgEl) {
+            msgEl.textContent = '${isPaid ? "Payment verified! Closing this checkout window..." : "Returning to booking..."}';
+          }
+          setTimeout(function() {
+            window.close();
+          }, 1200);
+          return;
+        } catch (e) {
+          console.warn('Opener postMessage error:', e);
+        }
+      }
+      setTimeout(function() {
+        window.location.replace('${redirectTarget}');
+      }, 500);
+    })();
+  </script>
 </body>
 </html>`);
   } catch (err) {

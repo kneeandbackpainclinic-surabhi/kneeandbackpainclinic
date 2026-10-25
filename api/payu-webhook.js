@@ -170,11 +170,12 @@ export default async function handler(req, res) {
       const isWebinarOrder = Number(amount) === 201 || (productinfo && (productinfo.toLowerCase().includes('masterclass') || productinfo.toLowerCase().includes('webinar')));
       const templateName = isWebinarOrder ? 'webinar_joining_details_v1' : 'consultation_booking_confirmation_v1';
 
+      let alreadySent = false;
       if (supabaseUrl && supabaseKey) {
         try {
           let leadId = udf1;
           if (!leadId && cleanPhone) {
-            const searchResp = await fetch(`${supabaseUrl}/rest/v1/leads?phone=like.*${cleanPhone}*&select=id,name,phone&order=created_at.desc&limit=1`, {
+            const searchResp = await fetch(`${supabaseUrl}/rest/v1/leads?phone=like.*${cleanPhone}*&select=id,name,phone,payment_order_id,delivered_message&order=created_at.desc&limit=1`, {
               headers: {
                 apikey: supabaseKey,
                 Authorization: `Bearer ${supabaseKey}`
@@ -184,6 +185,9 @@ export default async function handler(req, res) {
               const matches = await searchResp.json();
               if (matches && matches.length > 0) {
                 leadId = matches[0].id;
+                if (matches[0].payment_order_id === txnid && matches[0].delivered_message) {
+                  alreadySent = true;
+                }
               }
             }
           }
@@ -211,9 +215,9 @@ export default async function handler(req, res) {
         }
       }
 
-      // Dispatch WhatsApp Confirmation via AgentBandhu
+      // Dispatch WhatsApp Confirmation via AgentBandhu (Only if not already sent by callback)
       const agentBandhuKey = (process.env.AGENTBANDHU_API_KEY || process.env.META_WHATSAPP_ACCESS_TOKEN || '').trim();
-      if (agentBandhuKey && cleanPhone) {
+      if (!alreadySent && agentBandhuKey && cleanPhone) {
         try {
           const { formatPhoneNumber, buildAgentBandhuPayload, AGENTBANDHU_MESSAGES_ENDPOINT } = await import('./_lib/whatsapp-templates.js');
           const variables = isWebinarOrder

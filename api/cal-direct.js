@@ -367,7 +367,8 @@ export default async function handler(req, res) {
       let whatsappError = null;
       const agentBandhuKey = (process.env.AGENTBANDHU_API_KEY || process.env.META_WHATSAPP_ACCESS_TOKEN || '').trim();
 
-      if (agentBandhuKey && cleanPhone) {
+      const isPayAtClinic = (paymentMethod === 'pay_at_clinic');
+      if (agentBandhuKey && cleanPhone && isPayAtClinic) {
         try {
           const { formatPhoneNumber, buildAgentBandhuPayload, AGENTBANDHU_MESSAGES_ENDPOINT } = await import('./_lib/whatsapp-templates.js');
           const formattedTo = formatPhoneNumber(cleanPhone);

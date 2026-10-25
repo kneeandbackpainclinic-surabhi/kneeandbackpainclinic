@@ -38,8 +38,8 @@
   <aside class="announcement-bar" role="region" aria-label="Clinic Schedule">
     <div class="container announcement-inner">
       <div class="announcement-text">
-        <span class="pulse-dot" aria-hidden="true"></span>
-        <span><strong>Next Clinical Intake:</strong> Only 4 Evaluation Slots Left for This Week</span>
+
+        <span>📍 Cura 304, Raymond TenX Habitat, Thane West</span>
       </div>
       <div class="announcement-timing">
         <span>Mon – Sat: 9:00 AM – 8:00 PM | Sun: 10:00 AM – 2:00 PM</span>
@@ -111,7 +111,7 @@
 
             <div class="hero-cta-group">
               <div class="hero-buttons">
-                <button type="button" class="btn btn-primary btn-lg" data-start-assessment style="width: 100%; max-width: 520px; font-size: 1.12rem; box-shadow: 0 10px 25px rgba(194, 94, 59, 0.35);">
+                <button type="button" class="btn btn-primary btn-lg" data-start-assessment style="width: 100%; max-width: 520px; font-size: clamp(0.96rem, 3.8vw, 1.12rem); padding: 14px 20px; line-height: 1.35; box-shadow: 0 10px 25px rgba(194, 94, 59, 0.35); text-align: center;">
                   Take 60-Second Pain Assessment &amp; Get Treatment Plan ↗
                 </button>
               </div>
@@ -232,8 +232,8 @@
             <div style="font-size: 0.85rem; font-weight: 700; color: #92400e; margin-bottom: 14px;">
               In-Clinic Thane West · 30 Minutes · ₹1,000 Fee
             </div>
-            <button type="button" class="btn btn-primary btn-sm" onclick="openConsultationModal()">
-              Choose Pathway 2: Book Consultation ↗
+            <button type="button" class="btn btn-primary btn-sm" data-start-assessment>
+              Take 60-Second Pain Assessment ↗
             </button>
           </div>
         </div>
@@ -510,8 +510,8 @@
                 <span>Personalized surgery-prevention roadmap by Dr. Surabhi</span>
               </li>
             </ul>
-            <button type="button" class="btn btn-primary" onclick="openConsultationModal()">
-              Select Pathway 2: Book Consultation (₹1,000) ↗
+            <button type="button" class="btn btn-primary" data-start-assessment>
+              Take 60-Second Pain Assessment ↗
             </button>
           </div>
 
@@ -762,6 +762,8 @@
     </div>
   </div>
 
+  <!-- PayU Bolt in-page checkout modal SDK -->
+  <script id="bolt" src="https://jssdk-uat.payu.in/bolt/bolt.min.js" data-type="js"></script>
   <!-- PayU payment gateway & booking orchestration -->
   <script src="booking-links.js"></script>
   <script src="script.js"></script>

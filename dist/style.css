@@ -50,13 +50,22 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
-h1, h2, h3, h4 {
+h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-serif);
   font-weight: 700;
   color: var(--primary-deep);
   line-height: 1.25;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+p {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 h1 em, h2 em, h3 em {
@@ -217,6 +226,13 @@ img {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .announcement-inner {
+    justify-content: center;
+    text-align: center;
+  }
 }
 
 .announcement-text {
@@ -452,6 +468,12 @@ img {
   font-size: 0.82rem;
   color: var(--primary-sage);
   font-weight: 600;
+  flex-wrap: wrap;
+  line-height: 1.45;
+}
+
+.hero-guarantee svg {
+  flex-shrink: 0;
 }
 
 /* ==========================================================================
@@ -1291,21 +1313,24 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin: 10px 0 16px 0;
-  padding: 8px 12px;
+  gap: 10px;
+  margin: 12px 0 16px 0;
+  padding: 10px 14px;
   background: var(--bg-sand);
   border-radius: 8px;
   border: 1px solid var(--border-light);
+  overflow-x: auto;
 }
 
 .stepper-step {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .stepper-step.active {
@@ -1327,6 +1352,8 @@ img {
   align-items: center;
   justify-content: center;
   font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
 .stepper-step.active .stepper-num {
@@ -1340,15 +1367,12 @@ img {
 }
 
 .stepper-divider {
-  width: 20px;
+  flex: 1;
+  max-width: 32px;
+  min-width: 12px;
   height: 2px;
   background: var(--border-light);
-}
-
-@media (max-width: 540px) {
-  .stepper-step span.stepper-label {
-    display: none;
-  }
+  flex-shrink: 1;
 }
 
 .consult-stage-card {

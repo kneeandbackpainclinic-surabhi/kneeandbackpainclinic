@@ -173,16 +173,8 @@
   }
 
   window.openConsultationModal = function(options) {
-    window.forcedBranch = 'consultation';
-    options = options || {};
-    currentStep = quizQuestions.length; // Jump directly to consultation recommendation (Pathway 2)
-    userAnswers = [0, 0, 0, 0]; // Consultation branch
-    renderQuiz();
-    if (quizModal) {
-      quizModal.style.display = 'flex';
-      quizModal.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
-    }
+    // Consultation bookings must proceed through the 60-Second Pain Assessment
+    openQuiz();
   };
 
   window.openWebinarDirect = function() {
@@ -379,7 +371,7 @@
             <div class="consultation-stepper">
               <div class="stepper-step active" id="stepper-step-1">
                 <div class="stepper-num">1</div>
-                <span class="stepper-label">Your Details</span>
+                <span class="stepper-label">Details</span>
               </div>
               <div class="stepper-divider"></div>
               <div class="stepper-step" id="stepper-step-2">
@@ -389,7 +381,7 @@
               <div class="stepper-divider"></div>
               <div class="stepper-step" id="stepper-step-3">
                 <div class="stepper-num">3</div>
-                <span class="stepper-label">Payment Method</span>
+                <span class="stepper-label">Payment</span>
               </div>
             </div>
 
@@ -416,11 +408,11 @@
                   <label for="booking-phone" style="font-size: 0.82rem; font-weight: 600; color: var(--primary-deep); margin-bottom: 4px; display: block;">
                     Mobile Phone Number (WhatsApp) *
                   </label>
-                  <div style="display: flex; align-items: center; border: 1.5px solid var(--border-light); border-radius: 6px; overflow: hidden; background: #fff;">
-                    <span style="padding: 10px 12px; background: #faf8f5; border-right: 1px solid var(--border-light); font-weight: 600; color: var(--primary-deep); font-size: 0.88rem;">🇮🇳 +91</span>
-                    <input type="tel" id="booking-phone" required placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" maxlength="10" style="width: 100%; padding: 10px 12px; font-size: 0.9rem; border: none; outline: none;">
+                  <div style="display: flex; align-items: stretch; border: 1.5px solid var(--border-light); border-radius: 6px; overflow: hidden; background: #fff;">
+                    <span style="padding: 10px 14px; background: #faf8f5; border-right: 1.5px solid var(--border-light); font-weight: 700; color: var(--primary-deep); font-size: 0.92rem; white-space: nowrap; flex-shrink: 0; display: inline-flex; align-items: center; letter-spacing: 0.5px;">+91</span>
+                    <input type="tel" id="booking-phone" required placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" maxlength="10" style="width: 100%; padding: 10px 12px; font-size: 0.92rem; border: none; outline: none; background: transparent; font-family: inherit;">
                   </div>
-                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 3px;">Appointment confirmation &amp; clinic directions will be sent here.</div>
+                  <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">Appointment confirmation &amp; clinic directions will be sent here.</div>
                 </div>
 
                 <div class="form-field" style="margin-bottom: 16px;">
@@ -932,7 +924,7 @@
             saveConsultationLead(n, p, 'Stage 1 Typing - Pending Slot', 'Unpaid (Draft Lead)');
           }
         }
-        if (phoneField) phoneField.addEventListener('blur', autoCaptureDraft);
+
 
         // STAGE 2: Return to Stage 1 (Edit Details)
         const btnBackTo1 = quizBody.querySelector('#btn-back-to-stage-1');
@@ -967,14 +959,14 @@
           });
         }
 
-        // STAGE 3: Option A - Pay Online via PayU
+        // STAGE 3: Option A - Pay Online via PayU (Opens in popup window, confirms ONLY after verified payment)
         const payCashfreeBtn = quizBody.querySelector('#stage3-pay-cashfree-btn');
         if (payCashfreeBtn) {
           payCashfreeBtn.addEventListener('click', async function() {
             payCashfreeBtn.disabled = true;
-            payCashfreeBtn.textContent = 'Opening PayU Gateway...';
+            payCashfreeBtn.innerHTML = '<span>⏳</span> Opening Secure PayU Checkout...';
 
-            // Direct Cal.id API booking sync & WhatsApp automation
+            // Sync pending slot reservation to Cal direct (paymentMethod payu_online suppresses premature WhatsApp)
             fetch('/api/cal-direct', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -986,44 +978,35 @@
                 slotEnd: consultState.slotEnd,
                 slotDisplay: consultState.slotTime,
                 eventTypeId: consultState.eventTypeId,
-                paymentStatus: 'Paid Online via PayU',
+                paymentStatus: 'Pending Online Payment (PayU)',
                 paymentMethod: 'payu_online',
                 painArea: painArea
               })
-            }).then(r => r.json()).then(res => {
-              if (res && res.whatsappSent) {
-                try {
-                  const waLogs = JSON.parse(localStorage.getItem('dr_surabhi_wa_logs')) || [];
-                  waLogs.unshift({
-                    id: 'LOG-' + Date.now(),
-                    time: new Date().toISOString(),
-                    name: consultState.name,
-                    phone: consultState.phone,
-                    template: 'consultation_booking_confirmation_v1',
-                    status: 'delivered'
-                  });
-                  localStorage.setItem('dr_surabhi_wa_logs', JSON.stringify(waLogs.slice(0, 100)));
-                } catch (e) {}
-              }
             }).catch(e => console.warn('Cal Direct PG booking sync:', e));
 
             try {
-              if (window.triggerCashfreeCheckout) {
-                await window.triggerCashfreeCheckout({
+              if (window.triggerPayUCheckout) {
+                await window.triggerPayUCheckout({
                   amount: 1000,
                   name: consultState.name || 'Patient',
                   phone: consultState.phone,
                   email: consultState.email,
                   planType: '₹1,000 Diagnostic Consultation (30-Min)',
-                  leadId: consultState.leadId || `LEAD-${Date.now()}`
+                  leadId: consultState.leadId || `LEAD-${Date.now()}`,
+                  onSuccess: function(result) {
+                    saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Paid Online via PayU');
+                    renderConsultationSuccess(consultState.name, consultState.phone, consultState.slotTime, true);
+                  },
+                  onDismiss: function() {
+                    payCashfreeBtn.disabled = false;
+                    payCashfreeBtn.innerHTML = '<span>💳</span> Pay ₹1,000 Online via PayU →';
+                  }
                 });
               }
-              saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Paid Online via PayU');
-              renderConsultationSuccess(consultState.name, consultState.phone, consultState.slotTime, true);
             } catch (err) {
               console.warn('Consultation PG checkout error:', err);
-              saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Slot Confirmed (Pay Online Pending)');
-              renderConsultationSuccess(consultState.name, consultState.phone, consultState.slotTime, false);
+              payCashfreeBtn.disabled = false;
+              payCashfreeBtn.innerHTML = '<span>💳</span> Pay ₹1,000 Online via PayU →';
             }
           });
         }
@@ -1141,53 +1124,60 @@
             if (payBtn) {
               payBtn.addEventListener('click', async function() {
                 payBtn.disabled = true;
-                payBtn.textContent = 'Opening PayU Secure Checkout...';
+                payBtn.innerHTML = '<span>⏳</span> Opening Secure PayU Checkout...';
                 try {
-                  if (window.triggerCashfreeCheckout) {
-                    await window.triggerCashfreeCheckout({
+                  if (window.triggerPayUCheckout) {
+                    await window.triggerPayUCheckout({
                       amount: 201,
                       name: name,
                       phone: phone,
                       planType: '₹201 Live Masterclass',
-                      leadId: newLead.id
+                      leadId: newLead.id,
+                      onSuccess: async function(result) {
+                        // Generate Webinar.gg token & display room access ONLY after verified payment
+                        try {
+                          const tokenResp = await fetch('/api/get-webinar-token', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ name: name, phone: phone })
+                          });
+                          const tokenData = await tokenResp.json();
+                          const accessBox = quizBody.querySelector('#webinar-access-box');
+                          const joinLink = quizBody.querySelector('#webinar-room-join-link');
+                          if (accessBox && joinLink) {
+                            accessBox.style.display = 'block';
+                            payBtn.style.display = 'none';
+
+                            joinLink.addEventListener('click', function(ev) {
+                              ev.preventDefault();
+                              document.querySelector('#quiz-modal').style.display = 'none';
+                              document.body.style.overflow = '';
+                              if (window.openWebinarModal) {
+                                window.openWebinarModal({
+                                  token: tokenData.token || '',
+                                  webinarId: tokenData.webinarId || 'charakhealth',
+                                  name: name,
+                                  phone: phone
+                                });
+                              } else {
+                                window.location.href = '/room?token=' + encodeURIComponent(tokenData.token || '');
+                              }
+                            });
+                          }
+                        } catch (tokErr) {
+                          console.warn('Webinar token fetch:', tokErr);
+                        }
+                      },
+                      onDismiss: function() {
+                        payBtn.disabled = false;
+                        payBtn.innerHTML = '<span>💳</span> Pay ₹201 Online via PayU →';
+                      }
                     });
                   }
                 } catch (e) {
                   console.warn('Checkout note:', e.message);
-                }
-
-                // Generate Webinar.gg token & display room access
-                try {
-                  const tokenResp = await fetch('/api/get-webinar-token', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: name, phone: phone })
-                  });
-                  const tokenData = await tokenResp.json();
-                  const accessBox = quizBody.querySelector('#webinar-access-box');
-                  const joinLink = quizBody.querySelector('#webinar-room-join-link');
-                  if (accessBox && joinLink) {
-                    accessBox.style.display = 'block';
-                    payBtn.style.display = 'none';
-
-                    joinLink.addEventListener('click', function(ev) {
-                      ev.preventDefault();
-                      document.querySelector('#quiz-modal').style.display = 'none';
-                      document.body.style.overflow = '';
-                      if (window.openWebinarModal) {
-                        window.openWebinarModal({
-                          token: tokenData.token || '',
-                          webinarId: tokenData.webinarId || 'charakhealth',
-                          name: name,
-                          phone: phone
-                        });
-                      } else {
-                        window.location.href = '/room?token=' + encodeURIComponent(tokenData.token || '');
-                      }
-                    });
-                  }
-                } catch (tokErr) {
-                  console.warn('Webinar token fetch:', tokErr);
+                  payBtn.disabled = false;
+                  payBtn.innerHTML = '<span>💳</span> Pay ₹201 Online via PayU →';
                 }
               });
             }
