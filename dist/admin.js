@@ -1231,15 +1231,27 @@
     // Top Banner Actions
     const sweepBtn = document.querySelector('#btn-wa-sweep');
     if (sweepBtn) {
-      sweepBtn.addEventListener('click', () => {
+      sweepBtn.addEventListener('click', async () => {
         sweepBtn.disabled = true;
-        sweepBtn.textContent = '⏳ Sweeping...';
-        setTimeout(() => {
+        sweepBtn.textContent = '⏳ Checking upcoming bookings...';
+        try {
+          const resp = await fetch('/api/send-reminders');
+          const data = await resp.json();
           sweepBtn.disabled = false;
           sweepBtn.innerHTML = '<span>✨</span> Run Reminder Sweep';
-          alert('✅ Nurture sweep complete! All due WhatsApp reminders have been synchronized with AgentBandhu.');
+          if (data.remindersSent > 0) {
+            alert(`✅ Reminder Sweep Complete!\n\nDispatched ${data.remindersSent} due 30-minute reminder(s) via AgentBandhu.\nChecked: ${data.checkedCount} bookings.`);
+          } else {
+            alert(`✅ Reminder Sweep Complete!\n\nNo appointments currently in the 30-minute reminder window (${data.targetWindowMinutes || '15-45 mins ahead'}).\nChecked: ${data.checkedCount} bookings.`);
+          }
+          fetchSupabaseLeads();
           renderWaKPIs();
-        }, 600);
+          renderWaAudienceTable();
+        } catch (err) {
+          sweepBtn.disabled = false;
+          sweepBtn.innerHTML = '<span>✨</span> Run Reminder Sweep';
+          alert('Notice during reminder sweep: ' + err.message);
+        }
       });
     }
 

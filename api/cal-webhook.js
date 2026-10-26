@@ -1,6 +1,12 @@
-// Vercel Serverless Function: Cal.id / Cal.com Webhook Handler
+// Vercel Serverless Function: Cal.id / Cal.com Universal Webhook Handler
 // Endpoint: POST /api/cal-webhook
-// Supported events: BOOKING_CREATED, BOOKING_RESCHEDULED, BOOKING_CANCELLED
+// Handled Lifecycle:
+//   - BOOKING_CREATED: Dispatches consultation_booking_confirmation_v1
+//   - BOOKING_RESCHEDULED: Dispatches updated consultation_booking_confirmation_v1
+//   - BEFORE_EVENT / REMINDER: Dispatches 30-minute pre-consultation reminder (surabhi_v4_no_image)
+//   - MEETING_STARTED: Acknowledged only (IGNORED - no WhatsApp dispatched)
+//   - MEETING_ENDED: Acknowledged only (IGNORED - no WhatsApp dispatched)
+//   - BOOKING_CANCELLED: Updates CRM status to Cancelled (no WhatsApp dispatched)
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -19,9 +25,16 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     return res.status(200).json({
       status: 'active',
-      service: 'Dr. Surabhi Knee & Back Pain Clinic - Cal.id Webhook',
+      service: 'Dr. Surabhi Knee & Back Pain Clinic - Cal.id Webhook Handler',
       endpoint: 'https://kneeandbackpainclinic.vercel.app/api/cal-webhook',
-      supportedEvents: ['BOOKING_CREATED', 'BOOKING_RESCHEDULED', 'BOOKING_CANCELLED'],
+      supportedEvents: [
+        'BOOKING_CREATED (dispatches booking confirmation)',
+        'BOOKING_RESCHEDULED (dispatches updated confirmation)',
+        'BEFORE_EVENT / REMINDER (dispatches 30-min pre-consultation reminder)',
+        'MEETING_STARTED (acknowledged without dispatching messages)',
+        'MEETING_ENDED (acknowledged without dispatching messages)',
+        'BOOKING_CANCELLED (updates CRM status)'
+      ],
       clinicAddress: 'Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West, Maharashtra 400606',
       clinicEmail: 'kneeandbackpainclinic@gmail.com'
     });
@@ -33,14 +46,24 @@ export default async function handler(req, res) {
 
   try {
     const body = req.body || {};
-    const triggerEvent = body.triggerEvent || body.event || body.type || 'BOOKING_CREATED';
+    const rawTriggerEvent = body.triggerEvent || body.event || body.type || 'BOOKING_CREATED';
+    const normalizedEvent = String(rawTriggerEvent).toUpperCase().trim();
     const payload = body.payload || body.data || body;
+
+    // -------------------------------------------------------------------------
+    // 1. Classify Webhook Event
+    // -------------------------------------------------------------------------
+    const isMeetingLifecycle = /MEETING_STARTED|MEETING_ENDED|STARTED|ENDED/i.test(normalizedEvent);
+    const isBookingCancelled = /CANCEL/i.test(normalizedEvent);
+    const isReminderEvent = /BEFORE_EVENT|REMINDER|WORKFLOW|30MIN/i.test(normalizedEvent);
+    const isBookingRescheduled = /RESCHED/i.test(normalizedEvent);
+    const isBookingCreated = !isMeetingLifecycle && !isBookingCancelled && !isReminderEvent && !isBookingRescheduled;
 
     const attendees = Array.isArray(payload.attendees) ? payload.attendees : [];
     const firstAttendee = attendees[0] || {};
     const responses = payload.responses || {};
 
-    // 1. Extract Attendee details
+    // Extract Attendee details
     const name = firstAttendee.name || (responses.name && responses.name.value) || payload.name || 'Patient';
     const email = firstAttendee.email || (responses.email && responses.email.value) || payload.email || '';
 
@@ -63,7 +86,7 @@ export default async function handler(req, res) {
 
     const cleanPhone = (rawPhone || '').replace(/[^0-9]/g, '').slice(-10);
 
-    // 2. Format Appointment Date & Time in IST (+05:30)
+    // Format Appointment Date & Time in IST (+05:30)
     const startTimeIso = payload.startTime || payload.start || (payload.booking && (payload.booking.startTime || payload.booking.start));
     let formattedDate = 'Upcoming Date';
     let formattedTime = 'Upcoming Time';
@@ -89,7 +112,7 @@ export default async function handler(req, res) {
     const bookingUid = payload.uid || payload.id || `cal_${Date.now()}`;
     const nowIso = new Date().toISOString();
 
-    // 3. Sync to Supabase CRM Leads
+    // Supabase CRM credentials
     const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://leqbwiexuzggdxgxngrm.supabase.co';
     const supabaseKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_nC7DTCfJj_vhf3YsK0LW9w_NKk54fd4';
 
@@ -99,7 +122,7 @@ export default async function handler(req, res) {
     if (supabaseUrl && supabaseKey) {
       try {
         if (cleanPhone && cleanPhone.length === 10) {
-          const searchResp = await fetch(`${supabaseUrl}/rest/v1/leads?phone=like.*${cleanPhone}*&select=id,name,phone,delivered_message,delivered_message_time`, {
+          const searchResp = await fetch(`${supabaseUrl}/rest/v1/leads?phone=like.*${cleanPhone}*&select=id,name,phone,status,delivered_message,delivered_message_time`, {
             headers: {
               'apikey': supabaseKey,
               'Authorization': `Bearer ${supabaseKey}`
@@ -111,27 +134,41 @@ export default async function handler(req, res) {
           }
         }
 
-        const isCancelled = /cancel/i.test(triggerEvent);
-        const isRescheduled = /resched/i.test(triggerEvent);
-        const leadStatus = isCancelled ? 'Consultation Cancelled' : (isRescheduled ? 'Consultation Rescheduled' : 'Consultation Scheduled');
+        const leadStatus = isBookingCancelled
+          ? 'Consultation Cancelled'
+          : (isBookingRescheduled ? 'Consultation Rescheduled' : 'Consultation Scheduled');
 
         if (existingLead) {
           leadId = existingLead.id;
-          await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${leadId}`, {
-            method: 'PATCH',
-            headers: {
-              'apikey': supabaseKey,
-              'Authorization': `Bearer ${supabaseKey}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              name: existingLead.name && existingLead.name !== 'Patient' ? existingLead.name : name,
-              status: leadStatus,
-              slot_preference: slotString,
-              recommended_step: '₹1,000 Diagnostic Consultation'
-            })
-          });
-        } else {
+          // Only update status and slot if not a pure meeting lifecycle ping
+          if (!isMeetingLifecycle) {
+            await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${leadId}`, {
+              method: 'PATCH',
+              headers: {
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                name: existingLead.name && existingLead.name !== 'Patient' ? existingLead.name : name,
+                status: leadStatus,
+                slot_preference: slotString,
+                recommended_step: '₹1,000 Diagnostic Consultation'
+              })
+            });
+          } else if (/MEETING_ENDED|ENDED/i.test(normalizedEvent)) {
+            // Optionally mark completed on meeting end
+            await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${leadId}`, {
+              method: 'PATCH',
+              headers: {
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ status: 'Consultation Completed' })
+            }).catch(() => {});
+          }
+        } else if (!isMeetingLifecycle) {
           await fetch(`${supabaseUrl}/rest/v1/leads`, {
             method: 'POST',
             headers: {
@@ -159,21 +196,139 @@ export default async function handler(req, res) {
       }
     }
 
-    // 4. Dispatch AgentBandhu WhatsApp Confirmation if valid phone
-    let whatsappSent = false;
-    let whatsappError = null;
     const agentBandhuKey = (process.env.AGENTBANDHU_API_KEY || process.env.META_WHATSAPP_ACCESS_TOKEN || '').trim();
 
+    // -------------------------------------------------------------------------
+    // 2. LIFECYCLE EVENTS: MEETING_STARTED and MEETING_ENDED
+    // -------------------------------------------------------------------------
+    // Strictly IGNORE MEETING_STARTED (e.g. 10:00 AM) and MEETING_ENDED (e.g. 10:30 AM).
+    // These must NEVER dispatch duplicate confirmation or reminder messages.
+    if (isMeetingLifecycle) {
+      return res.status(200).json({
+        success: true,
+        triggerEvent: rawTriggerEvent,
+        action: 'ignored_meeting_lifecycle',
+        message: `Meeting lifecycle event (${rawTriggerEvent}) acknowledged. No WhatsApp messages dispatched.`
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. CANCELLATION EVENTS: BOOKING_CANCELLED
+    // -------------------------------------------------------------------------
+    if (isBookingCancelled) {
+      return res.status(200).json({
+        success: true,
+        triggerEvent: rawTriggerEvent,
+        action: 'cancellation_recorded',
+        message: 'Consultation cancellation recorded in CRM. No confirmation or reminder sent.'
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. 30-MINUTE PRE-CONSULTATION REMINDER DISPATCH
+    // -------------------------------------------------------------------------
+    // Triggered when Cal.com workflow fires BEFORE_EVENT (30 minutes prior to slot).
+    if (isReminderEvent) {
+      let reminderSent = false;
+      let reminderError = null;
+
+      // Deduplication: Avoid re-sending reminder if sent within the last 60 minutes
+      let alreadyReminded = false;
+      if (existingLead && existingLead.delivered_message === 'consultation_reminder_30m' && existingLead.delivered_message_time) {
+        const prevSent = new Date(existingLead.delivered_message_time).getTime();
+        if (Date.now() - prevSent < 60 * 60 * 1000) {
+          alreadyReminded = true;
+        }
+      }
+
+      if (agentBandhuKey && cleanPhone && cleanPhone.length === 10 && !alreadyReminded) {
+        try {
+          const { formatPhoneNumber, buildAgentBandhuPayload, AGENTBANDHU_MESSAGES_ENDPOINT } = await import('./_lib/whatsapp-templates.js');
+          const formattedTo = formatPhoneNumber(cleanPhone);
+          const reminderTemplate = 'surabhi_v4_no_image';
+
+          // 4 Variables for surabhi_v4_no_image
+          const reminderVariables = [
+            name || 'Patient',
+            `Reminder: Your in-clinic consultation with Dr. Surabhi Vaidya begins in 30 minutes at ${formattedTime}.`,
+            'Location: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Thane West.',
+            'Please arrive 10 minutes early. Bring relevant reports and a current list of medicines, if available.'
+          ];
+
+          const waPayload = buildAgentBandhuPayload({
+            to: formattedTo,
+            templateName: reminderTemplate,
+            variables: reminderVariables,
+            reference: `cal_rem_${bookingUid}`
+          });
+
+          const waResp = await fetch(AGENTBANDHU_MESSAGES_ENDPOINT, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${agentBandhuKey}`,
+              'x-api-key': agentBandhuKey,
+              'api-key': agentBandhuKey
+            },
+            body: JSON.stringify(waPayload)
+          });
+
+          if (waResp.ok) {
+            reminderSent = true;
+            if (supabaseUrl && supabaseKey) {
+              await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${leadId}`, {
+                method: 'PATCH',
+                headers: {
+                  'apikey': supabaseKey,
+                  'Authorization': `Bearer ${supabaseKey}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  delivered_message: 'consultation_reminder_30m',
+                  delivered_message_time: nowIso
+                })
+              }).catch(() => {});
+            }
+          } else {
+            reminderError = await waResp.text();
+            console.warn('AgentBandhu Reminder Dispatch Notice:', waResp.status, reminderError);
+          }
+        } catch (err) {
+          reminderError = err.message;
+          console.warn('AgentBandhu Reminder Exception:', err.message);
+        }
+      }
+
+      return res.status(200).json({
+        success: true,
+        triggerEvent: rawTriggerEvent,
+        action: 'reminder_dispatched',
+        patient: { name, phone: cleanPhone ? `+91${cleanPhone}` : '' },
+        slot: slotString,
+        reminderSent,
+        alreadyReminded,
+        reminderError: reminderError || undefined
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. BOOKING CREATION & RESCHEDULE DISPATCH
+    // -------------------------------------------------------------------------
+    // Strictly fire ONLY on BOOKING_CREATED or BOOKING_RESCHEDULED.
+    let whatsappSent = false;
+    let whatsappError = null;
     const templateName = 'consultation_booking_confirmation_v1';
+
     let alreadySentRecently = false;
     if (existingLead && existingLead.delivered_message === templateName && existingLead.delivered_message_time) {
       const prevSent = new Date(existingLead.delivered_message_time).getTime();
-      if (Date.now() - prevSent < 10 * 60 * 1000) {
+      // 15-minute deduplication window for initial booking confirmation
+      if (Date.now() - prevSent < 15 * 60 * 1000) {
         alreadySentRecently = true;
       }
     }
 
-    if (agentBandhuKey && cleanPhone && cleanPhone.length === 10 && triggerEvent !== 'BOOKING_CANCELLED' && !alreadySentRecently) {
+    if (agentBandhuKey && cleanPhone && cleanPhone.length === 10 && (isBookingCreated || isBookingRescheduled) && !alreadySentRecently) {
       try {
         const { formatPhoneNumber, buildAgentBandhuPayload, AGENTBANDHU_MESSAGES_ENDPOINT } = await import('./_lib/whatsapp-templates.js');
         const formattedTo = formatPhoneNumber(cleanPhone);
@@ -199,7 +354,6 @@ export default async function handler(req, res) {
 
         if (waResp.ok) {
           whatsappSent = true;
-          // Update delivered message status in Supabase
           if (supabaseUrl && supabaseKey) {
             await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${leadId}`, {
               method: 'PATCH',
@@ -227,7 +381,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
-      triggerEvent,
+      triggerEvent: rawTriggerEvent,
       bookingUid,
       patient: {
         name,
@@ -236,6 +390,7 @@ export default async function handler(req, res) {
       },
       slot: slotString,
       whatsappSent,
+      alreadySentRecently,
       whatsappError: whatsappError || undefined
     });
 
