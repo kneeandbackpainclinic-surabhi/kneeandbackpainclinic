@@ -157,6 +157,7 @@
 
   let currentStep = 0;
   let userAnswers = [];
+  const userProfile = { name: '', phone: '', email: '', city: '' };
 
   function openQuiz() {
     window.forcedBranch = null;
@@ -178,8 +179,11 @@
   };
 
   window.openWebinarDirect = function() {
+    window.forcedBranch = 'webinar';
     currentStep = quizQuestions.length; // Jump directly to webinar recommendation (Pathway 1)
-    userAnswers = [0, 0, 0, 3]; // Webinar branch
+    userAnswers = [0, 0, 0, 3]; // Default to exploring branch
+    const modalContainer = quizModal ? quizModal.querySelector('.quiz-modal-container') : null;
+    if (modalContainer) modalContainer.classList.remove('is-consultation-step');
     renderQuiz();
     if (quizModal) {
       quizModal.style.display = 'flex';
@@ -246,10 +250,16 @@
       }
 
       // ONLY TWO BRANCHES:
+      // If user toggled pathway or clicked Pathway 1 directly, honor window.forcedBranch
+      // Otherwise, determine branch from the 60-Second Pain Assessment answers:
       // Hesitant, skeptical, just exploring -> Recommend Webinar Masterclass (₹201)
       // Otherwise (active pain, ready, seeking doctor diagnosis) -> In-Clinic Consultation (₹1,000, 30-Min)
-      let branch = window.forcedBranch || (qReadiness === 2 || qReadiness === 3 || qPrior === 3 ? 'webinar' : 'consultation');
-      if (!window.forcedBranch && (qReadiness === 2 || qReadiness === 3 || qPrior === 3)) {
+      let branch = 'consultation';
+      if (window.forcedBranch === 'webinar') {
+        branch = 'webinar';
+      } else if (window.forcedBranch === 'consultation') {
+        branch = 'consultation';
+      } else if (qReadiness === 2 || qReadiness === 3 || qPrior === 3) {
         branch = 'webinar';
       } else {
         branch = 'consultation';
@@ -401,7 +411,7 @@
                   <label for="booking-name" style="font-size: 0.82rem; font-weight: 600; color: var(--primary-deep); margin-bottom: 4px; display: block;">
                     Full Name of Patient *
                   </label>
-                  <input type="text" id="booking-name" required placeholder="e.g. Milan Dodhia" minlength="2" style="width: 100%; padding: 10px 12px; font-size: 0.9rem; border: 1.5px solid var(--border-light); border-radius: 6px;">
+                  <input type="text" id="booking-name" required placeholder="e.g. Milan Dodhia" minlength="2" value="${userProfile.name || ''}" style="width: 100%; padding: 10px 12px; font-size: 0.9rem; border: 1.5px solid var(--border-light); border-radius: 6px;">
                 </div>
 
                 <div class="form-field" style="margin-bottom: 12px;">
@@ -410,7 +420,7 @@
                   </label>
                   <div style="display: flex; align-items: stretch; border: 1.5px solid var(--border-light); border-radius: 6px; overflow: hidden; background: #fff;">
                     <span style="padding: 10px 14px; background: #faf8f5; border-right: 1.5px solid var(--border-light); font-weight: 700; color: var(--primary-deep); font-size: 0.92rem; white-space: nowrap; flex-shrink: 0; display: inline-flex; align-items: center; letter-spacing: 0.5px;">+91</span>
-                    <input type="tel" id="booking-phone" required placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" maxlength="10" style="width: 100%; padding: 10px 12px; font-size: 0.92rem; border: none; outline: none; background: transparent; font-family: inherit;">
+                    <input type="tel" id="booking-phone" required placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" maxlength="10" value="${userProfile.phone || ''}" style="width: 100%; padding: 10px 12px; font-size: 0.92rem; border: none; outline: none; background: transparent; font-family: inherit;">
                   </div>
                   <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">Appointment confirmation &amp; clinic directions will be sent here.</div>
                 </div>
@@ -419,7 +429,7 @@
                   <label for="booking-email" style="font-size: 0.82rem; font-weight: 600; color: var(--primary-deep); margin-bottom: 4px; display: flex; justify-content: space-between;">
                     <span>Email Address <span style="font-weight: normal; color: var(--text-muted); font-size: 0.76rem;">(Optional - for calendar invite)</span></span>
                   </label>
-                  <input type="email" id="booking-email" placeholder="patient@example.com (optional)" style="width: 100%; padding: 10px 12px; font-size: 0.9rem; border: 1.5px solid var(--border-light); border-radius: 6px;">
+                  <input type="email" id="booking-email" placeholder="patient@example.com (optional)" value="${userProfile.email || ''}" style="width: 100%; padding: 10px 12px; font-size: 0.9rem; border: 1.5px solid var(--border-light); border-radius: 6px;">
                 </div>
 
                 <button type="submit" id="btn-to-stage-2" class="btn btn-primary btn-lg" style="width: 100%; padding: 12px; font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -574,20 +584,24 @@
             </div>
 
             <form id="quiz-booking-form">
-              <div class="form-field">
-                <label for="booking-name">Your Full Name *</label>
-                <input type="text" id="booking-name" required placeholder="Enter full name" minlength="2">
+              <div class="form-field" style="margin-bottom: 12px;">
+                <label for="booking-name" style="font-size: 0.82rem; font-weight: 600; color: var(--primary-deep); margin-bottom: 4px; display: block;">Full Name of Patient *</label>
+                <input type="text" id="booking-name" required placeholder="Enter full name" minlength="2" value="${userProfile.name || ''}" style="width: 100%; padding: 10px 12px; font-size: 0.92rem; border: 1.5px solid var(--border-light); border-radius: 6px; box-sizing: border-box;">
               </div>
-              <div class="form-field">
-                <label for="booking-phone">Mobile Phone Number *</label>
-                <input type="tel" id="booking-phone" required placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" maxlength="10">
+              <div class="form-field" style="margin-bottom: 12px;">
+                <label for="booking-phone" style="font-size: 0.82rem; font-weight: 600; color: var(--primary-deep); margin-bottom: 4px; display: block;">Mobile Phone Number (WhatsApp) *</label>
+                <div style="display: flex; align-items: stretch; border: 1.5px solid var(--border-light); border-radius: 6px; overflow: hidden; background: #fff;">
+                  <span style="padding: 10px 14px; background: #faf8f5; border-right: 1.5px solid var(--border-light); font-weight: 700; color: var(--primary-deep); font-size: 0.92rem; white-space: nowrap; flex-shrink: 0; display: inline-flex; align-items: center; letter-spacing: 0.5px;">+91</span>
+                  <input type="tel" id="booking-phone" required placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" maxlength="10" value="${userProfile.phone || ''}" style="width: 100%; padding: 10px 12px; font-size: 0.92rem; border: none; outline: none; background: transparent; font-family: inherit;">
+                </div>
+                <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">Masterclass joining link &amp; room pass will be sent here.</div>
               </div>
-              <div class="form-field">
-                <label for="booking-city">City / Area *</label>
-                <input type="text" id="booking-city" required placeholder="e.g. Thane / Mumbai / Pune">
+              <div class="form-field" style="margin-bottom: 16px;">
+                <label for="booking-city" style="font-size: 0.82rem; font-weight: 600; color: var(--primary-deep); margin-bottom: 4px; display: block;">City / Area *</label>
+                <input type="text" id="booking-city" required placeholder="e.g. Thane / Mumbai / Pune" value="${userProfile.city || ''}" style="width: 100%; padding: 10px 12px; font-size: 0.92rem; border: 1.5px solid var(--border-light); border-radius: 6px; box-sizing: border-box;">
               </div>
-              <button type="submit" class="btn btn-deep btn-lg" style="width: 100%; margin-top: 10px;">
-                Register for Masterclass (₹201) ↗
+              <button type="submit" class="btn btn-deep btn-lg" style="width: 100%; font-weight: 700; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span>🎥</span> Register for Masterclass (₹201) ↗
               </button>
             </form>
           </div>
@@ -861,10 +875,17 @@
             });
         }
 
-        // Switch to Webinar Pathway Button
+        // Switch to Webinar Pathway Button (Preserves any entered patient details)
         const switchWebinarBtn = quizBody.querySelector('#switch-to-webinar-btn');
         if (switchWebinarBtn) {
           switchWebinarBtn.addEventListener('click', function() {
+            const nInput = quizBody.querySelector('#booking-name');
+            const pInput = quizBody.querySelector('#booking-phone');
+            const eInput = quizBody.querySelector('#booking-email');
+            if (nInput && nInput.value.trim()) userProfile.name = nInput.value.trim();
+            if (pInput && pInput.value.trim()) userProfile.phone = pInput.value.trim().replace(/[^0-9]/g, '').slice(-10);
+            if (eInput && eInput.value.trim()) userProfile.email = eInput.value.trim();
+
             window.forcedBranch = 'webinar';
             userAnswers[3] = 3; // Switch to webinar branch
             renderQuiz();
@@ -898,6 +919,9 @@
             consultState.name = nameVal;
             consultState.phone = phoneVal;
             consultState.email = emailVal || `${phoneVal}@patient.charakhealth.com`;
+            userProfile.name = nameVal;
+            userProfile.phone = phoneVal;
+            userProfile.email = emailVal;
 
             // IMMEDIATE DROP-OFF CAPTURE (Patient consent recorded below next button)
             const saved = saveConsultationLead(
@@ -1060,10 +1084,17 @@
         }
       }
 
-      // Switch to Consultation Pathway Button
+      // Switch to Consultation Pathway Button (Preserves any entered patient details)
       const switchConsultBtn = quizBody.querySelector('#switch-to-consult-btn');
       if (switchConsultBtn) {
         switchConsultBtn.addEventListener('click', function() {
+          const nInput = quizBody.querySelector('#booking-name');
+          const pInput = quizBody.querySelector('#booking-phone');
+          const cInput = quizBody.querySelector('#booking-city');
+          if (nInput && nInput.value.trim()) userProfile.name = nInput.value.trim();
+          if (pInput && pInput.value.trim()) userProfile.phone = pInput.value.trim().replace(/[^0-9]/g, '').slice(-10);
+          if (cInput && cInput.value.trim()) userProfile.city = cInput.value.trim();
+
           window.forcedBranch = 'consultation';
           userAnswers = [0, 0, 0, 0]; // Switch to consultation branch
           renderQuiz();
@@ -1078,7 +1109,11 @@
           const nameInput = form.querySelector('#booking-name');
           const phoneInput = form.querySelector('#booking-phone');
           const name = nameInput && nameInput.value.trim() ? nameInput.value.trim() : 'Patient';
-          const phone = phoneInput ? phoneInput.value.trim() : '';
+          const phone = phoneInput ? phoneInput.value.trim().replace(/[^0-9]/g, '').slice(-10) : '';
+          const cityInput = form.querySelector('#booking-city');
+          userProfile.name = name;
+          userProfile.phone = phone;
+          if (cityInput && cityInput.value.trim()) userProfile.city = cityInput.value.trim();
 
           // Webinar registration handling
           const newLead = saveConsultationLead(name, phone, 'Webinar Registered', 'Unpaid');
