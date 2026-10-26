@@ -1,10 +1,11 @@
 // Vercel Serverless Function: Automated 30-Minute Consultation Reminder Runner
 // Endpoint: GET /api/send-reminders & POST /api/send-reminders
 // Purpose:
-//   - Sweeps upcoming Cal.id / CRM consultations starting in ~30 minutes (20-45 min window).
-//   - Dispatches official 30-minute reminder WhatsApp message via AgentBandhu.
-//   - Supports instant manual trigger (?phone=91XXXXXXXXXX&test=true) for validation.
-//   - Prevents duplicate dispatches with 4-hour lead deduplication.
+//   - Autonomous reminder scheduler running within our system (no Cal.id Pro required).
+//   - Identifies active consultations scheduled to start in ~30 minutes (15 to 45 min window).
+//   - Dispatches approved 4-line WhatsApp reminder (surabhi_v4_no_image) via AgentBandhu.
+//   - Updates status to 'Consultation Scheduled (Reminded)' for 100% deduplication.
+//   - Supports direct test trigger: /api/send-reminders?phone=91XXXXXXXXXX&test=true
 
 import {
   AGENTBANDHU_MESSAGES_ENDPOINT,
@@ -39,13 +40,6 @@ export default async function handler(req, res) {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://leqbwiexuzggdxgxngrm.supabase.co';
   const supabaseKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_nC7DTCfJj_vhf3YsK0LW9w_NKk54fd4';
 
-  const calApiKey = (
-    process.env.CALID_API ||
-    process.env.CAL_API_KEY ||
-    process.env.CALID_API_KEY ||
-    ''
-  ).trim();
-
   // ---------------------------------------------------------------------------
   // 1. Direct Test / Ad-hoc Dispatch Mode (?phone=91XXXXXXXXXX)
   // ---------------------------------------------------------------------------
@@ -69,7 +63,7 @@ export default async function handler(req, res) {
       const reminderTemplate = 'surabhi_v4_no_image';
       const reminderVariables = [
         testName,
-        `Reminder: Your in-clinic consultation with Dr. Dr. Surabhi Vaidya begins in 30 minutes at ${testSlot}.`,
+        `Reminder: Your in-clinic consultation with Dr. Surabhi Vaidya begins in 30 minutes at ${testSlot}.`,
         'Location: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Thane West.',
         'Please arrive 10 minutes early. Bring relevant reports and a current list of medicines, if available.'
       ];
@@ -127,7 +121,7 @@ export default async function handler(req, res) {
     const results = {
       timestamp: now.toISOString(),
       currentTimeIST: now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit', hour12: true }),
-      targetWindowMinutes: '15 to 45 minutes ahead (~30 min reminder)',
+      targetWindow: '15 to 45 minutes ahead (~30 min reminder)',
       checkedCount: 0,
       remindersSent: 0,
       skippedAlreadyReminded: 0,
@@ -135,12 +129,11 @@ export default async function handler(req, res) {
       details: []
     };
 
-    // A. Fetch active consultation leads from Supabase CRM
     let eligibleLeads = [];
     if (supabaseUrl && supabaseKey) {
       try {
         const resp = await fetch(
-          `${supabaseUrl}/rest/v1/leads?status=eq.Consultation Scheduled&select=id,name,phone,slot_preference,delivered_message,delivered_message_time`,
+          `${supabaseUrl}/rest/v1/leads?status=eq.Consultation Scheduled&select=id,name,phone,slot_preference,status,prior_treatments`,
           {
             headers: {
               'apikey': supabaseKey,
@@ -163,38 +156,74 @@ export default async function handler(req, res) {
       const cleanPhone = (lead.phone || '').replace(/[^0-9]/g, '').slice(-10);
       if (!cleanPhone || cleanPhone.length !== 10) continue;
 
-      // Deduplication: skip if reminder was already sent in last 4 hours
-      if (lead.delivered_message === 'consultation_reminder_30m' && lead.delivered_message_time) {
-        const prevSent = new Date(lead.delivered_message_time).getTime();
-        if (nowMs - prevSent < 4 * 60 * 60 * 1000) {
-          results.skippedAlreadyReminded++;
-          results.details.push({
-            id: lead.id,
-            phone: `+91${cleanPhone}`,
-            action: 'skipped_already_reminded',
-            lastSent: lead.delivered_message_time
-          });
-          continue;
-        }
+      // Deduplication: skip if already reminded
+      if (lead.status === 'Consultation Scheduled (Reminded)' || (lead.prior_treatments && lead.prior_treatments.includes('Reminder: 30min sent'))) {
+        results.skippedAlreadyReminded++;
+        results.details.push({
+          id: lead.id,
+          name: lead.name,
+          phone: `+91${cleanPhone}`,
+          action: 'skipped_already_reminded'
+        });
+        continue;
       }
 
-      // Check slot preference time
+      // Parse appointment start time
       const slotText = lead.slot_preference || '';
-      let isDue = false;
+      let appointmentDate = null;
 
-      // Try parsing date/time from slot preference
-      if (slotText) {
-        // Match ISO or readable string
-        const parsedMs = Date.parse(slotText);
-        if (!isNaN(parsedMs)) {
-          const diffMs = parsedMs - nowMs;
-          if (diffMs >= minLeadMs && diffMs <= maxLeadMs) {
-            isDue = true;
+      // 1. Check for [ISO:...] tag
+      const isoMatch = slotText.match(/\[ISO:([^\]]+)\]/);
+      if (isoMatch && isoMatch[1]) {
+        const d = new Date(isoMatch[1]);
+        if (!isNaN(d.getTime())) appointmentDate = d;
+      }
+
+      // 2. Fallback to readable format: "Tuesday, 27 October 2026 at 10:00 AM IST"
+      if (!appointmentDate && slotText) {
+        try {
+          const cleanStr = slotText
+            .replace(/\[ISO:[^\]]+\]/, '')
+            .replace(/^[A-Za-z]+,\s*/, '')
+            .replace(' at ', ' ')
+            .replace(' IST', ' +05:30')
+            .trim();
+          const d = new Date(cleanStr);
+          if (!isNaN(d.getTime())) appointmentDate = d;
+        } catch (e) {}
+      }
+
+      let isDue = false;
+      let timeLabel = '10:00 AM IST';
+
+      if (appointmentDate) {
+        const diffMs = appointmentDate.getTime() - nowMs;
+        timeLabel = appointmentDate.toLocaleTimeString('en-IN', {
+          timeZone: 'Asia/Kolkata',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        }).toUpperCase() + ' IST';
+
+        // Due if within 15 to 45 minutes ahead
+        if (diffMs >= minLeadMs && diffMs <= maxLeadMs) {
+          isDue = true;
+        } else if (diffMs < -60 * 60 * 1000) {
+          // Appointment completed over an hour ago, archive status
+          if (supabaseUrl && supabaseKey) {
+            await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${lead.id}`, {
+              method: 'PATCH',
+              headers: {
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ status: 'Consultation Completed' })
+            }).catch(() => {});
           }
         }
       }
 
-      // If query passed ?force=true, mark due for testing
       if (query.force === 'true') {
         isDue = true;
       }
@@ -203,21 +232,23 @@ export default async function handler(req, res) {
         results.skippedNotInWindow++;
         results.details.push({
           id: lead.id,
+          name: lead.name,
           phone: `+91${cleanPhone}`,
           slot: slotText,
+          diffMinutes: appointmentDate ? Math.round((appointmentDate.getTime() - nowMs) / 60000) : null,
           action: 'skipped_not_in_30m_window'
         });
         continue;
       }
 
-      // Dispatch Reminder
+      // Dispatch 30-Minute WhatsApp Reminder
       if (agentBandhuKey) {
         try {
           const formattedTo = formatPhoneNumber(cleanPhone);
           const reminderTemplate = 'surabhi_v4_no_image';
           const reminderVariables = [
             lead.name || 'Patient',
-            `Reminder: Your in-clinic consultation with Dr. Surabhi Vaidya begins in 30 minutes.`,
+            `Reminder: Your in-clinic consultation with Dr. Surabhi Vaidya begins in 30 minutes at ${timeLabel}.`,
             'Location: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Thane West.',
             'Please arrive 10 minutes early. Bring relevant reports and a current list of medicines, if available.'
           ];
@@ -226,7 +257,7 @@ export default async function handler(req, res) {
             to: formattedTo,
             templateName: reminderTemplate,
             variables: reminderVariables,
-            reference: `cron_rem_${lead.id}_${Date.now()}`
+            reference: `rem_${lead.id}_${Date.now()}`
           });
 
           const waResp = await fetch(AGENTBANDHU_MESSAGES_ENDPOINT, {
@@ -242,7 +273,7 @@ export default async function handler(req, res) {
 
           if (waResp.ok) {
             results.remindersSent++;
-            // Update Supabase
+            // Update Supabase CRM status to Reminded
             if (supabaseUrl && supabaseKey) {
               await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${lead.id}`, {
                 method: 'PATCH',
@@ -252,14 +283,15 @@ export default async function handler(req, res) {
                   'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                  delivered_message: 'consultation_reminder_30m',
-                  delivered_message_time: now.toISOString()
+                  status: 'Consultation Scheduled (Reminded)',
+                  prior_treatments: `Reminder: 30min sent at ${now.toISOString()}`
                 })
               }).catch(() => {});
             }
 
             results.details.push({
               id: lead.id,
+              name: lead.name,
               phone: formattedTo,
               action: 'reminder_sent',
               status: 'SUCCESS'

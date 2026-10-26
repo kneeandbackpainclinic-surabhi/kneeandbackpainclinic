@@ -1,8 +1,8 @@
 // Vercel Serverless Function: Cal.id / Cal.com Universal Webhook Handler
 // Endpoint: POST /api/cal-webhook
 // Handled Lifecycle:
-//   - BOOKING_CREATED: Dispatches consultation_booking_confirmation_v1
-//   - BOOKING_RESCHEDULED: Dispatches updated consultation_booking_confirmation_v1
+//   - BOOKING_CREATED: Dispatches consultation_booking_confirmation_v1 & saves lead in Supabase
+//   - BOOKING_RESCHEDULED: Dispatches updated consultation_booking_confirmation_v1 & updates lead
 //   - BEFORE_EVENT / REMINDER: Dispatches 30-minute pre-consultation reminder (surabhi_v4_no_image)
 //   - MEETING_STARTED: Acknowledged only (IGNORED - no WhatsApp dispatched)
 //   - MEETING_ENDED: Acknowledged only (IGNORED - no WhatsApp dispatched)
@@ -109,6 +109,7 @@ export default async function handler(req, res) {
     }
 
     const slotString = `${formattedDate} at ${formattedTime}`;
+    const slotStringWithIso = startTimeIso ? `${slotString} [ISO:${startTimeIso}]` : slotString;
     const bookingUid = payload.uid || payload.id || `cal_${Date.now()}`;
     const nowIso = new Date().toISOString();
 
@@ -122,7 +123,7 @@ export default async function handler(req, res) {
     if (supabaseUrl && supabaseKey) {
       try {
         if (cleanPhone && cleanPhone.length === 10) {
-          const searchResp = await fetch(`${supabaseUrl}/rest/v1/leads?phone=like.*${cleanPhone}*&select=id,name,phone,status,delivered_message,delivered_message_time`, {
+          const searchResp = await fetch(`${supabaseUrl}/rest/v1/leads?phone=like.*${cleanPhone}*&select=id,name,phone,status,slot_preference,prior_treatments`, {
             headers: {
               'apikey': supabaseKey,
               'Authorization': `Bearer ${supabaseKey}`
@@ -140,7 +141,6 @@ export default async function handler(req, res) {
 
         if (existingLead) {
           leadId = existingLead.id;
-          // Only update status and slot if not a pure meeting lifecycle ping
           if (!isMeetingLifecycle) {
             await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${leadId}`, {
               method: 'PATCH',
@@ -152,12 +152,11 @@ export default async function handler(req, res) {
               body: JSON.stringify({
                 name: existingLead.name && existingLead.name !== 'Patient' ? existingLead.name : name,
                 status: leadStatus,
-                slot_preference: slotString,
+                slot_preference: slotStringWithIso,
                 recommended_step: '₹1,000 Diagnostic Consultation'
               })
             });
           } else if (/MEETING_ENDED|ENDED/i.test(normalizedEvent)) {
-            // Optionally mark completed on meeting end
             await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${leadId}`, {
               method: 'PATCH',
               headers: {
@@ -184,10 +183,8 @@ export default async function handler(req, res) {
               city: 'Thane',
               pain_area: 'Joint & Back Pain',
               recommended_step: '₹1,000 Diagnostic Consultation',
-              slot_preference: slotString,
-              status: leadStatus,
-              payment_status: 'Unpaid',
-              created_at: nowIso
+              slot_preference: slotStringWithIso,
+              status: leadStatus
             })
           });
         }
@@ -201,7 +198,7 @@ export default async function handler(req, res) {
     // -------------------------------------------------------------------------
     // 2. LIFECYCLE EVENTS: MEETING_STARTED and MEETING_ENDED
     // -------------------------------------------------------------------------
-    // Strictly IGNORE MEETING_STARTED (e.g. 10:00 AM) and MEETING_ENDED (e.g. 10:30 AM).
+    // Strictly IGNORE MEETING_STARTED (10:00 AM) and MEETING_ENDED (10:30 AM).
     // These must NEVER dispatch duplicate confirmation or reminder messages.
     if (isMeetingLifecycle) {
       return res.status(200).json({
@@ -227,18 +224,14 @@ export default async function handler(req, res) {
     // -------------------------------------------------------------------------
     // 4. 30-MINUTE PRE-CONSULTATION REMINDER DISPATCH
     // -------------------------------------------------------------------------
-    // Triggered when Cal.com workflow fires BEFORE_EVENT (30 minutes prior to slot).
     if (isReminderEvent) {
       let reminderSent = false;
       let reminderError = null;
 
-      // Deduplication: Avoid re-sending reminder if sent within the last 60 minutes
+      // Deduplication: Avoid re-sending reminder if already reminded
       let alreadyReminded = false;
-      if (existingLead && existingLead.delivered_message === 'consultation_reminder_30m' && existingLead.delivered_message_time) {
-        const prevSent = new Date(existingLead.delivered_message_time).getTime();
-        if (Date.now() - prevSent < 60 * 60 * 1000) {
-          alreadyReminded = true;
-        }
+      if (existingLead && (existingLead.status === 'Consultation Scheduled (Reminded)' || (existingLead.prior_treatments && existingLead.prior_treatments.includes('Reminder: 30min sent')))) {
+        alreadyReminded = true;
       }
 
       if (agentBandhuKey && cleanPhone && cleanPhone.length === 10 && !alreadyReminded) {
@@ -284,8 +277,8 @@ export default async function handler(req, res) {
                   'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                  delivered_message: 'consultation_reminder_30m',
-                  delivered_message_time: nowIso
+                  status: 'Consultation Scheduled (Reminded)',
+                  prior_treatments: `Reminder: 30min sent at ${nowIso}`
                 })
               }).catch(() => {});
             }
@@ -320,11 +313,13 @@ export default async function handler(req, res) {
     const templateName = 'consultation_booking_confirmation_v1';
 
     let alreadySentRecently = false;
-    if (existingLead && existingLead.delivered_message === templateName && existingLead.delivered_message_time) {
-      const prevSent = new Date(existingLead.delivered_message_time).getTime();
-      // 15-minute deduplication window for initial booking confirmation
-      if (Date.now() - prevSent < 15 * 60 * 1000) {
-        alreadySentRecently = true;
+    if (existingLead && existingLead.prior_treatments && existingLead.prior_treatments.includes('Confirmation:')) {
+      const match = existingLead.prior_treatments.match(/at ([0-9T:.Z-]+)/);
+      if (match) {
+        const prevSent = new Date(match[1]).getTime();
+        if (Date.now() - prevSent < 15 * 60 * 1000) {
+          alreadySentRecently = true;
+        }
       }
     }
 
@@ -363,8 +358,7 @@ export default async function handler(req, res) {
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify({
-                delivered_message: templateName,
-                delivered_message_time: nowIso
+                prior_treatments: `Confirmation: ${templateName} at ${nowIso}`
               })
             }).catch(() => {});
           }

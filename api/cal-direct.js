@@ -305,6 +305,10 @@ export default async function handler(req, res) {
 
       if (supabaseUrl && supabaseKey) {
         try {
+          const formattedSlotWithIso = slotStart
+            ? `${slotDisplay} [ISO:${slotStart}]`
+            : slotDisplay;
+
           const leadData = {
             id: leadId,
             name: name,
@@ -312,11 +316,9 @@ export default async function handler(req, res) {
             city: 'Thane',
             pain_area: painArea,
             recommended_step: '₹1,000 Diagnostic Consultation',
-            slot_preference: slotDisplay,
+            slot_preference: formattedSlotWithIso,
             status: 'Consultation Scheduled',
-            payment_status: paymentStatus || 'Unpaid',
-            consent: 'Consent provided for Call & WhatsApp messaging',
-            notes: `Booked directly via Cal.id bridge (${paymentMethod})`
+            prior_treatments: `Booked via direct bridge (${paymentMethod})`
           };
 
           // Search if lead exists
@@ -339,8 +341,7 @@ export default async function handler(req, res) {
                 },
                 body: JSON.stringify({
                   status: 'Consultation Scheduled',
-                  slot_preference: slotDisplay,
-                  payment_status: paymentStatus
+                  slot_preference: formattedSlotWithIso
                 })
               });
             } else {
@@ -441,8 +442,7 @@ export default async function handler(req, res) {
                   'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                  delivered_message: templateName,
-                  delivered_message_time: nowIso
+                  prior_treatments: `Confirmation: ${templateName} at ${nowIso}`
                 })
               }).catch(() => {});
             }

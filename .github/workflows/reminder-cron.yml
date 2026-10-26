@@ -2,16 +2,17 @@ name: 30-Minute Consultation Reminder Cron
 
 on:
   schedule:
-    # Run every 15 minutes around the clock
-    - cron: '*/15 * * * *'
+    # Runs every 10 minutes (UTC) to sweep for upcoming 30-minute consultation reminders
+    - cron: '*/10 * * * *'
   workflow_dispatch:
 
 jobs:
   sweep-reminders:
-    name: Sweep Due Reminders
+    name: Run 30-Min Reminder Sweep
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Send Reminders Endpoint
+      - name: Ping Clinic Reminder Sweep Endpoint
         run: |
-          response=$(curl -s -w "\n%{http_code}" "https://kneeandbackpainclinic.vercel.app/api/send-reminders")
-          echo "$response"
+          echo "Starting 30-minute consultation reminder sweep at $(date)..."
+          RESPONSE=$(curl -sS -X GET "https://kneeandbackpainclinic.vercel.app/api/send-reminders")
+          echo "Sweep result: $RESPONSE"

@@ -9,5 +9,11 @@
     { "source": "/confirmation", "destination": "/confirmation.html" },
     { "source": "/thank-you", "destination": "/confirmation.html" },
     { "source": "/api/test-whatsapp", "destination": "/api/whatsapp-send?test=true" }
+  ],
+  "crons": [
+    {
+      "path": "/api/send-reminders",
+      "schedule": "*/10 * * * *"
+    }
   ]
 }
