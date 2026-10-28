@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Appointment Confirmed | Dr. Surabhi Vaidya Clinic (Thane West)</title>
+  <meta name="description" content="Your clinical consultation appointment with Dr. Surabhi Vaidya at Charak Health Solutions, Raymond TenX Habitat, Thane West has been confirmed.">
+  <meta name="robots" content="noindex, follow">
+
+  <!-- Favicon Logo -->
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="shortcut icon" href="favicon.png">
+  <link rel="apple-touch-icon" href="assets/logo.png">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Fonts: Inter + Playfair Display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18534158307"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'AW-18534158307');
+
+    // Event snippet for Purchase conversion page
+    try {
+      var urlParams = new URLSearchParams(window.location.search);
+      var txnId = urlParams.get('order_id') || urlParams.get('lead_id') || '';
+      var isPaidParam = urlParams.get('paid') === '1';
+      gtag('event', 'conversion', {
+          'send_to': 'AW-18534158307/o8ztCN3M4acdEOOf44VF',
+          'value': isPaidParam ? 1000.0 : 1.0,
+          'currency': 'INR',
+          'transaction_id': txnId
+      });
+    } catch (e) {
+      gtag('event', 'conversion', {
+          'send_to': 'AW-18534158307/o8ztCN3M4acdEOOf44VF',
+          'value': 1.0,
+          'currency': 'INR',
+          'transaction_id': ''
+      });
+    }
+
+    // Pushes standard lead generation & appointment conversion event
+    window.dataLayer.push({
+      'event': 'appointment_confirmed',
+      'conversion_type': 'consultation_booking',
+      'page_type': 'confirmation_page'
+    });
+  </script>
+
+  <style>
+    .confirm-page-wrap {
+      min-height: 85vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 16px;
+      background: linear-gradient(180deg, #fbf9f5 0%, #f1efe9 100%);
+    }
+
+    .confirm-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color, #e5e0d8);
+      border-radius: 16px;
+      box-shadow: 0 15px 40px rgba(20, 48, 38, 0.08);
+      max-width: 620px;
+      width: 100%;
+      padding: 40px 32px;
+      text-align: center;
+    }
+
+    .confirm-badge {
+      width: 72px;
+      height: 72px;
+      background: #eef7ed;
+      border: 2px solid #86efac;
+      color: #166534;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      margin: 0 auto 20px;
+      box-shadow: 0 8px 20px rgba(22, 101, 52, 0.15);
+    }
+
+    .confirm-title {
+      font-family: var(--font-serif, 'Playfair Display', serif);
+      font-size: 1.85rem;
+      color: var(--primary-deep, #143026);
+      margin-bottom: 8px;
+    }
+
+    .confirm-subtitle {
+      font-size: 0.98rem;
+      color: var(--text-muted, #64748b);
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    .notice-box {
+      background: #eef7ed;
+      border: 1px solid #86efac;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .notice-box-title {
+      font-weight: 700;
+      color: #166534;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .notice-box-desc {
+      font-size: 0.85rem;
+      color: #15803d;
+      line-height: 1.5;
+    }
+
+    .details-box {
+      background: var(--bg-sand, #fbf9f5);
+      border: 1px solid var(--border-color, #e5e0d8);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: left;
+      font-size: 0.9rem;
+      color: var(--primary-deep, #143026);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .detail-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .detail-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .detail-label {
+      font-weight: 700;
+      min-width: 130px;
+      color: var(--primary-deep, #143026);
+    }
+
+    .detail-value {
+      flex: 1;
+      color: #334155;
+    }
+
+    .checklist-card {
+      background: #fff;
+      border: 1px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: left;
+      margin-bottom: 24px;
+      font-size: 0.85rem;
+    }
+
+    .checklist-card h4 {
+      font-size: 0.92rem;
+      color: var(--primary-deep, #143026);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .checklist-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .checklist-card li {
+      margin-bottom: 6px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      color: #475569;
+    }
+
+    .checklist-card li span {
+      color: #16a34a;
+      font-weight: 700;
+    }
+
+    .btn-action-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    @media (min-width: 540px) {
+      .btn-action-group {
+        flex-direction: row;
+      }
+      .btn-action-group .btn {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Announcement Header -->
+  <header class="header" role="banner">
+    <div class="container header-inner" style="justify-content: space-between;">
+      <a href="/" class="brand-link" aria-label="Charak Health Solutions Home">
+        <img src="assets/logo.png" alt="Charak Health Solutions Logo" class="brand-logo-img">
+        <div>
+          <span class="brand-name">Charak Health Solutions</span>
+          <span class="brand-tagline">Dr. Surabhi Vaidya Clinic · Thane West</span>
+        </div>
+      </a>
+      <a href="/" class="btn btn-secondary btn-sm">← Back to Clinic Site</a>
+    </div>
+  </header>
+
+  <main class="confirm-page-wrap">
+    <div class="confirm-card">
+      <div class="confirm-badge">✓</div>
+      
+      <h1 class="confirm-title" id="conf-headline">Consultation Confirmed!</h1>
+      <p class="confirm-subtitle">
+        Your 30-minute in-clinic diagnostic assessment with <strong>Dr. Surabhi Vaidya (MD Ayurveda)</strong> has been successfully booked.
+      </p>
+
+      <!-- WhatsApp Notice -->
+      <div class="notice-box">
+        <div class="notice-box-title">
+          <span>📲</span> <span>WhatsApp Notification Dispatched</span>
+        </div>
+        <div class="notice-box-desc" id="conf-whatsapp-text">
+          Appointment details and clinic directions have been sent to your registered mobile number.
+        </div>
+      </div>
+
+      <!-- Booking Summary Details -->
+      <div class="details-box">
+        <div class="detail-row">
+          <span class="detail-label">👤 Patient Name:</span>
+          <span class="detail-value" id="conf-patient-name">Valued Patient</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">📅 Preferred Time:</span>
+          <span class="detail-value" id="conf-slot-time">Earliest Available Clinical Intake</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">⏱️ Duration:</span>
+          <span class="detail-value">30 Minutes (Pulse Diagnosis &amp; Joint Evaluation)</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">📍 Clinic Location:</span>
+          <span class="detail-value">
+            Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West, Maharashtra 400606
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">💳 Consultation Fee:</span>
+          <span class="detail-value" id="conf-fee-status">₹1,000 (Pay at Clinic Desk or Online)</span>
+        </div>
+      </div>
+
+      <!-- Preparation Checklist -->
+      <div class="checklist-card">
+        <h4>📋 What to Bring to Your Visit</h4>
+        <ul>
+          <li><span>✓</span> Previous knee/spine X-Rays, MRI scans, or blood reports (if any).</li>
+          <li><span>✓</span> List of current medications or painkiller prescriptions.</li>
+          <li><span>✓</span> Wear comfortable, loose clothing for physical range-of-motion examination.</li>
+          <li><span>✓</span> Please arrive 10 minutes prior to your scheduled time slot.</li>
+        </ul>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="btn-action-group">
+        <a href="https://www.google.com/maps/place/Charak+Health+Solutions%7C+Best+Ayurvedic+Doctor+in+Vartak+Nagar+Thane%7C+Best+Panchkarma+Center+in+Vartak+Nagar+Thane/@19.2132024,72.9622171,17z/data=!4m12!1m2!2m1!1sCharak+Health+Solutions+Raymond+TenX+Habitat+Thane!3m8!1s0x3be7b9611e939a9f:0xfb1cfb6c70216b6c!8m2!3d19.2132024!4d72.9667232!9m1!1b1!16s%2Fg%2F11vx7gllpl" 
+           target="_blank" rel="noopener" class="btn btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <span>📍</span> Open Google Maps Directions
+        </a>
+        <a href="/" class="btn btn-secondary">
+          Return to Clinic Homepage
+        </a>
+      </div>
+
+      <div style="margin-top: 24px; font-size: 0.8rem; color: #94a3b8;">
+        Clinic Inquiries: <a href="mailto:kneeandbackpainclinic@gmail.com" style="color: var(--primary-sage); text-decoration: underline;">kneeandbackpainclinic@gmail.com</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer" style="padding: 24px 0; background: var(--primary-deep, #143026); text-align: center; color: #94a3b8; font-size: 0.8rem;">
+    <div class="container">
+      © 2026 Charak Health Solutions · Dr. Surabhi Vaidya Clinic (Thane West). All Rights Reserved.
+    </div>
+  </footer>
+
+  <script>
+    // Extract query parameters from URL to populate confirmation details
+    (function() {
+      try {
+        var params = new URLSearchParams(window.location.search);
+        var name = params.get('name') || '';
+        var phone = params.get('phone') || '';
+        var slot = params.get('slot') || '';
+        var paid = params.get('paid');
+
+        if (name) {
+          document.getElementById('conf-patient-name').textContent = name;
+          document.getElementById('conf-headline').textContent = 'Consultation Confirmed for ' + name + '!';
+        }
+
+        if (slot) {
+          document.getElementById('conf-slot-time').textContent = slot;
+        }
+
+        if (phone) {
+          var cleanPhone = phone.replace(/[^0-9]/g, '').slice(-10);
+          document.getElementById('conf-whatsapp-text').innerHTML = 
+            'Appointment details and clinic directions have been sent to <strong>+91 ' + (cleanPhone || phone) + '</strong>.';
+        }
+
+        if (paid === '1' || paid === 'true') {
+          document.getElementById('conf-fee-status').textContent = '₹1,000 (Paid Online ✓)';
+        } else {
+          document.getElementById('conf-fee-status').textContent = '₹1,000 (Pay at Clinic Reception Desk)';
+        }
+      } catch (e) {
+        console.warn('Confirmation page param parser notice:', e);
+      }
+    })();
+  </script>
+</body>
+</html>
