@@ -20,11 +20,34 @@
 
   <link rel="stylesheet" href="style.css">
 
-  <!-- Google Ads & Analytics Conversion Tracking Placeholder -->
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18534158307"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
+
+    gtag('config', 'AW-18534158307');
+
+    // Event snippet for Purchase conversion page
+    try {
+      var urlParams = new URLSearchParams(window.location.search);
+      var txnId = urlParams.get('order_id') || urlParams.get('lead_id') || '';
+      var isPaidParam = urlParams.get('paid') === '1';
+      gtag('event', 'conversion', {
+          'send_to': 'AW-18534158307/o8ztCN3M4acdEOOf44VF',
+          'value': isPaidParam ? 1000.0 : 1.0,
+          'currency': 'INR',
+          'transaction_id': txnId
+      });
+    } catch (e) {
+      gtag('event', 'conversion', {
+          'send_to': 'AW-18534158307/o8ztCN3M4acdEOOf44VF',
+          'value': 1.0,
+          'currency': 'INR',
+          'transaction_id': ''
+      });
+    }
 
     // Pushes standard lead generation & appointment conversion event
     window.dataLayer.push({

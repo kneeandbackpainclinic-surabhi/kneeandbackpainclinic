@@ -337,6 +337,19 @@ window.triggerPaymentGatewayCheckout = window.triggerPayUCheckout;
 
 // Post-payment return handler (Shows confirmation popup upon redirect back from PayU)
 function showPaymentSuccessPopup(info) {
+  // Trigger Google Ads Purchase Conversion tracking upon confirmed payment
+  try {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'conversion', {
+        'send_to': 'AW-18534158307/o8ztCN3M4acdEOOf44VF',
+        'value': Number(info.amount) || 1.0,
+        'currency': 'INR',
+        'transaction_id': info.orderId || ''
+      });
+    }
+  } catch (e) {
+    console.warn('Google Ads conversion trigger notice:', e);
+  }
   const isWebinar = (info.plan || '').toLowerCase().includes('masterclass') || (info.plan || '').toLowerCase().includes('webinar') || Number(info.amount) === 201;
   const cleanPhone = (info.phone || '').replace(/[^0-9]/g, '').slice(-10);
 

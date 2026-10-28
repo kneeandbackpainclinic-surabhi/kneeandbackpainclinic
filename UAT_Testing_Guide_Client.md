@@ -30,6 +30,11 @@ In web design, a **"Slug"** is simply the ending part of a website address that 
 | **`/webinar`** (or `/webinar.html`) | **Dedicated Webinar Page** | Clean ad landing page focused entirely on enrolling patients into the Live Masterclass. | Paid Ad campaigns (Facebook/Instagram) |
 | **`/room`** (or `/room.html`) | **Live Masterclass Room** | The digital room where patients check in with their mobile number to watch the live webinar. | Registered webinar ticket holders |
 | **`/confirmation`** (or `/thank-you`) | **Consultation Confirmation Page** | The official post-booking confirmation pass showing clinic directions, what to bring, and tracking Google Ads conversions. | Patients who complete consultation booking |
+| **`/about-us`** | **About Us** | Doctor credentials, clinic mission, 15+ years experience, and physical clinic details in Thane West. | Payment gateways, ad verification, patients |
+| **`/privacy-policy`** | **Privacy Policy** | Patient data protection, medical confidentiality, and PCI-DSS payment security disclosure. | Mandatory compliance (PayU/Cashfree/Google Ads) |
+| **`/shipping-and-return-policy`** | **Shipping & Delivery Policy** | In-clinic appointment fulfillment, digital masterclass room delivery, and herbal dispatch standards. | Mandatory compliance for payment gateway approval |
+| **`/refund-policy`** | **Refund & Cancellation Policy** | 12-hour free reschedule/cancellation, 5-7 day bank refunds, and clear indication of business category. | Mandatory compliance for payment gateway approval |
+| **`/terms-and-conditions`** | **Terms & Conditions** | Clinical conditions of care, medical disclaimer, and governing jurisdiction. | Legal & merchant compliance |
 | **`/admin`** (or `/admin.html`) | **Staff & Doctor CRM Portal** | Password-protected clinic desk dashboard to view incoming patient leads, send WhatsApp messages, and adjust settings. | Dr. Surabhi & Clinic Staff only |
 
 ---

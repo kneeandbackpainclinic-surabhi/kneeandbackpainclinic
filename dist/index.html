@@ -26,6 +26,27 @@
   <!-- Master Stylesheet -->
   <link rel="stylesheet" href="style.css">
 
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18534158307"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'AW-18534158307');
+  </script>
+
+  <!-- Event snippet for Purchase conversion page -->
+  <script>
+    gtag('event', 'conversion', {
+        'send_to': 'AW-18534158307/o8ztCN3M4acdEOOf44VF',
+        'value': 1.0,
+        'currency': 'INR',
+        'transaction_id': ''
+        // 'new_customer': true /* calculate dynamically, populate with true/false */,
+    });
+  </script>
+
   <!-- Vercel Web Analytics & Speed Insights -->
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
@@ -661,6 +682,13 @@
       </div>
 
       <div class="footer-bottom">
+        <div style="margin-bottom: 12px; font-size: 0.85rem;">
+          <a href="/about-us" style="color: #cbd5e1; text-decoration: underline; margin: 0 8px;">About Us</a> •
+          <a href="/privacy-policy" style="color: #cbd5e1; text-decoration: underline; margin: 0 8px;">Privacy Policy</a> •
+          <a href="/shipping-and-return-policy" style="color: #cbd5e1; text-decoration: underline; margin: 0 8px;">Shipping &amp; Delivery Policy</a> •
+          <a href="/refund-policy" style="color: #cbd5e1; text-decoration: underline; margin: 0 8px;">Refund Policy</a> •
+          <a href="/terms-and-conditions" style="color: #cbd5e1; text-decoration: underline; margin: 0 8px;">Terms &amp; Conditions</a>
+        </div>
         <div>© 2026 Charak Health Solutions. All Rights Reserved. Medical Disclaimer: Ayurvedic therapies are tailored according to individual Prakriti (body constitution). Relief timelines may vary based on clinical severity.</div>
         <div style="margin-top: 8px;"><a href="admin.html" style="color: #64748b; text-decoration: none; font-size: 0.78rem;">🔐 Clinic Staff Portal Login</a></div>
       </div>

@@ -90,6 +90,11 @@ def create_uat_doc():
         ('/webinar', 'Dedicated Webinar Page', 'Streamlined ad landing page dedicated to enrolling patients into the masterclass.', 'Ad campaigns (Meta/IG)'),
         ('/room', 'Live Masterclass Room', 'Live broadcast viewing room hosted on Webinar.gg with attendee intake.', 'Registered attendees'),
         ('/confirmation', 'Consultation Confirmation Page', 'Official post-booking pass showing clinic directions, what to bring, and tracking Google Ads conversions.', 'Patients who complete booking'),
+        ('/about-us', 'About Us', 'Doctor credentials, clinical mission, 15+ years experience, and physical clinic details in Thane West.', 'Merchant & ads compliance'),
+        ('/privacy-policy', 'Privacy Policy', 'Patient data protection, medical confidentiality, and PCI-DSS payment security disclosure.', 'Mandatory compliance (PayU/Google)'),
+        ('/shipping-and-return-policy', 'Shipping & Delivery Policy', 'In-clinic appointment fulfillment, digital masterclass room delivery, and herbal dispatch standards.', 'Mandatory compliance for payment gateways'),
+        ('/refund-policy', 'Refund & Cancellation Policy', '12-hour free reschedule/cancellation, 5-7 day bank refunds, and clear indication of business category.', 'Mandatory compliance for payment gateways'),
+        ('/terms-and-conditions', 'Terms & Conditions', 'Clinical conditions of care, medical disclaimer, and governing jurisdiction.', 'Legal & merchant compliance'),
         ('/admin', 'Clinic Staff CRM Portal', 'Passcode-protected admin desk: View patient leads, send WhatsApp messages, edit settings.', 'Clinic staff & Dr. Surabhi')
     ]
 
