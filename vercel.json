@@ -17,11 +17,5 @@
     { "source": "/terms-and-conditions", "destination": "/terms.html" },
     { "source": "/terms", "destination": "/terms.html" },
     { "source": "/api/test-whatsapp", "destination": "/api/whatsapp-send?test=true" }
-  ],
-  "crons": [
-    {
-      "path": "/api/send-reminders",
-      "schedule": "*/10 * * * *"
-    }
   ]
 }
