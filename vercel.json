@@ -10,11 +10,11 @@
     { "source": "/thank-you", "destination": "/confirmation.html" },
     { "source": "/about-us", "destination": "/about-us.html" },
     { "source": "/privacy-policy", "destination": "/privacy-policy.html" },
-    { "source": "/shipping-and-return-policy", "destination": "/shipping-policy.html" },
+    { "source": "/shipping-and-return-policy", "destination": "/shipping-and-return-policy.html" },
     { "source": "/shipping-policy", "destination": "/shipping-policy.html" },
     { "source": "/refund-policy", "destination": "/refund-policy.html" },
     { "source": "/refund-and-cancellation-policy", "destination": "/refund-policy.html" },
-    { "source": "/terms-and-conditions", "destination": "/terms.html" },
+    { "source": "/terms-and-conditions", "destination": "/terms-and-conditions.html" },
     { "source": "/terms", "destination": "/terms.html" },
     { "source": "/api/test-whatsapp", "destination": "/api/whatsapp-send?test=true" }
   ]
