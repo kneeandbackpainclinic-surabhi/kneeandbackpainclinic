@@ -124,6 +124,14 @@
             </div>
             <div class="metric-icon icon-webinar">🎥</div>
           </div>
+
+          <div class="metric-card" id="metric-card-dropoff" style="border-left: 4px solid #ea580c; cursor: pointer;" title="Click to filter by Payment Drop-Offs">
+            <div class="metric-info">
+              <h3>Payment Drop-Offs</h3>
+              <div class="value" id="metric-dropoffs" style="color: #ea580c;">0</div>
+            </div>
+            <div class="metric-icon" style="background: #fff7ed; color: #ea580c;">⚠️</div>
+          </div>
         </div>
 
         <!-- CRM Table Card -->
@@ -146,6 +154,7 @@
 
               <select id="filter-status" class="filter-select">
                 <option value="all">All Statuses</option>
+                <option value="dropoff" style="font-weight: 700; color: #ea580c;">⚠️ Payment Drop-Offs (Follow Up)</option>
                 <option value="New Lead">New Lead</option>
                 <option value="Contacted">Contacted</option>
                 <option value="Trial Scheduled">Trial Scheduled</option>

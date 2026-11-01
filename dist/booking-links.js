@@ -254,6 +254,20 @@ window.triggerPayUCheckout = async function(params) {
       throw new Error(data.error || data.details || 'Failed to initialize PayU payment');
     }
 
+    // Log checkout attempt in CRM immediately so drop-offs are guaranteed captured
+    fetch('/api/lead-intake', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name,
+        phone: phone,
+        email: email,
+        recommendedStep: planType,
+        status: 'Payment Initiated (PayU Checkout)',
+        paymentStatus: 'Pending Online Payment (PayU)'
+      })
+    }).catch(function() {});
+
     // Set up message listener for payment completion postMessage from popup
     let paymentHandled = false;
     const messageListener = function(event) {
@@ -273,9 +287,22 @@ window.triggerPayUCheckout = async function(params) {
             onSuccess(event.data);
           }
         } else {
-          alert('Payment was not completed. You may try again or select Pay at Clinic Reception.');
+          // Immediately record drop-off in backend
+          fetch('/api/lead-intake', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: name,
+              phone: phone,
+              email: email,
+              recommendedStep: planType,
+              status: 'Payment Dropped Off',
+              paymentStatus: 'Payment Incomplete (Gateway Error: ' + (event.data.error || 'Failed') + ')'
+            })
+          }).catch(function() {});
+
           if (typeof onDismiss === 'function') {
-            onDismiss();
+            onDismiss({ droppedOff: true, status: 'FAILED', error: event.data.error });
           }
         }
       }
@@ -290,8 +317,22 @@ window.triggerPayUCheckout = async function(params) {
           setTimeout(() => {
             if (!paymentHandled) {
               window.removeEventListener('message', messageListener);
+              // Tag as drop-off in backend
+              fetch('/api/lead-intake', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  name: name,
+                  phone: phone,
+                  email: email,
+                  recommendedStep: planType,
+                  status: 'Payment Dropped Off',
+                  paymentStatus: 'Payment Drop-off (User Closed Checkout Window)'
+                })
+              }).catch(function() {});
+
               if (typeof onDismiss === 'function') {
-                onDismiss();
+                onDismiss({ droppedOff: true, status: 'WINDOW_CLOSED' });
               }
             }
           }, 800);
@@ -324,8 +365,21 @@ window.triggerPayUCheckout = async function(params) {
   } catch (err) {
     if (popupWindow) popupWindow.close();
     console.error('PayU checkout error:', err);
+    fetch('/api/lead-intake', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name,
+        phone: phone,
+        email: email,
+        recommendedStep: planType,
+        status: 'Payment Dropped Off',
+        paymentStatus: 'Gateway Error: ' + (err.message || 'Initialization Failed')
+      })
+    }).catch(function() {});
+
     if (typeof onDismiss === 'function') {
-      onDismiss();
+      onDismiss({ droppedOff: true, error: err.message });
     }
     throw err;
   }
@@ -407,6 +461,76 @@ function showPaymentSuccessPopup(info) {
   }
 }
 
+// Post-payment drop-off recovery handler (shows helpful options if payment fails or drops off)
+function showPaymentFailureRecovery(info) {
+  const cleanPhone = (info.phone || '').replace(/[^0-9]/g, '').slice(-10);
+  const patientName = info.name || 'Patient';
+  const plan = info.plan || 'Diagnostic Consultation';
+
+  // Mark as drop-off in backend
+  fetch('/api/lead-intake', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      phone: cleanPhone,
+      name: patientName,
+      status: 'Payment Dropped Off',
+      paymentStatus: 'Payment Incomplete / Gateway Drop-off',
+      slotPreference: `Drop-off at Checkout [Plan: ${plan}]`
+    })
+  }).catch(function() {});
+
+  const modalOverlay = document.createElement('div');
+  modalOverlay.id = 'payu-failure-recovery-modal';
+  modalOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.78);backdrop-filter:blur(4px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn 0.2s ease;';
+
+  const waText = encodeURIComponent(`Namaste Dr. Surabhi Vaidya Clinic, my name is ${patientName} (+91 ${cleanPhone}). I was registering for ${plan} on the website, but faced a payment gateway issue. Please help confirm my booking.`);
+
+  modalOverlay.innerHTML = `
+    <div style="background:#ffffff;border-radius:14px;max-width:460px;width:100%;padding:24px;box-shadow:0 20px 40px rgba(0,0,0,0.25);text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+      <div style="font-size:3rem;margin-bottom:8px;">⚠️</div>
+      <h3 style="font-size:1.3rem;color:#9a3412;margin:0 0 6px 0;font-weight:700;">Payment Issue? Your Details Are Saved!</h3>
+      <p style="font-size:0.88rem;color:#475569;margin:0 0 16px 0;line-height:1.5;">
+        Don't worry, <strong>${patientName}</strong>. If you experienced any issue with the online payment gateway, your booking request has been safely captured.
+      </p>
+
+      <div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:8px;padding:14px;text-align:left;margin-bottom:16px;">
+        <div style="font-weight:700;color:#9a3412;font-size:0.88rem;margin-bottom:4px;">🏥 Option: Pay at Clinic Reception on Visit</div>
+        <div style="font-size:0.82rem;color:#7c2d12;line-height:1.45;">
+          No online payment needed! You can visit our clinic in Thane and pay ₹1,000 at the reception desk via Cash, UPI, or Card on your appointment day.
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <a href="https://wa.me/918108500200?text=${waText}" target="_blank" rel="noopener" style="background:#25d366;color:#ffffff;padding:12px;border-radius:8px;font-weight:700;text-decoration:none;font-size:0.92rem;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 12px rgba(37,211,102,0.3);">
+          <span>💬</span> WhatsApp Clinic Desk for Payment Help ↗
+        </a>
+        <a href="tel:+918108500200" style="background:#1e3a2f;color:#ffffff;padding:11px;border-radius:8px;font-weight:700;text-decoration:none;font-size:0.9rem;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <span>📞</span> Call Clinic Reception (+91 8108500200)
+        </a>
+        <button type="button" id="close-payu-failure-modal" style="background:#f1f5f9;color:#475569;border:none;padding:10px;border-radius:8px;font-weight:600;font-size:0.86rem;cursor:pointer;margin-top:4px;">
+          ← Return to Clinic Website
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modalOverlay);
+  document.body.style.overflow = 'hidden';
+
+  const closeBtn = modalOverlay.querySelector('#close-payu-failure-modal');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function() {
+      modalOverlay.remove();
+      document.body.style.overflow = '';
+      try {
+        const cleanUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+      } catch (e) {}
+    });
+  }
+}
+
 function initPaymentReturnCheck() {
   try {
     const urlParams = new URLSearchParams(window.location.search);
@@ -420,6 +544,8 @@ function initPaymentReturnCheck() {
 
     if ((gateway === 'payu' || orderId) && (status === 'SUCCESS' || status === 'PAID')) {
       showPaymentSuccessPopup({ orderId, amount, phone, plan, name });
+    } else if ((gateway === 'payu' || orderId) && (status === 'FAILED' || status === 'ERROR' || status === 'CANCELLED')) {
+      showPaymentFailureRecovery({ orderId, phone, plan, name });
     }
   } catch (e) {
     console.warn('PayU payment return check notice:', e);

@@ -25,6 +25,8 @@ CREATE TABLE IF NOT EXISTS public.leads (
 );
 
 -- Migration support: add columns if table already exists
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS email TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS notes TEXT;
 ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS delivered_message TEXT DEFAULT 'None';
 ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS delivered_message_time TIMESTAMPTZ;
 ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS payment_status TEXT DEFAULT 'Unpaid';

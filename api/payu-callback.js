@@ -50,13 +50,13 @@ export default async function handler(req, res) {
     const amount = payload.amount || '';
     const productinfo = payload.productinfo || 'Charak Health Consultation';
     const firstname = payload.firstname || 'Patient';
-    const email = payload.email || '';
+    const email = payload.email || payload.udf4 || '';
     const phone = payload.phone || payload.udf3 || '';
     const cleanPhone = (phone || '').replace(/[^0-9]/g, '').slice(-10);
     const udf1 = payload.udf1 || '';
     const udf2 = payload.udf2 || '';
     const udf3 = payload.udf3 || cleanPhone;
-    const udf4 = payload.udf4 || '';
+    const udf4 = payload.udf4 || email;
     const udf5 = payload.udf5 || '';
     const receivedHash = payload.hash || '';
     const additionalCharges = payload.additionalCharges || payload.additional_charges || '';
@@ -120,15 +120,14 @@ export default async function handler(req, res) {
     }
 
     const isPaid = (status === 'success' || isSimulated) && isHashValid;
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://leqbwiexuzggdxgxngrm.supabase.co';
+    const supabaseKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_nC7DTCfJj_vhf3YsK0LW9w_NKk54fd4';
+    const nowIso = new Date().toISOString();
 
     // Supabase & WhatsApp Automation Sync upon successful payment
     if (isPaid) {
-      const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://leqbwiexuzggdxgxngrm.supabase.co';
-      const supabaseKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_nC7DTCfJj_vhf3YsK0LW9w_NKk54fd4';
-
       const isWebinarOrder = Number(amount) === 201 || productinfo.toLowerCase().includes('masterclass') || productinfo.toLowerCase().includes('webinar');
       const templateName = isWebinarOrder ? 'webinar_joining_details_v1' : 'consultation_booking_confirmation_v1';
-      const nowIso = new Date().toISOString();
 
       if (supabaseUrl && supabaseKey) {
         try {
@@ -153,7 +152,8 @@ export default async function handler(req, res) {
           }
 
           if (leadId) {
-            await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${leadId}`, {
+            // Resilient update: try rich update first, fallback to base update
+            const patchRes = await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${leadId}`, {
               method: 'PATCH',
               headers: {
                 apikey: supabaseKey,
@@ -169,6 +169,21 @@ export default async function handler(req, res) {
                 delivered_message_time: nowIso
               })
             });
+
+            if (!patchRes.ok) {
+              await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${leadId}`, {
+                method: 'PATCH',
+                headers: {
+                  apikey: supabaseKey,
+                  Authorization: `Bearer ${supabaseKey}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  status: 'Paid & Confirmed',
+                  slot_preference: `Paid via PayU (₹${amount}) TXN: ${txnid}`
+                })
+              });
+            }
           }
         } catch (dbErr) {
           console.warn('PayU Callback Supabase Update Warning:', dbErr.message);
@@ -205,12 +220,54 @@ export default async function handler(req, res) {
           console.warn('PayU AgentBandhu WhatsApp Warning:', waErr.message);
         }
       }
+    } else {
+      // PAYMENT FAILED / DROPPED OFF: Immediately log into Supabase CRM so clinic can follow up!
+      if (supabaseUrl && supabaseKey && cleanPhone) {
+        try {
+          const searchResp = await fetch(`${supabaseUrl}/rest/v1/leads?phone=like.*${cleanPhone}*&select=id,status,slot_preference&limit=1`, {
+            headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` }
+          });
+          if (searchResp.ok) {
+            const matches = await searchResp.json();
+            if (matches && matches.length > 0) {
+              const matchedId = matches[0].id;
+              const dropMeta = `[Email: ${email} | Payment: Failed (${errorMessage})]`;
+              const updatedSlot = (matches[0].slot_preference || 'Flexible') + ' ' + dropMeta;
+
+              const failPatchRes = await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${matchedId}`, {
+                method: 'PATCH',
+                headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  status: 'Payment Dropped Off / Failed',
+                  payment_status: `Payment Failed: ${errorMessage}`,
+                  payment_order_id: txnid,
+                  payment_updated_at: nowIso,
+                  slot_preference: updatedSlot
+                })
+              });
+
+              if (!failPatchRes.ok) {
+                await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${matchedId}`, {
+                  method: 'PATCH',
+                  headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}`, 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    status: 'Payment Dropped Off / Failed',
+                    slot_preference: updatedSlot
+                  })
+                });
+              }
+            }
+          }
+        } catch (dbErr) {
+          console.warn('PayU Dropoff Supabase update notice:', dbErr.message);
+        }
+      }
     }
 
     // Determine clean target URL to return the patient to
     const redirectTarget = isPaid
       ? `${baseUrl}/?order_id=${encodeURIComponent(txnid)}&status=SUCCESS&gateway=payu&amount=${encodeURIComponent(amount)}&plan=${encodeURIComponent(productinfo)}&phone=${encodeURIComponent(cleanPhone)}&name=${encodeURIComponent(firstname)}`
-      : `${baseUrl}/?order_id=${encodeURIComponent(txnid)}&status=FAILED&gateway=payu&error=${encodeURIComponent(errorMessage)}`;
+      : `${baseUrl}/?order_id=${encodeURIComponent(txnid)}&status=FAILED&gateway=payu&error=${encodeURIComponent(errorMessage)}&phone=${encodeURIComponent(cleanPhone)}&name=${encodeURIComponent(firstname)}`;
 
     // Return HTML response that supports both in-page popup window (postMessage & auto-close) and standard browser redirect
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });

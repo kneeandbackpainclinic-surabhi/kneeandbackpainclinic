@@ -194,17 +194,24 @@
     const trials = leads.filter(l => l.recommendedStep && l.recommendedStep.includes('4,000')).length;
     const consults = leads.filter(l => l.recommendedStep && l.recommendedStep.includes('1,000')).length;
     const webinars = leads.filter(l => l.recommendedStep && (l.recommendedStep.includes('Webinar') || l.recommendedStep.includes('Masterclass'))).length;
+    const dropoffs = leads.filter(l => {
+      const s = (l.status || '').toLowerCase();
+      const p = (l.paymentStatus || '').toLowerCase();
+      return s.includes('drop') || s.includes('fail') || p.includes('drop') || p.includes('fail') || p.includes('incomplete');
+    }).length;
 
     const elTotal = document.querySelector('#metric-total');
     const elTrials = document.querySelector('#metric-trials');
     const elConsults = document.querySelector('#metric-consults');
     const elWebinars = document.querySelector('#metric-webinars');
+    const elDropoffs = document.querySelector('#metric-dropoffs');
     const elBadge = document.querySelector('#badge-total-leads');
 
     if (elTotal) elTotal.textContent = total;
     if (elTrials) elTrials.textContent = trials;
     if (elConsults) elConsults.textContent = consults;
     if (elWebinars) elWebinars.textContent = webinars;
+    if (elDropoffs) elDropoffs.textContent = dropoffs;
     if (elBadge) elBadge.textContent = total;
   }
 
@@ -228,7 +235,13 @@
       else if (typeFilter === 'webinar') matchType = lead.recommendedStep && (lead.recommendedStep.includes('Webinar') || lead.recommendedStep.includes('Masterclass'));
 
       let matchStatus = true;
-      if (statusFilter !== 'all') matchStatus = lead.status === statusFilter;
+      if (statusFilter === 'dropoff') {
+        const s = (lead.status || '').toLowerCase();
+        const p = (lead.paymentStatus || '').toLowerCase();
+        matchStatus = s.includes('drop') || s.includes('fail') || p.includes('drop') || p.includes('fail') || p.includes('incomplete');
+      } else if (statusFilter !== 'all') {
+        matchStatus = lead.status === statusFilter;
+      }
 
       let matchMsg = true;
       if (messageFilter !== 'all') {
@@ -255,12 +268,18 @@
       const isDelivered = msgDelivered !== 'None';
       const payStatus = lead.paymentStatus || 'Unpaid';
       const isPaid = payStatus.includes('Paid');
+      const isDropOff = (lead.status || '').toLowerCase().includes('drop') || (lead.paymentStatus || '').toLowerCase().includes('drop') || (lead.status || '').toLowerCase().includes('fail');
+      const clean10 = (lead.phone || '').replace(/[^0-9]/g, '').slice(-10);
+      const waRecoveryText = encodeURIComponent(`Namaste ${lead.name || 'Patient'} ji, this is Dr. Surabhi Vaidya Clinic (Charak Health Solutions). We noticed your booking attempt had an issue at payment. Your slot is on hold. Would you like to confirm with Pay at Clinic Desk or UPI?`);
 
       rowsHtml += `
-        <tr data-lead-id="${lead.id}">
+        <tr data-lead-id="${lead.id}" style="${isDropOff ? 'background: #fffbf5;' : ''}">
           <td>
             <strong>${escapeHtml(lead.name)}</strong>
             <div style="font-size: 0.75rem; color: var(--admin-muted);">+91 ${escapeHtml(lead.phone)} · ${escapeHtml(lead.city || 'Thane')}</div>
+            <div style="font-size: 0.74rem; color: #0284c7; margin-top: 2px;">
+              ✉️ ${lead.email ? `<a href="mailto:${escapeHtml(lead.email)}" style="color:#0284c7; text-decoration:underline;">${escapeHtml(lead.email)}</a>` : '<span style="color: #94a3b8; font-style: italic;">No email</span>'}
+            </div>
           </td>
           <td>
             <div style="font-weight: 600;">${escapeHtml(lead.painArea)}</div>
@@ -268,14 +287,16 @@
           </td>
           <td>
             <span class="badge ${badgeClass}">${escapeHtml(lead.recommendedStep || 'Intake In Progress')}</span>
+            ${isDropOff ? '<div style="margin-top: 4px;"><span class="badge" style="background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; font-size: 0.7rem; font-weight: 700;">⚠️ Drop-Off Lead</span></div>' : ''}
           </td>
           <td>
             <div style="font-size: 0.82rem;">${escapeHtml(lead.slotPreference || 'Flexible')}</div>
             <div style="font-size: 0.7rem; color: var(--admin-muted);">${dateStr}</div>
           </td>
           <td>
-            <select class="pay-select" data-id="${lead.id}" style="font-size: 0.75rem; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--admin-border); font-weight: 600; background: ${isPaid ? '#eef7ed' : '#ffffff'}; color: ${isPaid ? '#15803d' : '#374151'};">
+            <select class="pay-select" data-id="${lead.id}" style="font-size: 0.75rem; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--admin-border); font-weight: 600; background: ${isPaid ? '#eef7ed' : (isDropOff ? '#fff7ed' : '#ffffff')}; color: ${isPaid ? '#15803d' : (isDropOff ? '#c2410c' : '#374151')};">
               <option value="Unpaid" ${payStatus === 'Unpaid' ? 'selected' : ''}>Unpaid</option>
+              <option value="Payment Dropped Off" ${isDropOff || payStatus.includes('Drop') || payStatus.includes('Fail') ? 'selected' : ''}>⚠️ Drop-off / Failed</option>
               <option value="Paid (₹201)" ${payStatus === 'Paid (₹201)' ? 'selected' : ''}>Paid (₹201)</option>
               <option value="Paid (₹1,000)" ${payStatus === 'Paid (₹1,000)' ? 'selected' : ''}>Paid (₹1,000)</option>
               <option value="Paid (₹4,000)" ${payStatus === 'Paid (₹4,000)' ? 'selected' : ''}>Paid (₹4,000)</option>
@@ -296,6 +317,7 @@
           <td>
             <select class="status-select" data-id="${lead.id}" style="font-size: 0.78rem; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--admin-border);">
               <option value="New Lead" ${lead.status === 'New Lead' ? 'selected' : ''}>New Lead</option>
+              <option value="Payment Dropped Off" ${isDropOff || (lead.status && lead.status.includes('Drop')) ? 'selected' : ''}>⚠️ Payment Dropped Off</option>
               <option value="Stage 1 Completed - Pending Slot" ${lead.status && (lead.status.includes('Pending Slot') || lead.status.includes('Stage 1')) ? 'selected' : ''}>Stage 1 Drop-off (Pending Slot)</option>
               <option value="Slot Chosen - Pending Payment Method" ${lead.status && lead.status.includes('Pending Payment') ? 'selected' : ''}>Slot Chosen (Pending Payment)</option>
               <option value="Contacted" ${lead.status === 'Contacted' ? 'selected' : ''}>Contacted</option>
@@ -306,11 +328,18 @@
             </select>
           </td>
           <td>
-            <div style="display: flex; gap: 6px;">
-              <button type="button" class="btn-action btn-wa" data-action="wa" data-id="${lead.id}" title="Send WhatsApp Message">
+            <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
+              <a href="tel:+91${clean10}" class="btn-action" style="text-decoration:none; display:inline-flex; align-items:center; padding: 4px 6px; font-size: 0.74rem;" title="Call Patient (+91 ${clean10})">
+                📞
+              </a>
+              <a href="https://wa.me/91${clean10}?text=${waRecoveryText}" target="_blank" rel="noopener" class="btn-action" style="text-decoration:none; display:inline-flex; align-items:center; padding: 4px 7px; font-size: 0.74rem; background: #25D366; color: #ffffff; font-weight: 700;" title="Send WhatsApp Recovery Message">
                 💬 WA
-              </button>
-              <button type="button" class="btn-action btn-del" data-action="delete" data-id="${lead.id}" title="Remove Lead">
+              </a>
+              ${lead.email ? `
+              <a href="mailto:${escapeHtml(lead.email)}?subject=${encodeURIComponent('Regarding your appointment with Dr. Surabhi Vaidya Clinic')}&body=${waRecoveryText}" class="btn-action" style="text-decoration:none; display:inline-flex; align-items:center; padding: 4px 6px; font-size: 0.74rem; background: #0284c7; color: #ffffff;" title="Email Patient (${escapeHtml(lead.email)})">
+                ✉️
+              </a>` : ''}
+              <button type="button" class="btn-action btn-del" data-action="delete" data-id="${lead.id}" title="Remove Lead" style="padding: 4px 6px; font-size: 0.74rem;">
                 🗑️
               </button>
             </div>
@@ -424,6 +453,17 @@
     if (typeSelect) typeSelect.addEventListener('change', renderLeadsTable);
     if (statusSelect) statusSelect.addEventListener('change', renderLeadsTable);
     if (messageSelect) messageSelect.addEventListener('change', renderLeadsTable);
+
+    // 1-Click filter on drop-offs metric card
+    const cardDropoff = document.querySelector('#metric-card-dropoff');
+    if (cardDropoff) {
+      cardDropoff.addEventListener('click', () => {
+        if (statusSelect) {
+          statusSelect.value = statusSelect.value === 'dropoff' ? 'all' : 'dropoff';
+          renderLeadsTable();
+        }
+      });
+    }
   }
 
   function initCsvExport() {
@@ -436,9 +476,9 @@
         return;
       }
 
-      let csv = 'Lead ID,Patient Name,Phone Number,City,Pain Area,Severity,Prior Treatments,Readiness,Recommended Step,Slot Preference,Payment Status,Delivered Message,Delivered Timestamp,Status,Intake Timestamp\r\n';
+      let csv = 'Lead ID,Patient Name,Phone Number,Email Address,City,Pain Area,Severity,Prior Treatments,Readiness,Recommended Step,Slot Preference,Payment Status,Delivered Message,Delivered Timestamp,Status,Intake Timestamp\r\n';
       leads.forEach(l => {
-        csv += '"' + l.id + '","' + escapeCsv(l.name) + '","' + escapeCsv(l.phone) + '","' + escapeCsv(l.city) + '","' + escapeCsv(l.painArea) + '","' + escapeCsv(l.severity) + '","' + escapeCsv(l.priorTreatments) + '","' + escapeCsv(l.readiness) + '","' + escapeCsv(l.recommendedStep) + '","' + escapeCsv(l.slotPreference) + '","' + escapeCsv(l.paymentStatus || 'Unpaid') + '","' + escapeCsv(l.deliveredMessage || 'None') + '","' + (l.deliveredMessageTime || '') + '","' + escapeCsv(l.status) + '","' + l.createdAt + '"\r\n';
+        csv += '"' + l.id + '","' + escapeCsv(l.name) + '","' + escapeCsv(l.phone) + '","' + escapeCsv(l.email || '') + '","' + escapeCsv(l.city) + '","' + escapeCsv(l.painArea) + '","' + escapeCsv(l.severity) + '","' + escapeCsv(l.priorTreatments) + '","' + escapeCsv(l.readiness) + '","' + escapeCsv(l.recommendedStep) + '","' + escapeCsv(l.slotPreference) + '","' + escapeCsv(l.paymentStatus || 'Unpaid') + '","' + escapeCsv(l.deliveredMessage || 'None') + '","' + (l.deliveredMessageTime || '') + '","' + escapeCsv(l.status) + '","' + l.createdAt + '"\r\n';
       });
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });

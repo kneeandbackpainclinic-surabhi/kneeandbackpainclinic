@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     const cleanPhone = (customerPhone || '9999999999').replace(/[^0-9]/g, '').slice(-10);
     const txnid = 'TXN_' + Date.now() + '_' + Math.floor(1000 + Math.random() * 9000);
     const firstname = (customerName || 'Patient').trim().replace(/[^a-zA-Z0-9 ]/g, '').slice(0, 50) || 'Patient';
-    const email = (customerEmail || `${cleanPhone || 'patient'}@patient.charakhealth.com`).trim();
+    const email = (customerEmail || `${cleanPhone || 'patient'}@patient.charakhealth.com`).trim().toLowerCase();
     const productinfo = (planType || 'Consultation Booking').replace(/[^a-zA-Z0-9 _-]/g, '').slice(0, 100).trim() || 'Charak Health Booking';
 
     const host = req.headers['x-forwarded-host'] || req.headers.host || 'kneeandbackpainclinic.vercel.app';
@@ -54,8 +54,34 @@ export default async function handler(req, res) {
     const udf1 = leadId || '';
     const udf2 = planType || '';
     const udf3 = cleanPhone || '';
-    const udf4 = '';
+    const udf4 = email || '';
     const udf5 = '';
+
+    // Record checkout initiation in Supabase before redirecting so drop-offs are captured
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://leqbwiexuzggdxgxngrm.supabase.co';
+    const supabaseKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_nC7DTCfJj_vhf3YsK0LW9w_NKk54fd4';
+    if (supabaseUrl && supabaseKey && cleanPhone && cleanPhone.length === 10) {
+      try {
+        const searchResp = await fetch(`${supabaseUrl}/rest/v1/leads?phone=like.*${cleanPhone}*&select=id,slot_preference&limit=1`, {
+          headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` }
+        });
+        if (searchResp.ok) {
+          const rows = await searchResp.json();
+          if (rows && rows.length > 0) {
+            await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${rows[0].id}`, {
+              method: 'PATCH',
+              headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                status: 'Payment Initiated (Gateway In-Progress)',
+                slot_preference: (rows[0].slot_preference || 'Flexible') + ` [Email: ${email} | Payment: Pending PayU TXN ${txnid}]`
+              })
+            }).catch(() => {});
+          }
+        }
+      } catch (dbErr) {
+        console.warn('Checkout initiation sync warning:', dbErr.message);
+      }
+    }
 
     // If real PayU credentials are set in environment variables
     if (payuKey && payuSalt) {
@@ -107,12 +133,11 @@ export default async function handler(req, res) {
     }
 
     // Fallback if PAYU_MERCHANT_KEY & SALT are not yet entered in Vercel:
-    // Returns simulated environment so client testing flows work uninterrupted
     return res.status(200).json({
       success: true,
       simulated: true,
       action: `${baseUrl}/api/payu-callback?simulated=true`,
-      notice: 'PAYU_MERCHANT_KEY and PAYU_MERCHANT_SALT not yet configured in Vercel environment variables. Running in simulation mode.',
+      notice: 'Running in simulation mode.',
       environment: 'simulation',
       params: {
         key: 'SIMULATED_KEY',

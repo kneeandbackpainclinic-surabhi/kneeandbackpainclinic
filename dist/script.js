@@ -596,6 +596,12 @@
                 </div>
                 <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">Masterclass joining link &amp; room pass will be sent here.</div>
               </div>
+              <div class="form-field" style="margin-bottom: 12px;">
+                <label for="booking-email" style="font-size: 0.82rem; font-weight: 600; color: var(--primary-deep); margin-bottom: 4px; display: block;">
+                  Email Address * <span style="font-weight: normal; color: var(--text-muted); font-size: 0.74rem;">(for webinar pass &amp; recording)</span>
+                </label>
+                <input type="email" id="booking-email" required placeholder="patient@example.com" value="${userProfile.email || ''}" style="width: 100%; padding: 10px 12px; font-size: 0.92rem; border: 1.5px solid var(--border-light); border-radius: 6px; box-sizing: border-box;">
+              </div>
               <div class="form-field" style="margin-bottom: 16px;">
                 <label for="booking-city" style="font-size: 0.82rem; font-weight: 600; color: var(--primary-deep); margin-bottom: 4px; display: block;">City / Area *</label>
                 <input type="text" id="booking-city" required placeholder="e.g. Thane / Mumbai / Pune" value="${userProfile.city || ''}" style="width: 100%; padding: 10px 12px; font-size: 0.92rem; border: 1.5px solid var(--border-light); border-radius: 6px; box-sizing: border-box;">
@@ -616,20 +622,24 @@
       `;
 
       // Helper to save and dispatch lead to CRM and serverless API
-      function saveConsultationLead(name, phone, slotInfo, paymentStatus) {
+      function saveConsultationLead(name, phone, slotInfo, paymentStatus, email, extraCity) {
         const cleanPhone = (phone || '').replace(/[^0-9]/g, '').slice(-10);
+        const patientEmail = (email || userProfile.email || '').trim().toLowerCase();
+        const city = extraCity || userProfile.city || 'Thane / Mumbai';
+
         const lead = {
           id: 'LEAD-' + Math.floor(100 + Math.random() * 900),
           name: name || 'Patient',
           phone: cleanPhone || phone || '',
-          city: 'Thane / Mumbai',
+          email: patientEmail,
+          city: city,
           painArea: painArea,
           severity: quizQuestions[1].options[userAnswers[1]] || '',
           priorTreatments: quizQuestions[2].options[userAnswers[2]] || '',
           readiness: quizQuestions[3].options[userAnswers[3]] || '',
           recommendedStep: branch === 'webinar' ? '₹201 Live Hindi Masterclass' : '₹1,000 Diagnostic Consultation',
           slotPreference: slotInfo || 'Earliest Available (Cal.id)',
-          status: slotInfo ? (slotInfo.includes('Pending') ? 'Stage 1 Completed - Pending Slot' : 'Consultation Scheduled') : 'New Lead',
+          status: slotInfo ? (slotInfo.includes('Pending') ? 'Stage 1 Completed - Pending Slot' : (slotInfo.includes('Drop') || (paymentStatus && paymentStatus.includes('Drop')) ? 'Payment Dropped Off' : 'Consultation Scheduled')) : 'New Lead',
           paymentStatus: paymentStatus || 'Unpaid',
           consent: 'Consent provided for Call & WhatsApp messaging',
           createdAt: new Date().toISOString()
@@ -856,7 +866,8 @@
                       consultState.name,
                       consultState.phone,
                       consultState.slotTime,
-                      'Slot Chosen - Pending Payment Method'
+                      'Slot Chosen - Pending Payment Method',
+                      consultState.email
                     );
 
                     // Seamless transition to Stage 3 (no friction, no popup!)
@@ -928,7 +939,8 @@
               consultState.name,
               consultState.phone,
               'Stage 1 Completed - Pending Slot Selection',
-              'Unpaid (Drop-off Lead)'
+              'Unpaid (Stage 1 Completed)',
+              consultState.email
             );
             if (saved && saved.id) {
               consultState.leadId = saved.id;
@@ -938,15 +950,36 @@
           });
         }
 
-        // Also capture on phone blur if user types 10 digits in Stage 1
+        // Real-time Auto-capture during typing (Phone, Name, Email) with debounce
         const phoneField = quizBody.querySelector('#booking-phone');
         const nameField = quizBody.querySelector('#booking-name');
+        const emailField = quizBody.querySelector('#booking-email');
+        let draftTimer = null;
+
         function autoCaptureDraft() {
-          const n = nameField ? nameField.value.trim() : '';
-          const p = phoneField ? phoneField.value.trim().replace(/[^0-9]/g, '').slice(-10) : '';
-          if (p.length === 10) {
-            saveConsultationLead(n, p, 'Stage 1 Typing - Pending Slot', 'Unpaid (Draft Lead)');
-          }
+          clearTimeout(draftTimer);
+          draftTimer = setTimeout(() => {
+            const n = nameField ? nameField.value.trim() : '';
+            const p = phoneField ? phoneField.value.trim().replace(/[^0-9]/g, '').slice(-10) : '';
+            const e = emailField ? emailField.value.trim() : '';
+            if (p.length === 10) {
+              if (n) userProfile.name = n;
+              userProfile.phone = p;
+              if (e) userProfile.email = e;
+              saveConsultationLead(n || 'Patient', p, 'Stage 1 Typing - Pending Slot', 'Unpaid (Draft Lead)', e);
+            }
+          }, 700);
+        }
+
+        if (phoneField) {
+          phoneField.addEventListener('input', autoCaptureDraft);
+          phoneField.addEventListener('blur', autoCaptureDraft);
+        }
+        if (nameField) {
+          nameField.addEventListener('blur', autoCaptureDraft);
+        }
+        if (emailField) {
+          emailField.addEventListener('blur', autoCaptureDraft);
         }
 
 
@@ -969,7 +1002,8 @@
               consultState.name,
               consultState.phone,
               consultState.slotTime,
-              'Slot Chosen - Pending Payment Method'
+              'Slot Chosen - Pending Payment Method',
+              consultState.email
             );
             setStage(3);
           });
@@ -1008,6 +1042,50 @@
               })
             }).catch(e => console.warn('Cal Direct PG booking sync:', e));
 
+            // Immediate sync: record checkout attempt
+            saveConsultationLead(
+              consultState.name,
+              consultState.phone,
+              consultState.slotTime,
+              'Payment Initiated (PayU ₹1,000)',
+              consultState.email
+            );
+
+            function showStage3RecoveryBanner() {
+              let recBox = quizBody.querySelector('#stage3-recovery-box');
+              if (!recBox) {
+                recBox = document.createElement('div');
+                recBox.id = 'stage3-recovery-box';
+                recBox.style.cssText = 'background: #fff7ed; border: 1.5px solid #f97316; border-radius: 8px; padding: 14px; margin-bottom: 16px; animation: fadeIn 0.2s ease;';
+                const container = payCashfreeBtn ? payCashfreeBtn.closest('div') : null;
+                if (container && container.parentNode) {
+                  container.parentNode.insertBefore(recBox, container);
+                }
+              }
+              const waMsg = encodeURIComponent('Namaste Dr. Surabhi Clinic, my name is ' + consultState.name + ' (+91 ' + consultState.phone + '). I had an issue paying online for my ' + consultState.slotTime + ' consultation. Please confirm my appointment.');
+              recBox.innerHTML = `
+                <div style="font-weight: 700; color: #9a3412; font-size: 0.9rem; margin-bottom: 4px;">
+                  ⚠️ Payment not completed? Your appointment slot is held!
+                </div>
+                <p style="font-size: 0.82rem; color: #7c2d12; margin: 0 0 10px 0; line-height: 1.45;">
+                  Don't worry, <strong>${consultState.name}</strong>. If your online payment was interrupted, you can pay ₹1,000 at clinic reception on arrival or chat with our desk on WhatsApp for instant assistance.
+                </p>
+                <button type="button" id="recovery-confirm-clinic-btn" class="btn btn-primary" style="width: 100%; padding: 10px; font-weight: 700; font-size: 0.88rem; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                  <span>🏥</span> Confirm Slot &amp; Pay at Clinic Desk →
+                </button>
+                <a href="https://wa.me/918108500200?text=${waMsg}" target="_blank" rel="noopener" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; color: #166534; background: #eef7ed; border: 1px solid #c7e8c6; border-radius: 6px; font-size: 0.82rem; font-weight: 600; text-decoration: none;">
+                  <span>💬</span> WhatsApp Clinic Desk for Payment Help
+                </a>
+              `;
+              const recClinicBtn = recBox.querySelector('#recovery-confirm-clinic-btn');
+              if (recClinicBtn) {
+                recClinicBtn.addEventListener('click', function() {
+                  const clinicBtn = quizBody.querySelector('#stage3-pay-clinic-btn');
+                  if (clinicBtn) clinicBtn.click();
+                });
+              }
+            }
+
             try {
               if (window.triggerPayUCheckout) {
                 await window.triggerPayUCheckout({
@@ -1018,19 +1096,23 @@
                   planType: '₹1,000 Diagnostic Consultation (30-Min)',
                   leadId: consultState.leadId || `LEAD-${Date.now()}`,
                   onSuccess: function(result) {
-                    saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Paid Online via PayU');
+                    saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Paid Online via PayU', consultState.email);
                     renderConsultationSuccess(consultState.name, consultState.phone, consultState.slotTime, true);
                   },
-                  onDismiss: function() {
+                  onDismiss: function(dismissData) {
                     payCashfreeBtn.disabled = false;
-                    payCashfreeBtn.innerHTML = '<span>💳</span> Pay ₹1,000 Online via PayU →';
+                    payCashfreeBtn.innerHTML = '<span>💳</span> Retry Pay ₹1,000 Online via PayU →';
+                    saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Payment Dropped Off (PayU ₹1,000)', consultState.email);
+                    showStage3RecoveryBanner();
                   }
                 });
               }
             } catch (err) {
               console.warn('Consultation PG checkout error:', err);
               payCashfreeBtn.disabled = false;
-              payCashfreeBtn.innerHTML = '<span>💳</span> Pay ₹1,000 Online via PayU →';
+              payCashfreeBtn.innerHTML = '<span>💳</span> Retry Pay ₹1,000 Online via PayU →';
+              saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Payment Dropped Off (PayU Error)', consultState.email);
+              showStage3RecoveryBanner();
             }
           });
         }
@@ -1078,7 +1160,7 @@
               console.warn('Cal Direct Booking API call:', e);
             }
 
-            saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Pay at Clinic Desk');
+            saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Pay at Clinic Desk', consultState.email);
             renderConsultationSuccess(consultState.name, consultState.phone, consultState.slotTime, false);
           });
         }
@@ -1104,19 +1186,65 @@
       // Wire submit form for Webinar branch
       const form = quizBody.querySelector('#quiz-booking-form');
       if (form && branch === 'webinar') {
+        const webName = form.querySelector('#booking-name');
+        const webPhone = form.querySelector('#booking-phone');
+        const webEmail = form.querySelector('#booking-email');
+        const webCity = form.querySelector('#booking-city');
+        let webDraftTimer = null;
+
+        function autoCaptureWebinarDraft() {
+          clearTimeout(webDraftTimer);
+          webDraftTimer = setTimeout(() => {
+            const n = webName ? webName.value.trim() : '';
+            const p = webPhone ? webPhone.value.trim().replace(/[^0-9]/g, '').slice(-10) : '';
+            const e = webEmail ? webEmail.value.trim() : '';
+            const c = webCity ? webCity.value.trim() : 'Thane';
+            if (p.length === 10) {
+              if (n) userProfile.name = n;
+              userProfile.phone = p;
+              if (e) userProfile.email = e;
+              if (c) userProfile.city = c;
+              saveConsultationLead(n || 'Patient', p, 'Sunday, 15 Nov (11:00 AM IST)', 'Unpaid (Draft Webinar Lead)', e, c);
+            }
+          }, 700);
+        }
+        if (webPhone) {
+          webPhone.addEventListener('input', autoCaptureWebinarDraft);
+          webPhone.addEventListener('blur', autoCaptureWebinarDraft);
+        }
+        if (webName) webName.addEventListener('blur', autoCaptureWebinarDraft);
+        if (webEmail) webEmail.addEventListener('blur', autoCaptureWebinarDraft);
+
         form.addEventListener('submit', (e) => {
           e.preventDefault();
-          const nameInput = form.querySelector('#booking-name');
-          const phoneInput = form.querySelector('#booking-phone');
-          const name = nameInput && nameInput.value.trim() ? nameInput.value.trim() : 'Patient';
-          const phone = phoneInput ? phoneInput.value.trim().replace(/[^0-9]/g, '').slice(-10) : '';
-          const cityInput = form.querySelector('#booking-city');
+          const name = webName && webName.value.trim() ? webName.value.trim() : 'Patient';
+          const phone = webPhone ? webPhone.value.trim().replace(/[^0-9]/g, '').slice(-10) : '';
+          const email = webEmail ? webEmail.value.trim() : '';
+          const city = webCity && webCity.value.trim() ? webCity.value.trim() : 'Thane / Mumbai';
+
+          if (!name || name.length < 2) {
+            if (webName) webName.focus();
+            alert('Please enter patient full name.');
+            return;
+          }
+          if (!phone || phone.length !== 10) {
+            if (webPhone) webPhone.focus();
+            alert('Please enter a valid 10-digit mobile number.');
+            return;
+          }
+          if (!email || !email.includes('@')) {
+            if (webEmail) webEmail.focus();
+            alert('Please enter a valid email address.');
+            return;
+          }
+
           userProfile.name = name;
           userProfile.phone = phone;
-          if (cityInput && cityInput.value.trim()) userProfile.city = cityInput.value.trim();
+          userProfile.email = email;
+          userProfile.city = city;
 
-          // Webinar registration handling
-          const newLead = saveConsultationLead(name, phone, 'Webinar Registered', 'Unpaid');
+          // Webinar registration handling: SAVE LEAD IMMEDIATELY WITH NAME, PHONE, EMAIL & CITY
+          const newLead = saveConsultationLead(name, phone, 'Sunday, 15 Nov (11:00 AM IST)', 'Unpaid Webinar Registration', email, city);
             quizBody.innerHTML = `
               <div style="text-align: center; padding: 16px 8px;">
                 <div style="font-size: 2.8rem; margin-bottom: 8px;">🎥</div>
@@ -1156,25 +1284,56 @@
             `;
 
             const payBtn = quizBody.querySelector('#pay-cashfree-webinar-btn');
+
+            function showWebinarRecoveryBox() {
+              let recBox = quizBody.querySelector('#webinar-recovery-box');
+              if (!recBox) {
+                recBox = document.createElement('div');
+                recBox.id = 'webinar-recovery-box';
+                recBox.style.cssText = 'background: #fff7ed; border: 1.5px solid #f97316; border-radius: 8px; padding: 14px; margin-bottom: 14px; text-align: left; animation: fadeIn 0.2s ease;';
+                if (payBtn && payBtn.parentNode) {
+                  payBtn.parentNode.insertBefore(recBox, payBtn);
+                }
+              }
+              const waMsg = encodeURIComponent('Namaste Dr. Surabhi Clinic, my name is ' + name + ' (+91 ' + phone + '). I was registering for the Sunday Masterclass (₹201) but the online payment had an issue. Please help confirm my seat.');
+              recBox.innerHTML = `
+                <div style="font-weight: 700; color: #9a3412; font-size: 0.9rem; margin-bottom: 4px;">
+                  ⚠️ Payment Incomplete? Your Seat Request is Saved!
+                </div>
+                <p style="font-size: 0.82rem; color: #7c2d12; margin: 0 0 10px 0; line-height: 1.45;">
+                  Don't worry, <strong>${name}</strong>. If PayU had a connectivity or payment issue, our clinic desk has captured your registration. You can reach our clinic team directly on WhatsApp to get your direct Webinar.gg entry link or pay via direct UPI QR.
+                </p>
+                <a href="https://wa.me/918108500200?text=${waMsg}" target="_blank" rel="noopener" class="btn btn-primary" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 700; font-size: 0.88rem; box-sizing: border-box; margin-bottom: 6px;">
+                  <span>💬</span> WhatsApp Clinic Desk to Confirm Seat (₹201)
+                </a>
+                <a href="tel:+918108500200" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; color: #1e3a2f; background: #faf8f5; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.82rem; font-weight: 600; text-decoration: none;">
+                  <span>📞</span> Call Desk: +91 8108500200
+                </a>
+              `;
+            }
+
             if (payBtn) {
               payBtn.addEventListener('click', async function() {
                 payBtn.disabled = true;
                 payBtn.innerHTML = '<span>⏳</span> Opening Secure PayU Checkout...';
+                saveConsultationLead(name, phone, 'Sunday, 15 Nov (11:00 AM IST)', 'Payment Initiated (Webinar ₹201)', email, city);
                 try {
                   if (window.triggerPayUCheckout) {
                     await window.triggerPayUCheckout({
                       amount: 201,
                       name: name,
                       phone: phone,
+                      email: email,
                       planType: '₹201 Live Masterclass',
                       leadId: newLead.id,
                       onSuccess: async function(result) {
+                        saveConsultationLead(name, phone, 'Sunday, 15 Nov (11:00 AM IST)', 'Paid Online (Webinar ₹201)', email, city);
                         // Generate Webinar.gg token & display room access ONLY after verified payment
                         try {
                           const tokenResp = await fetch('/api/get-webinar-token', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ name: name, phone: phone })
+                            body: JSON.stringify({ name: name, phone: phone, email: email })
                           });
                           const tokenData = await tokenResp.json();
                           const accessBox = quizBody.querySelector('#webinar-access-box');
@@ -1192,7 +1351,8 @@
                                   token: tokenData.token || '',
                                   webinarId: tokenData.webinarId || 'charakhealth',
                                   name: name,
-                                  phone: phone
+                                  phone: phone,
+                                  email: email
                                 });
                               } else {
                                 window.location.href = '/room?token=' + encodeURIComponent(tokenData.token || '');
@@ -1203,16 +1363,20 @@
                           console.warn('Webinar token fetch:', tokErr);
                         }
                       },
-                      onDismiss: function() {
+                      onDismiss: function(dismissData) {
                         payBtn.disabled = false;
-                        payBtn.innerHTML = '<span>💳</span> Pay ₹201 Online via PayU →';
+                        payBtn.innerHTML = '<span>💳</span> Retry Pay ₹201 Online via PayU →';
+                        saveConsultationLead(name, phone, 'Sunday, 15 Nov (11:00 AM IST)', 'Payment Dropped Off (Webinar ₹201)', email, city);
+                        showWebinarRecoveryBox();
                       }
                     });
                   }
                 } catch (e) {
                   console.warn('Checkout note:', e.message);
                   payBtn.disabled = false;
-                  payBtn.innerHTML = '<span>💳</span> Pay ₹201 Online via PayU →';
+                  payBtn.innerHTML = '<span>💳</span> Retry Pay ₹201 Online via PayU →';
+                  saveConsultationLead(name, phone, 'Sunday, 15 Nov (11:00 AM IST)', 'Payment Dropped Off (Webinar Error)', email, city);
+                  showWebinarRecoveryBox();
                 }
               });
             }
