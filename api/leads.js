@@ -86,6 +86,8 @@ export default async function handler(req, res) {
           deliveredMessage: r.delivered_message || 'None',
           deliveredMessageTime: r.delivered_message_time || null,
           paymentStatus: paymentStatus,
+          paymentOrderId: r.payment_order_id || '',
+          notes: r.notes || '',
           createdAt: r.created_at
         };
       });

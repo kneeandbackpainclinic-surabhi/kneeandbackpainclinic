@@ -297,10 +297,18 @@
             <select class="pay-select" data-id="${lead.id}" style="font-size: 0.75rem; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--admin-border); font-weight: 600; background: ${isPaid ? '#eef7ed' : (isDropOff ? '#fff7ed' : '#ffffff')}; color: ${isPaid ? '#15803d' : (isDropOff ? '#c2410c' : '#374151')};">
               <option value="Unpaid" ${payStatus === 'Unpaid' ? 'selected' : ''}>Unpaid</option>
               <option value="Payment Dropped Off" ${isDropOff || payStatus.includes('Drop') || payStatus.includes('Fail') ? 'selected' : ''}>⚠️ Drop-off / Failed</option>
+              <option value="Paid via UPI (₹201)" ${payStatus.includes('UPI') && payStatus.includes('201') ? 'selected' : ''}>Paid via UPI (₹201)</option>
+              <option value="Paid via UPI (₹1,000)" ${payStatus.includes('UPI') && payStatus.includes('1,000') ? 'selected' : ''}>Paid via UPI (₹1,000)</option>
               <option value="Paid (₹201)" ${payStatus === 'Paid (₹201)' ? 'selected' : ''}>Paid (₹201)</option>
               <option value="Paid (₹1,000)" ${payStatus === 'Paid (₹1,000)' ? 'selected' : ''}>Paid (₹1,000)</option>
               <option value="Paid (₹4,000)" ${payStatus === 'Paid (₹4,000)' ? 'selected' : ''}>Paid (₹4,000)</option>
             </select>
+            ${lead.paymentOrderId || (lead.paymentStatus && lead.paymentStatus.includes('UPI')) || lead.notes ? `
+              <div style="font-size: 0.68rem; color: #15803d; font-family: monospace; font-weight: 700; margin-top: 3px;">
+                ${lead.paymentOrderId ? `Ref: ${escapeHtml(lead.paymentOrderId)}` : `Ref: CHK-${clean10}`}
+              </div>
+              ${lead.notes ? `<div style="font-size: 0.65rem; color: #0284c7; max-width: 140px; word-break: break-all; margin-top: 1px;">${escapeHtml(lead.notes)}</div>` : ''}
+            ` : ''}
           </td>
           <td>
             <select class="msg-select" data-id="${lead.id}" style="font-size: 0.75rem; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--admin-border); font-weight: 600; background: ${isDelivered ? '#f0fdf4' : '#fafafa'}; color: ${isDelivered ? '#166534' : '#6b7280'};">
@@ -334,6 +342,9 @@
               </a>
               <a href="https://wa.me/91${clean10}?text=${waRecoveryText}" target="_blank" rel="noopener" class="btn-action" style="text-decoration:none; display:inline-flex; align-items:center; padding: 4px 7px; font-size: 0.74rem; background: #25D366; color: #ffffff; font-weight: 700;" title="Send WhatsApp Recovery Message">
                 💬 WA
+              </a>
+              <a href="/payment?plan=${encodeURIComponent(lead.recommendedStep || '')}&name=${encodeURIComponent(lead.name || '')}&phone=${clean10}&amount=${lead.recommendedStep && (lead.recommendedStep.includes('201') || lead.recommendedStep.includes('Webinar') || lead.recommendedStep.includes('Masterclass')) ? '201' : '1000'}&lead=${lead.id}" target="_blank" class="btn-action" style="text-decoration:none; display:inline-flex; align-items:center; padding: 4px 6px; font-size: 0.74rem; background: #fef3c7; color: #92400e; font-weight: 700; border: 1px solid #fde68a;" title="Open Direct UPI Payment Link">
+                💳 Pay
               </a>
               ${lead.email ? `
               <a href="mailto:${escapeHtml(lead.email)}?subject=${encodeURIComponent('Regarding your appointment with Dr. Surabhi Vaidya Clinic')}&body=${waRecoveryText}" class="btn-action" style="text-decoration:none; display:inline-flex; align-items:center; padding: 4px 6px; font-size: 0.74rem; background: #0284c7; color: #ffffff;" title="Email Patient (${escapeHtml(lead.email)})">

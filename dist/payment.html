@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure UPI Payment | Dr. Surabhi Vaidya Clinic (Thane West)</title>
+  <meta name="description" content="Pay securely via UPI QR Code or any UPI app for Dr. Surabhi Vaidya's Joint Restoration Masterclass or In-Clinic Consultation.">
+  <meta name="robots" content="noindex, follow">
+
+  <!-- Favicon Logo -->
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="shortcut icon" href="favicon.png">
+  <link rel="apple-touch-icon" href="assets/logo.png">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Fonts: Inter + Playfair Display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18534158307"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-18534158307');
+  </script>
+
+  <style>
+    :root {
+      --primary-deep: #143026;
+      --primary-sage: #1e3a2f;
+      --accent-gold: #c25e3b;
+      --bg-sand: #fbf9f5;
+      --border-color: #e5e0d8;
+      --text-main: #1f2937;
+      --text-muted: #64748b;
+    }
+
+    body {
+      background: linear-gradient(180deg, #faf8f4 0%, #f1eee7 100%);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pay-header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-color);
+      padding: 14px 20px;
+    }
+
+    .pay-header-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--primary-deep);
+    }
+
+    .brand-wrap img {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .brand-subtitle {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .pay-container {
+      max-width: 660px;
+      margin: 24px auto 48px;
+      padding: 0 16px;
+      width: 100%;
+      box-sizing: border-box;
+      flex: 1;
+    }
+
+    .pay-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(20, 48, 38, 0.08);
+      padding: 28px 24px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .pay-card {
+        padding: 20px 16px;
+      }
+    }
+
+    .pay-badge-official {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #eef7ed;
+      color: #166534;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      margin-bottom: 12px;
+      border: 1px solid #bbf7d0;
+    }
+
+    .pay-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.55rem;
+      color: var(--primary-deep);
+      margin: 0 0 6px 0;
+      line-height: 1.25;
+    }
+
+    .pay-lead-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin: 0 0 20px 0;
+      line-height: 1.5;
+    }
+
+    /* Summary Bar */
+    .summary-box {
+      background: var(--bg-sand);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.88rem;
+      margin-bottom: 8px;
+    }
+
+    .summary-row:last-child {
+      margin-bottom: 0;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border-color);
+    }
+
+    .summary-label {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .summary-value {
+      font-weight: 700;
+      color: var(--primary-deep);
+      text-align: right;
+    }
+
+    .summary-total {
+      font-size: 1.3rem;
+      color: #166534;
+      font-weight: 800;
+    }
+
+    /* CRITICAL COMMENT / REFERENCE ALERT BOX */
+    .comment-alert-card {
+      background: #fffbeb;
+      border: 2px solid #f59e0b;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 22px;
+      position: relative;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.12);
+    }
+
+    .comment-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #b45309;
+      font-weight: 800;
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .comment-desc {
+      font-size: 0.84rem;
+      color: #92400e;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .comment-code-container {
+      background: #ffffff;
+      border: 1.5px dashed #f59e0b;
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .comment-code-val {
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: #78350f;
+      letter-spacing: 0.05em;
+      word-break: break-all;
+    }
+
+    .btn-copy-code {
+      background: #f59e0b;
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-weight: 700;
+      font-size: 0.84rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn-copy-code:hover {
+      background: #d97706;
+    }
+
+    .btn-copy-code.copied {
+      background: #16a34a;
+    }
+
+    /* QR Code Card */
+    .qr-card-center {
+      text-align: center;
+      background: #ffffff;
+      border: 1.5px solid var(--border-color);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 22px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    .qr-image-wrapper {
+      max-width: 280px;
+      margin: 0 auto 14px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+      background: #ffffff;
+    }
+
+    .qr-image-wrapper img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .upi-handle-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 8px 14px;
+      margin-bottom: 12px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--primary-deep);
+    }
+
+    .btn-copy-upi {
+      background: #ffffff;
+      border: 1px solid #94a3b8;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+    }
+
+    .btn-copy-upi:hover {
+      background: #e2e8f0;
+    }
+
+    .supported-badges {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .badge-app {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    /* Mobile Deep Link CTA */
+    .mobile-pay-cta {
+      margin-bottom: 24px;
+    }
+
+    .btn-mobile-upi {
+      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+      color: #ffffff;
+      width: 100%;
+      padding: 14px 18px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 10px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 8px 20px rgba(22, 163, 74, 0.25);
+      box-sizing: border-box;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .btn-mobile-upi:hover {
+      transform: translateY(-1px);
+    }
+
+    /* Step 2 Form (UTR Submission) */
+    .verify-box {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .verify-step-title {
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: var(--primary-deep);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .verify-step-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      margin-bottom: 14px;
+    }
+
+    .input-utr {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      box-sizing: border-box;
+      outline: none;
+      font-family: inherit;
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+      background: #ffffff;
+    }
+
+    .input-utr:focus {
+      border-color: var(--primary-deep);
+      box-shadow: 0 0 0 3px rgba(20, 48, 38, 0.1);
+    }
+
+    .btn-submit-utr {
+      background: var(--primary-deep);
+      color: #ffffff;
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s ease;
+    }
+
+    .btn-submit-utr:hover {
+      background: #1e3a2f;
+    }
+
+    .btn-submit-utr:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .wa-fallback-btn {
+      margin-top: 12px;
+      background: #25d366;
+      color: #ffffff;
+      width: 100%;
+      padding: 11px 14px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      border-radius: 8px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-sizing: border-box;
+      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
+    }
+
+    /* Success View */
+    .success-card {
+      display: none;
+      text-align: center;
+      padding: 24px 12px;
+    }
+
+    .success-icon {
+      font-size: 3.2rem;
+      margin-bottom: 8px;
+    }
+
+    .success-title {
+      font-size: 1.45rem;
+      color: #166534;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .success-msg {
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .clinic-footer {
+      text-align: center;
+      font-size: 0.78rem;
+      color: #94a3b8;
+      padding: 24px 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="pay-header">
+    <div class="pay-header-inner">
+      <a href="/" class="brand-wrap">
+        <img src="assets/logo.png" alt="Charak Health Solutions Logo">
+        <div>
+          <div class="brand-title">Charak Health Solutions</div>
+          <div class="brand-subtitle">Dr. Surabhi Vaidya Clinic · Thane West</div>
+        </div>
+      </a>
+      <a href="/" class="btn btn-secondary btn-sm" style="padding: 6px 12px; font-size: 0.8rem; text-decoration: none;">
+        ← Back to Site
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="pay-container">
+    <div class="pay-card" id="payment-main-view">
+      <div class="pay-badge-official">
+        <span>🛡️</span> Verified Direct Clinic UPI Account
+      </div>
+
+      <h1 class="pay-title" id="page-service-title">Confirm Your Booking Payment</h1>
+      <p class="pay-lead-desc">
+        Complete your payment using any UPI app (Google Pay, PhonePe, Paytm, BHIM) by scanning the QR code or clicking the mobile link below.
+      </p>
+
+      <!-- Patient & Booking Summary -->
+      <div class="summary-box">
+        <div class="summary-row">
+          <span class="summary-label">👤 Patient Name:</span>
+          <span class="summary-value" id="summary-patient-name">Patient</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">📱 WhatsApp Number:</span>
+          <span class="summary-value" id="summary-patient-phone">+91 ----------</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">📋 Service:</span>
+          <span class="summary-value" id="summary-service-name">Live Masterclass / Consultation</span>
+        </div>
+        <div class="summary-row" id="summary-slot-row" style="display: none;">
+          <span class="summary-label">📅 Selected Slot:</span>
+          <span class="summary-value" id="summary-slot-val">Confirmed Slot</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label" style="font-weight: 700; color: var(--primary-deep);">Payable Amount:</span>
+          <span class="summary-value summary-total" id="summary-amount">₹201</span>
+        </div>
+      </div>
+
+      <!-- ⭐ MANDATORY PAYMENT COMMENT / IDENTIFIER CARD -->
+      <div class="comment-alert-card">
+        <div class="comment-header">
+          <span>⚠️</span> Mandatory Payment Note / Comment
+        </div>
+        <div class="comment-desc">
+          When making the payment in your UPI app, please enter or paste this reference code into the <strong>"Add a note" / "Remarks" / "Message"</strong> field. This connects your payment directly with your registration:
+        </div>
+        <div class="comment-code-container">
+          <div class="comment-code-val" id="payment-comment-val">CHK-PAYMENT-REF</div>
+          <button type="button" class="btn-copy-code" id="btn-copy-comment" title="Click to copy comment">
+            <span>📋</span> <span id="copy-comment-label">Copy Comment</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile One-Tap Pay Deep Link Button -->
+      <div class="mobile-pay-cta">
+        <a id="mobile-upi-link" href="#" class="btn-mobile-upi">
+          <span>📱</span> <span id="mobile-pay-btn-text">Tap to Pay via UPI App (GPay / PhonePe / Paytm)</span>
+        </a>
+        <div style="font-size: 0.74rem; color: #64748b; text-align: center; margin-top: 6px;">
+          (Tapping on mobile opens your UPI app with the amount &amp; reference comment pre-filled)
+        </div>
+      </div>
+
+      <!-- Centered QR Code Card for Desktop / Tablet / Second Device -->
+      <div class="qr-card-center">
+        <div style="font-size: 0.86rem; font-weight: 700; color: var(--primary-deep); margin-bottom: 10px;">
+          Or Scan QR Code with Any UPI App:
+        </div>
+        <div class="qr-image-wrapper">
+          <img src="assets/charak-upi-qr.jpg" alt="Dr. Surabhi Vaidya Charak Health Solutions UPI QR Code">
+        </div>
+
+        <div class="upi-handle-row">
+          <span>UPI ID:</span>
+          <strong id="upi-id-text">surabhivaidya7@okhdfcbank</strong>
+          <button type="button" class="btn-copy-upi" id="btn-copy-upi-id" title="Copy UPI ID">
+            Copy
+          </button>
+        </div>
+
+        <div class="supported-badges">
+          <span class="badge-app">Google Pay</span>
+          <span class="badge-app">PhonePe</span>
+          <span class="badge-app">Paytm</span>
+          <span class="badge-app">BHIM</span>
+          <span class="badge-app">Cred</span>
+          <span class="badge-app">Any Banking UPI App</span>
+        </div>
+      </div>
+
+      <!-- Step 2: Verification / UTR Submission -->
+      <div class="verify-box">
+        <div class="verify-step-title">
+          <span>✅</span> Step 2: Enter UPI UTR / Transaction ID (Optional but Recommended)
+        </div>
+        <div class="verify-step-desc">
+          After completing the payment in your UPI app, enter the 12-digit UPI Reference Number / UTR from your payment receipt to instantly confirm:
+        </div>
+
+        <form id="utr-submit-form">
+          <input type="text" id="utr-number-input" class="input-utr" placeholder="Enter 12-digit UTR No. (e.g. 431289567123)" maxlength="20" autocomplete="off">
+          <button type="submit" id="btn-confirm-payment" class="btn-submit-utr">
+            <span>✓</span> I Have Paid — Confirm My Registration
+          </button>
+        </form>
+
+        <a id="wa-verify-link" href="#" target="_blank" rel="noopener" class="wa-fallback-btn">
+          <span>💬</span> Send Screenshot / Confirm on WhatsApp (+91 8108500200)
+        </a>
+      </div>
+
+      <div style="text-align: center; font-size: 0.78rem; color: #94a3b8;">
+        Clinic Support: <a href="mailto:kneeandbackpainclinic@gmail.com" style="color: var(--primary-sage); text-decoration: underline;">kneeandbackpainclinic@gmail.com</a> · Call: <a href="tel:+918108500200" style="color: var(--primary-sage); text-decoration: underline;">+91 8108500200</a>
+      </div>
+    </div>
+
+    <!-- Success View Card -->
+    <div class="pay-card success-card" id="payment-success-view">
+      <div class="success-icon">🎉</div>
+      <h2 class="success-title">Payment &amp; Booking Confirmed!</h2>
+      <p class="success-msg" id="success-desc">
+        Thank you! Your payment details and registration have been securely registered with Dr. Surabhi Vaidya Clinic.
+      </p>
+
+      <div class="summary-box" style="text-align: left; margin-bottom: 20px;">
+        <div class="summary-row">
+          <span class="summary-label">Patient:</span>
+          <span class="summary-value" id="succ-name">-</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Mobile (WhatsApp):</span>
+          <span class="summary-value" id="succ-phone">-</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Service:</span>
+          <span class="summary-value" id="succ-service">-</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Amount:</span>
+          <span class="summary-value" id="succ-amount" style="color: #166534; font-weight: 800;">-</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Payment Ref Comment:</span>
+          <span class="summary-value" id="succ-ref" style="font-family: monospace;">-</span>
+        </div>
+        <div class="summary-row" id="succ-utr-row" style="display: none;">
+          <span class="summary-label">Submitted UTR:</span>
+          <span class="summary-value" id="succ-utr" style="font-family: monospace;">-</span>
+        </div>
+      </div>
+
+      <div id="succ-action-container" style="display: flex; flex-direction: column; gap: 10px;">
+        <!-- Filled dynamically based on Webinar vs Consultation -->
+      </div>
+    </div>
+  </main>
+
+  <footer class="clinic-footer">
+    © 2026 Charak Health Solutions · Dr. Surabhi Vaidya (MD Ayurveda) · Raymond TenX Habitat, Pokharan Rd No. 2, Thane West.
+  </footer>
+
+  <script>
+    (function() {
+      'use strict';
+
+      // 1. Parse URL Parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const rawPlan = (urlParams.get('plan') || '').toLowerCase();
+      const rawAmount = urlParams.get('amount') || '';
+      const rawName = (urlParams.get('name') || '').trim();
+      const rawPhone = (urlParams.get('phone') || '').replace(/[^0-9]/g, '').slice(-10);
+      const rawEmail = (urlParams.get('email') || '').trim();
+      const rawLeadId = (urlParams.get('lead') || urlParams.get('lead_id') || '').trim();
+      const rawSlot = (urlParams.get('slot') || '').trim();
+
+      // Determine Plan & Amount
+      const isWebinar = rawPlan.includes('webinar') || rawPlan.includes('masterclass') || rawAmount === '201';
+      const amount = isWebinar ? 201 : 1000;
+      const serviceName = isWebinar ? 'Live Joint Restoration Masterclass (90-Min)' : 'In-Clinic Diagnostic Consultation (30-Min)';
+      const patientName = rawName || 'Patient';
+      const patientPhone = rawPhone || '';
+      const leadId = rawLeadId || ('LEAD-' + Math.floor(100 + Math.random() * 900));
+
+      // 2. Generate Unique Payment Reference Comment
+      // Format: CHK-{10digitPhone}-{LeadIdNum} (e.g. CHK-9820145872-482)
+      const leadNum = leadId.replace(/[^0-9]/g, '').slice(-4) || '101';
+      const phoneSegment = patientPhone || 'CARE';
+      const paymentComment = 'CHK-' + phoneSegment + '-' + leadNum;
+
+      // 3. Populate DOM with Dynamic Details
+      document.getElementById('summary-patient-name').textContent = patientName;
+      document.getElementById('summary-patient-phone').textContent = patientPhone ? '+91 ' + patientPhone : 'Provided at Booking';
+      document.getElementById('summary-service-name').textContent = serviceName;
+      document.getElementById('summary-amount').textContent = '₹' + amount;
+      document.getElementById('payment-comment-val').textContent = paymentComment;
+
+      if (rawSlot) {
+        document.getElementById('summary-slot-row').style.display = 'flex';
+        document.getElementById('summary-slot-val').textContent = rawSlot;
+      }
+
+      const upiId = 'surabhivaidya7@okhdfcbank';
+      const payeeName = 'Charak Health Solutions';
+
+      // Standard UPI Deep Link for Mobile (includes tn = Transaction Note / Comment!)
+      const upiDeepLink = 'upi://pay?pa=' + encodeURIComponent(upiId) +
+                          '&pn=' + encodeURIComponent(payeeName) +
+                          '&am=' + amount +
+                          '&cu=INR' +
+                          '&tn=' + encodeURIComponent(paymentComment);
+
+      const mobilePayLinkEl = document.getElementById('mobile-upi-link');
+      if (mobilePayLinkEl) {
+        mobilePayLinkEl.href = upiDeepLink;
+      }
+      document.getElementById('mobile-pay-btn-text').textContent = 'Tap to Pay ₹' + amount + ' via UPI App (GPay / PhonePe / Paytm)';
+
+      // Pre-fill WhatsApp confirmation message
+      function updateWaLink(utrVal) {
+        const waMsg = 'Namaste Dr. Surabhi Vaidya Clinic, I have made the payment of ₹' + amount + ' via UPI for ' + patientName + ' (+91 ' + patientPhone + ').' +
+                      '\nService: ' + serviceName +
+                      '\nPayment Reference Comment: ' + paymentComment +
+                      (utrVal ? '\nUTR / Txn ID: ' + utrVal : '') +
+                      '\nPlease confirm my registration pass.';
+        const waLinkEl = document.getElementById('wa-verify-link');
+        if (waLinkEl) {
+          waLinkEl.href = 'https://wa.me/918108500200?text=' + encodeURIComponent(waMsg);
+        }
+      }
+      updateWaLink('');
+
+      // Copy Buttons
+      function setupCopy(btnId, textToCopy, labelId, successText) {
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          navigator.clipboard.writeText(textToCopy).then(function() {
+            btn.classList.add('copied');
+            const lbl = labelId ? document.getElementById(labelId) : null;
+            const prev = lbl ? lbl.textContent : btn.textContent;
+            if (lbl) lbl.textContent = successText || '✓ Copied!';
+            else btn.textContent = successText || '✓ Copied!';
+            setTimeout(function() {
+              btn.classList.remove('copied');
+              if (lbl) lbl.textContent = prev;
+              else btn.textContent = prev;
+            }, 2000);
+          }).catch(function() {
+            alert('Copied: ' + textToCopy);
+          });
+        });
+      }
+
+      setupCopy('btn-copy-comment', paymentComment, 'copy-comment-label', '✓ Copied Comment!');
+      setupCopy('btn-copy-upi-id', upiId, null, '✓ Copied!');
+
+      // Save/Sync Lead Function
+      async function saveAndConfirmLead(utr) {
+        const payload = {
+          id: leadId,
+          name: patientName,
+          phone: patientPhone,
+          email: rawEmail,
+          recommendedStep: serviceName,
+          slotPreference: rawSlot || 'Confirmed',
+          status: isWebinar ? 'Webinar Registered' : 'Consultation Scheduled',
+          paymentStatus: 'Paid via UPI (' + (utr ? 'UTR: ' + utr : 'Ref: ' + paymentComment) + ')',
+          paymentOrderId: paymentComment,
+          notes: 'UPI Payment Confirmed. Comment: ' + paymentComment + (utr ? ' | UTR: ' + utr : ''),
+          utr: utr || ''
+        };
+
+        // 1. Update localStorage
+        try {
+          const STORAGE_KEY = 'dr_surabhi_leads';
+          const existing = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+          const idx = existing.findIndex(function(l) { return (patientPhone && l.phone === patientPhone) || l.id === leadId; });
+          if (idx >= 0) {
+            existing[idx] = Object.assign(existing[idx], payload);
+          } else {
+            existing.unshift(payload);
+          }
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
+        } catch (e) {}
+
+        // 2. Dispatch to serverless lead-intake API
+        try {
+          fetch('/api/lead-intake', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          }).catch(function() {});
+        } catch (e) {}
+
+        // 3. Trigger Google Ads Purchase conversion event
+        try {
+          if (typeof window.gtag === 'function') {
+            window.gtag('event', 'conversion', {
+              'send_to': 'AW-18534158307/o8ztCN3M4acdEOOf44VF',
+              'value': Number(amount),
+              'currency': 'INR',
+              'transaction_id': utr || paymentComment
+            });
+          }
+        } catch (e) {}
+
+        // 4. Render Success Screen
+        showSuccessView(utr);
+      }
+
+      function showSuccessView(utr) {
+        document.getElementById('payment-main-view').style.display = 'none';
+        const succView = document.getElementById('payment-success-view');
+        succView.style.display = 'block';
+
+        document.getElementById('succ-name').textContent = patientName;
+        document.getElementById('succ-phone').textContent = patientPhone ? '+91 ' + patientPhone : 'Provided';
+        document.getElementById('succ-service').textContent = serviceName;
+        document.getElementById('succ-amount').textContent = '₹' + amount + ' (Paid via UPI)';
+        document.getElementById('succ-ref').textContent = paymentComment;
+
+        if (utr) {
+          document.getElementById('succ-utr-row').style.display = 'flex';
+          document.getElementById('succ-utr').textContent = utr;
+        }
+
+        const actionBox = document.getElementById('succ-action-container');
+        if (isWebinar) {
+          actionBox.innerHTML = `
+            <a href="/room" class="btn btn-primary btn-lg" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; background: #143026; color: #fff; padding: 14px; border-radius: 8px;">
+              <span>🎥</span> Enter Live Masterclass Broadcast Room →
+            </a>
+            <a href="https://wa.me/918108500200?text=${encodeURIComponent('Namaste Dr. Surabhi Clinic, I have confirmed my webinar registration with payment ref ' + paymentComment)}" target="_blank" rel="noopener" class="btn btn-secondary" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; padding: 12px; border-radius: 8px;">
+              <span>💬</span> Get WhatsApp Reminder on +91 ${patientPhone}
+            </a>
+          `;
+        } else {
+          const confUrl = '/confirmation?name=' + encodeURIComponent(patientName) +
+                          '&phone=' + encodeURIComponent(patientPhone) +
+                          '&slot=' + encodeURIComponent(rawSlot || 'Confirmed Time') +
+                          '&paid=1&ref=' + encodeURIComponent(paymentComment) +
+                          (utr ? '&utr=' + encodeURIComponent(utr) : '');
+          actionBox.innerHTML = `
+            <a href="${confUrl}" class="btn btn-primary btn-lg" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; background: #143026; color: #fff; padding: 14px; border-radius: 8px;">
+              <span>📍</span> View Appointment Pass &amp; Clinic Directions →
+            </a>
+            <a href="https://wa.me/918108500200?text=${encodeURIComponent('Namaste Dr. Surabhi Clinic, I have completed the ₹1,000 consultation payment with ref ' + paymentComment)}" target="_blank" rel="noopener" class="btn btn-secondary" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; padding: 12px; border-radius: 8px;">
+              <span>💬</span> Send Confirmation to Clinic WhatsApp Desk
+            </a>
+          `;
+        }
+      }
+
+      // Form Submission
+      const form = document.getElementById('utr-submit-form');
+      if (form) {
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const utrInput = document.getElementById('utr-number-input');
+          const utr = utrInput ? utrInput.value.trim() : '';
+          const confirmBtn = document.getElementById('btn-confirm-payment');
+          if (confirmBtn) {
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<span>⏳</span> Verifying &amp; Registering...';
+          }
+          saveAndConfirmLead(utr);
+        });
+      }
+
+      // Live UTR input listener to update WhatsApp button
+      const utrInput = document.getElementById('utr-number-input');
+      if (utrInput) {
+        utrInput.addEventListener('input', function() {
+          updateWaLink(utrInput.value.trim());
+        });
+      }
+
+    })();
+  </script>
+</body>
+</html>

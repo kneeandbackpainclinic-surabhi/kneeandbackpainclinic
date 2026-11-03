@@ -323,6 +323,8 @@
         var phone = params.get('phone') || '';
         var slot = params.get('slot') || '';
         var paid = params.get('paid');
+        var ref = params.get('ref') || params.get('order_id') || '';
+        var utr = params.get('utr') || '';
 
         if (name) {
           document.getElementById('conf-patient-name').textContent = name;
@@ -339,10 +341,15 @@
             'Appointment details and clinic directions have been sent to <strong>+91 ' + (cleanPhone || phone) + '</strong>.';
         }
 
+        var feeStatusEl = document.getElementById('conf-fee-status');
         if (paid === '1' || paid === 'true') {
-          document.getElementById('conf-fee-status').textContent = '₹1,000 (Paid Online ✓)';
+          var detailsText = '₹1,000 (Paid via UPI ✓)';
+          if (ref) detailsText += ' · Ref: ' + ref;
+          if (utr) detailsText += ' · UTR: ' + utr;
+          feeStatusEl.innerHTML = '<span style="color:#166534;font-weight:700;">' + detailsText + '</span>';
         } else {
-          document.getElementById('conf-fee-status').textContent = '₹1,000 (Pay at Clinic Reception Desk)';
+          var payLink = '/payment?plan=consultation&amount=1000&name=' + encodeURIComponent(name) + '&phone=' + encodeURIComponent(phone) + '&slot=' + encodeURIComponent(slot);
+          feeStatusEl.innerHTML = '₹1,000 (Pay at Clinic Desk or <a href="' + payLink + '" style="color:#1e3a2f;font-weight:700;text-decoration:underline;">Pay via UPI QR Now →</a>)';
         }
       } catch (e) {
         console.warn('Confirmation page param parser notice:', e);

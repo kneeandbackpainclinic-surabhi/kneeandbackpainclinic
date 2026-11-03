@@ -38,6 +38,9 @@ export default async function handler(req, res) {
     const slotPreference = lead.slotPreference || 'Flexible';
     const status = lead.status || 'New Lead';
     const paymentStatus = lead.paymentStatus || 'Unpaid';
+    const paymentOrderId = lead.paymentOrderId || lead.payment_order_id || lead.paymentRef || lead.paymentComment || null;
+    const utr = (lead.utr || '').trim();
+    const notes = lead.notes || (utr ? `UPI UTR: ${utr} | Ref: ${paymentOrderId || 'None'}` : (paymentOrderId ? `UPI Ref: ${paymentOrderId}` : null));
     const deliveredMessage = lead.deliveredMessage || 'None';
     const createdAt = lead.createdAt || new Date().toISOString();
     const leadId = lead.id || ('LEAD-' + Math.floor(1000 + Math.random() * 9000));
@@ -91,6 +94,8 @@ export default async function handler(req, res) {
           slot_preference: slotPreference,
           status: status,
           payment_status: paymentStatus,
+          payment_order_id: paymentOrderId,
+          notes: notes,
           delivered_message: deliveredMessage,
           created_at: createdAt
         };
@@ -114,6 +119,8 @@ export default async function handler(req, res) {
           const metaParts = [];
           if (patientEmail) metaParts.push(`Email: ${patientEmail}`);
           if (paymentStatus && paymentStatus !== 'Unpaid') metaParts.push(`Payment: ${paymentStatus}`);
+          if (paymentOrderId) metaParts.push(`Ref: ${paymentOrderId}`);
+          if (utr) metaParts.push(`UTR: ${utr}`);
           const metaString = metaParts.length > 0 ? ` [${metaParts.join(' | ')}]` : '';
 
           const basePayload = {

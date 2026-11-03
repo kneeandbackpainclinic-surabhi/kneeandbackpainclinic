@@ -8,4 +8,6 @@ Thumbs.db
 scratch/
 VSL_Video/
 Headshots/
+*.pdf
+Certificate of Registration MMP.jpeg
 .env*.local

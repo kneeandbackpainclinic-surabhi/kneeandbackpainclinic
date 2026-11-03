@@ -8,6 +8,8 @@
     { "source": "/room", "destination": "/room.html" },
     { "source": "/confirmation", "destination": "/confirmation.html" },
     { "source": "/thank-you", "destination": "/confirmation.html" },
+    { "source": "/payment", "destination": "/payment.html" },
+    { "source": "/pay", "destination": "/payment.html" },
     { "source": "/about-us", "destination": "/about-us.html" },
     { "source": "/privacy-policy", "destination": "/privacy-policy.html" },
     { "source": "/shipping-and-return-policy", "destination": "/shipping-and-return-policy.html" },

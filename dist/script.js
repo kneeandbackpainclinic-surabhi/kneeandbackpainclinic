@@ -273,7 +273,7 @@
         const cleanP = (phoneVal || '').replace(/[^0-9]/g, '').slice(-10);
         const displayName = nameVal || 'Patient';
         const displaySlot = slotVal || 'Earliest Available (Selected on Cal.id)';
-        const feeStatus = isPaid ? 'Paid Online via PayU ✓' : 'Pay ₹1,000 at Clinic Desk';
+        const feeStatus = isPaid ? 'Paid Online via UPI ✓' : 'Pay ₹1,000 at Clinic Desk';
 
         quizBody.innerHTML = `
           <div style="text-align: center; padding: 20px 12px;">
@@ -307,7 +307,7 @@
               </button>
               ${!isPaid ? `
               <button type="button" id="confirmed-pay-cashfree-btn" class="btn btn-secondary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                <span>💳</span> Or Pay ₹1,000 Online via PayU Now
+                <span>📲</span> Or Pay ₹1,000 Online via UPI / QR Now
               </button>
               ` : ''}
             </div>
@@ -334,7 +334,7 @@
         if (payNowBtn) {
           payNowBtn.addEventListener('click', async function() {
             payNowBtn.disabled = true;
-            payNowBtn.textContent = 'Opening PayU Gateway...';
+            payNowBtn.textContent = 'Opening UPI Payment...';
             try {
               if (window.triggerCashfreeCheckout) {
                 await window.triggerCashfreeCheckout({
@@ -346,9 +346,9 @@
                 });
               }
             } catch (e) {
-              console.warn('PG Checkout Note:', e);
+              console.warn('UPI Checkout Note:', e);
               payNowBtn.disabled = false;
-              payNowBtn.textContent = 'Pay ₹1,000 Online via PayU';
+              payNowBtn.textContent = 'Pay ₹1,000 Online via UPI / QR';
             }
           });
         }
@@ -503,21 +503,21 @@
               </h4>
 
               <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
-                <!-- Option A: Pay Online via PayU -->
+                <!-- Option A: Pay Online via UPI QR -->
                 <div style="border: 2px solid var(--primary-sage); border-radius: 8px; padding: 14px 16px; background: #ffffff;">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                     <span style="font-weight: 700; color: var(--primary-deep); font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
-                      <span>💳</span> Pay ₹1,000 Online via PayU
+                      <span>📲</span> Pay ₹1,000 Online via UPI / QR
                     </span>
                     <span style="background: #dcfce7; color: #166534; font-size: 0.72rem; padding: 2px 8px; border-radius: 9999px; font-weight: 700;">
                       Instant Digital Pass
                     </span>
                   </div>
                   <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0 0 10px 0; line-height: 1.4;">
-                    Instant confirmation via UPI (GPay, PhonePe, Paytm), Credit/Debit Cards, or Netbanking.
+                    Instant confirmation via direct UPI QR &amp; any UPI App (GPay, PhonePe, Paytm, BHIM) with attached registration reference.
                   </p>
                   <button type="button" id="stage3-pay-cashfree-btn" class="btn btn-primary" style="width: 100%; padding: 10px; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <span>💳</span> Pay ₹1,000 Online via PayU →
+                    <span>📲</span> Pay ₹1,000 Online via UPI / QR →
                   </button>
                 </div>
 
@@ -1017,14 +1017,14 @@
           });
         }
 
-        // STAGE 3: Option A - Pay Online via PayU (Opens in popup window, confirms ONLY after verified payment)
+        // STAGE 3: Option A - Pay Online via Direct UPI QR
         const payCashfreeBtn = quizBody.querySelector('#stage3-pay-cashfree-btn');
         if (payCashfreeBtn) {
           payCashfreeBtn.addEventListener('click', async function() {
             payCashfreeBtn.disabled = true;
-            payCashfreeBtn.innerHTML = '<span>⏳</span> Opening Secure PayU Checkout...';
+            payCashfreeBtn.innerHTML = '<span>⏳</span> Opening UPI Payment...';
 
-            // Sync pending slot reservation to Cal direct (paymentMethod payu_online suppresses premature WhatsApp)
+            // Sync pending slot reservation to Cal direct
             fetch('/api/cal-direct', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -1036,8 +1036,8 @@
                 slotEnd: consultState.slotEnd,
                 slotDisplay: consultState.slotTime,
                 eventTypeId: consultState.eventTypeId,
-                paymentStatus: 'Pending Online Payment (PayU)',
-                paymentMethod: 'payu_online',
+                paymentStatus: 'Pending Online Payment (UPI)',
+                paymentMethod: 'upi_direct',
                 painArea: painArea
               })
             }).catch(e => console.warn('Cal Direct PG booking sync:', e));
@@ -1047,7 +1047,7 @@
               consultState.name,
               consultState.phone,
               consultState.slotTime,
-              'Payment Initiated (PayU ₹1,000)',
+              'Payment Initiated (UPI ₹1,000)',
               consultState.email
             );
 
@@ -1062,7 +1062,7 @@
                   container.parentNode.insertBefore(recBox, container);
                 }
               }
-              const waMsg = encodeURIComponent('Namaste Dr. Surabhi Clinic, my name is ' + consultState.name + ' (+91 ' + consultState.phone + '). I had an issue paying online for my ' + consultState.slotTime + ' consultation. Please confirm my appointment.');
+              const waMsg = encodeURIComponent('Namaste Dr. Surabhi Clinic, my name is ' + consultState.name + ' (+91 ' + consultState.phone + '). I would like to confirm my consultation for ' + consultState.slotTime + '. Please share your direct UPI QR or assist with booking.');
               recBox.innerHTML = `
                 <div style="font-weight: 700; color: #9a3412; font-size: 0.9rem; margin-bottom: 4px;">
                   ⚠️ Payment not completed? Your appointment slot is held!
@@ -1093,25 +1093,26 @@
                   name: consultState.name || 'Patient',
                   phone: consultState.phone,
                   email: consultState.email,
+                  slot: consultState.slotTime,
                   planType: '₹1,000 Diagnostic Consultation (30-Min)',
                   leadId: consultState.leadId || `LEAD-${Date.now()}`,
                   onSuccess: function(result) {
-                    saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Paid Online via PayU', consultState.email);
+                    saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Paid Online via UPI', consultState.email);
                     renderConsultationSuccess(consultState.name, consultState.phone, consultState.slotTime, true);
                   },
                   onDismiss: function(dismissData) {
                     payCashfreeBtn.disabled = false;
-                    payCashfreeBtn.innerHTML = '<span>💳</span> Retry Pay ₹1,000 Online via PayU →';
-                    saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Payment Dropped Off (PayU ₹1,000)', consultState.email);
+                    payCashfreeBtn.innerHTML = '<span>📲</span> Retry Pay ₹1,000 Online via UPI / QR →';
+                    saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Payment Dropped Off (UPI ₹1,000)', consultState.email);
                     showStage3RecoveryBanner();
                   }
                 });
               }
             } catch (err) {
-              console.warn('Consultation PG checkout error:', err);
+              console.warn('Consultation UPI checkout notice:', err);
               payCashfreeBtn.disabled = false;
-              payCashfreeBtn.innerHTML = '<span>💳</span> Retry Pay ₹1,000 Online via PayU →';
-              saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Payment Dropped Off (PayU Error)', consultState.email);
+              payCashfreeBtn.innerHTML = '<span>📲</span> Retry Pay ₹1,000 Online via UPI / QR →';
+              saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Payment Dropped Off (UPI Error)', consultState.email);
               showStage3RecoveryBanner();
             }
           });
@@ -1252,7 +1253,7 @@
                   Confirm Your Masterclass Seat (₹201)
                 </h3>
                 <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
-                  Thank you, <strong>${name}</strong>. Secure your seat via PayU Payment Gateway to get your direct <strong>Webinar.gg</strong> joining pass.
+                  Thank you, <strong>${name}</strong>. Complete your registration via direct UPI QR or any UPI App to get your direct <strong>Webinar.gg</strong> joining pass.
                 </p>
                 <div style="background: var(--bg-sand); padding: 14px; border-radius: 8px; margin-bottom: 16px; text-align: left;">
                   <div style="display: flex; justify-content: space-between; font-weight: 700; color: var(--primary-deep); margin-bottom: 4px;">
@@ -1263,7 +1264,7 @@
                 </div>
 
                 <button type="button" id="pay-cashfree-webinar-btn" class="btn btn-deep btn-lg" style="width: 100%; margin-bottom: 14px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                  <span>💳</span> Pay ₹201 via PayU (UPI / Cards) ↗
+                  <span>📲</span> Pay ₹201 via UPI / QR (GPay / PhonePe / Paytm) ↗
                 </button>
 
                 <div id="webinar-access-box" style="display: none; background: #eef7ed; border: 1px solid #c7e8c6; padding: 16px; border-radius: 8px; margin-bottom: 16px; text-align: left;">
@@ -1295,13 +1296,13 @@
                   payBtn.parentNode.insertBefore(recBox, payBtn);
                 }
               }
-              const waMsg = encodeURIComponent('Namaste Dr. Surabhi Clinic, my name is ' + name + ' (+91 ' + phone + '). I was registering for the Sunday Masterclass (₹201) but the online payment had an issue. Please help confirm my seat.');
+              const waMsg = encodeURIComponent('Namaste Dr. Surabhi Clinic, my name is ' + name + ' (+91 ' + phone + '). I would like to confirm my Sunday Masterclass (₹201) seat via UPI. Please assist with my registration pass.');
               recBox.innerHTML = `
                 <div style="font-weight: 700; color: #9a3412; font-size: 0.9rem; margin-bottom: 4px;">
                   ⚠️ Payment Incomplete? Your Seat Request is Saved!
                 </div>
                 <p style="font-size: 0.82rem; color: #7c2d12; margin: 0 0 10px 0; line-height: 1.45;">
-                  Don't worry, <strong>${name}</strong>. If PayU had a connectivity or payment issue, our clinic desk has captured your registration. You can reach our clinic team directly on WhatsApp to get your direct Webinar.gg entry link or pay via direct UPI QR.
+                  Don't worry, <strong>${name}</strong>. If your online payment was interrupted, our clinic desk has captured your registration. You can reach our clinic team directly on WhatsApp to get your direct Webinar.gg entry link or pay via direct UPI QR.
                 </p>
                 <a href="https://wa.me/918108500200?text=${waMsg}" target="_blank" rel="noopener" class="btn btn-primary" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 700; font-size: 0.88rem; box-sizing: border-box; margin-bottom: 6px;">
                   <span>💬</span> WhatsApp Clinic Desk to Confirm Seat (₹201)
@@ -1315,7 +1316,7 @@
             if (payBtn) {
               payBtn.addEventListener('click', async function() {
                 payBtn.disabled = true;
-                payBtn.innerHTML = '<span>⏳</span> Opening Secure PayU Checkout...';
+                payBtn.innerHTML = '<span>⏳</span> Opening UPI Payment...';
                 saveConsultationLead(name, phone, 'Sunday, 15 Nov (11:00 AM IST)', 'Payment Initiated (Webinar ₹201)', email, city);
                 try {
                   if (window.triggerPayUCheckout) {
@@ -1365,7 +1366,7 @@
                       },
                       onDismiss: function(dismissData) {
                         payBtn.disabled = false;
-                        payBtn.innerHTML = '<span>💳</span> Retry Pay ₹201 Online via PayU →';
+                        payBtn.innerHTML = '<span>📲</span> Retry Pay ₹201 Online via UPI / QR →';
                         saveConsultationLead(name, phone, 'Sunday, 15 Nov (11:00 AM IST)', 'Payment Dropped Off (Webinar ₹201)', email, city);
                         showWebinarRecoveryBox();
                       }

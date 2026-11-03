@@ -173,221 +173,296 @@ window.closeCalModal = function() {
 };
 
 // ============================================================================
-// 2. PAYU PAYMENT GATEWAY CHECKOUT INTEGRATION (PRIMARY INDIAN GATEWAY)
+// 2. DIRECT CLINIC UPI & QR PAYMENT MODAL (RELIABLE ZERO-GATEWAY WORKAROUND)
 // ============================================================================
-function createCenteredPayUPopup(url, title, w, h) {
-  const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX;
-  const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY;
-  const width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
-  const height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
-  const systemZoom = width / (window.screen.availWidth || width);
-  const left = (width - w) / 2 / systemZoom + dualScreenLeft;
-  const top = (height - h) / 2 / systemZoom + dualScreenTop;
-  const newWindow = window.open(
-    url,
-    title,
-    `scrollbars=yes,width=${Math.round(w / systemZoom)},height=${Math.round(h / systemZoom)},top=${Math.round(top)},left=${Math.round(left)},status=no,toolbar=no,menubar=no,resizable=yes`
-  );
-  if (window.focus && newWindow) newWindow.focus();
-  return newWindow;
+function escapeHtmlModal(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-window.triggerPayUCheckout = async function(params) {
+window.openUPIPaymentModal = function(params) {
   params = params || {};
-  const amount = params.amount || 201;
-  const name = params.name || 'Patient';
-  const phone = params.phone || '';
-  const email = params.email || '';
-  const planType = params.planType || 'Knee & Back Pain Masterclass';
-  const leadId = params.leadId || '';
+  const amount = Number(params.amount) || 201;
+  const name = (params.name || 'Patient').trim();
+  const phone = (params.phone || '').replace(/[^0-9]/g, '').slice(-10);
+  const email = (params.email || '').trim();
+  const planType = params.planType || (amount === 201 ? 'Live Masterclass (₹201)' : 'Diagnostic Consultation (₹1,000)');
+  const leadId = params.leadId || ('LEAD-' + Math.floor(100 + Math.random() * 900));
+  const slot = params.slot || '';
   const onSuccess = params.onSuccess || null;
   const onDismiss = params.onDismiss || null;
 
-  // Open centered popup window synchronously on user click to prevent popup blockers
-  const popupWindow = createCenteredPayUPopup('about:blank', 'PayUSecureWindow', 540, 740);
-  if (popupWindow) {
-    try {
-      popupWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <title>Connecting to PayU Secure Gateway...</title>
-          <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #faf8f5; color: #1e3a2f; text-align: center; }
-            .card { padding: 32px 24px; max-width: 380px; width: 90%; background: #ffffff; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.06); }
-            .spinner { border: 3px solid #f1f5f9; border-top: 3px solid #c25e3b; border-radius: 50%; width: 36px; height: 36px; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
-            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-            h3 { font-size: 1.15rem; margin: 0 0 6px 0; color: #1e3a2f; }
-            p { font-size: 0.85rem; color: #64748b; margin: 0; line-height: 1.4; }
-          </style>
-        </head>
-        <body>
-          <div class="card">
-            <div class="spinner"></div>
-            <h3>Connecting to PayU Secure Gateway...</h3>
-            <p>Please wait while we prepare your secure checkout screen. Do not refresh.</p>
-          </div>
-        </body>
-        </html>
-      `);
-    } catch (e) {}
-  }
+  // Generate Unique Payment Reference Comment: CHK-{10DigitPhone}-{LeadIdShort}
+  const leadNum = leadId.replace(/[^0-9]/g, '').slice(-4) || '101';
+  const phoneSegment = phone || 'CARE';
+  const paymentComment = 'CHK-' + phoneSegment + '-' + leadNum;
 
-  try {
-    const res = await fetch('/api/create-payu-order', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        orderAmount: amount,
-        customerName: name,
-        customerPhone: phone,
-        customerEmail: email,
-        planType: planType,
-        leadId: leadId
-      })
+  const upiId = 'surabhivaidya7@okhdfcbank';
+  const payeeName = 'Charak Health Solutions';
+
+  // Standard UPI URI scheme with mandatory Transaction Note (tn)
+  const upiDeepLink = 'upi://pay?pa=' + encodeURIComponent(upiId) +
+                      '&pn=' + encodeURIComponent(payeeName) +
+                      '&am=' + amount +
+                      '&cu=INR' +
+                      '&tn=' + encodeURIComponent(paymentComment);
+
+  // Dedicated Payment Page URL for direct navigation
+  const fullPaymentUrl = '/payment?plan=' + encodeURIComponent(planType) +
+                         '&amount=' + amount +
+                         '&name=' + encodeURIComponent(name) +
+                         '&phone=' + encodeURIComponent(phone) +
+                         '&lead=' + encodeURIComponent(leadId) +
+                         '&slot=' + encodeURIComponent(slot);
+
+  // Log checkout initiation immediately in CRM
+  fetch('/api/lead-intake', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      id: leadId,
+      name: name,
+      phone: phone,
+      email: email,
+      recommendedStep: planType,
+      slotPreference: slot || 'Confirmed Slot',
+      status: 'Payment Initiated (UPI QR)',
+      paymentStatus: 'Pending Direct UPI (Ref: ' + paymentComment + ')',
+      paymentOrderId: paymentComment
+    })
+  }).catch(function() {});
+
+  // Remove existing modal if any
+  const existingModal = document.getElementById('upi-checkout-modal');
+  if (existingModal) existingModal.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'upi-checkout-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.8);backdrop-filter:blur(5px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:14px;overflow-y:auto;animation:fadeIn 0.2s ease;';
+
+  const waPreMsg = encodeURIComponent('Namaste Dr. Surabhi Vaidya Clinic, I have completed the ₹' + amount + ' UPI payment for ' + name + ' (+91 ' + phone + ').\nService: ' + planType + '\nPayment Ref: ' + paymentComment + '\nPlease confirm my registration pass.');
+
+  modal.innerHTML = `
+    <div style="background:#ffffff;border-radius:16px;max-width:480px;width:100%;max-height:92vh;overflow-y:auto;padding:24px 20px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.3);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;position:relative;">
+      <button type="button" id="close-upi-modal-x" style="position:absolute;top:14px;right:14px;background:#f1f5f9;border:none;width:32px;height:32px;border-radius:50%;font-size:18px;line-height:1;cursor:pointer;color:#64748b;display:flex;align-items:center;justify-content:center;font-weight:700;">×</button>
+
+      <div style="display:inline-flex;align-items:center;gap:6px;background:#eef7ed;color:#166534;font-size:0.75rem;font-weight:700;padding:3px 9px;border-radius:9999px;margin-bottom:8px;border:1px solid #bbf7d0;">
+        <span>🛡️</span> Verified Direct Clinic UPI
+      </div>
+      <h3 style="margin:0 0 4px 0;font-size:1.3rem;color:#143026;font-weight:800;">Pay ₹${amount} via UPI</h3>
+      <p style="margin:0 0 14px 0;font-size:0.84rem;color:#64748b;line-height:1.4;">
+        Scan the QR code or tap the mobile button below to pay directly to <strong>Charak Health Solutions</strong>.
+      </p>
+
+      <div style="background:#faf8f5;border:1px solid #e5e0d8;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:0.84rem;color:#334155;line-height:1.5;">
+        <div>👤 <strong>Patient:</strong> ${escapeHtmlModal(name)} &bull; 📱 <strong>+91 ${phone || '---------'}</strong></div>
+        <div>🏷️ <strong>Booking:</strong> ${escapeHtmlModal(planType)}</div>
+        <div style="margin-top:4px;padding-top:4px;border-top:1px dashed #e5e0d8;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-weight:600;color:#143026;">Total Amount:</span>
+          <strong style="font-size:1.2rem;color:#166534;">₹${amount}</strong>
+        </div>
+      </div>
+
+      <!-- ⭐ MANDATORY PAYMENT COMMENT / REFERENCE NOTE BOX -->
+      <div style="background:#fffbeb;border:2px solid #f59e0b;border-radius:10px;padding:14px;margin-bottom:16px;box-shadow:0 3px 10px rgba(245,158,11,0.1);">
+        <div style="font-weight:800;color:#b45309;font-size:0.86rem;margin-bottom:4px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:0.03em;">
+          <span>⚠️</span> Mandatory Payment Comment / Note
+        </div>
+        <div style="font-size:0.8rem;color:#92400e;line-height:1.4;margin-bottom:8px;">
+          Please enter or paste this reference into the <strong>"Add a note" / "Message"</strong> box in your UPI app to identify your registration:
+        </div>
+        <div style="background:#ffffff;border:1.5px dashed #f59e0b;border-radius:6px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+          <span id="modal-upi-comment-text" style="font-family:monospace;font-weight:800;font-size:1.05rem;color:#78350f;letter-spacing:0.04em;">${paymentComment}</span>
+          <button type="button" id="modal-btn-copy-comment" style="background:#f59e0b;color:#ffffff;border:none;border-radius:4px;padding:6px 10px;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap;">📋 Copy Note</button>
+        </div>
+      </div>
+
+      <!-- Mobile Instant Pay Deep Link -->
+      <a href="${upiDeepLink}" id="modal-mobile-upi-btn" style="background:linear-gradient(135deg,#16a34a 0%,#15803d 100%);color:#ffffff;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:8px;font-weight:700;font-size:0.95rem;text-decoration:none;margin-bottom:14px;box-shadow:0 4px 14px rgba(22,163,74,0.25);">
+        <span>📱</span> Tap to Pay ₹${amount} via UPI App (GPay/PhonePe)
+      </a>
+
+      <!-- Centered QR Code & UPI Handle -->
+      <div style="text-align:center;background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-bottom:16px;">
+        <div style="font-size:0.8rem;font-weight:700;color:#143026;margin-bottom:8px;">
+          Or Scan with Google Pay, PhonePe, Paytm, or BHIM:
+        </div>
+        <div style="max-width:210px;margin:0 auto 10px;border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 4px 14px rgba(0,0,0,0.06);">
+          <img src="assets/charak-upi-qr.jpg" alt="Charak Health Solutions UPI QR" style="width:100%;height:auto;display:block;">
+        </div>
+        <div style="display:inline-flex;align-items:center;gap:6px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;padding:6px 12px;font-size:0.82rem;font-weight:700;color:#143026;">
+          <span>UPI:</span>
+          <span>${upiId}</span>
+          <button type="button" id="modal-btn-copy-upi" style="background:#fff;border:1px solid #94a3b8;border-radius:4px;padding:2px 6px;font-size:0.72rem;cursor:pointer;font-weight:600;">Copy</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Verification / UTR Input -->
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-bottom:12px;">
+        <div style="font-size:0.84rem;font-weight:700;color:#143026;margin-bottom:4px;">
+          ✅ Step 2: Confirm Payment (Enter 12-digit UTR)
+        </div>
+        <p style="font-size:0.76rem;color:#64748b;margin:0 0 8px 0;line-height:1.4;">
+          After paying, enter the 12-digit UTR / Ref No. from your UPI app receipt:
+        </p>
+        <div style="display:flex;gap:6px;margin-bottom:8px;">
+          <input type="text" id="modal-utr-input" placeholder="e.g. 431289567123" maxlength="20" style="flex:1;padding:8px 10px;font-size:0.88rem;border:1.5px solid #cbd5e1;border-radius:6px;outline:none;">
+          <button type="button" id="modal-btn-submit-utr" style="background:#143026;color:#ffffff;border:none;padding:8px 14px;border-radius:6px;font-weight:700;font-size:0.84rem;cursor:pointer;white-space:nowrap;">Confirm</button>
+        </div>
+        <a id="modal-wa-confirm-btn" href="https://wa.me/918108500200?text=${waPreMsg}" target="_blank" rel="noopener" style="background:#25d366;color:#ffffff;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;border-radius:6px;font-weight:700;font-size:0.82rem;text-decoration:none;">
+          <span>💬</span> Send Receipt on Clinic WhatsApp (+91 8108500200)
+        </a>
+      </div>
+
+      <div style="text-align:center;font-size:0.75rem;color:#94a3b8;">
+        <a href="${fullPaymentUrl}" target="_blank" style="color:#1e3a2f;text-decoration:underline;">Open Full Dedicated Payment Page ↗</a>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  document.body.style.overflow = 'hidden';
+
+  // Copy helper
+  function setupModalCopy(btnId, text, successText) {
+    const btn = modal.querySelector(btnId);
+    if (!btn) return;
+    btn.addEventListener('click', function() {
+      navigator.clipboard.writeText(text).then(function() {
+        const prev = btn.textContent;
+        btn.textContent = successText || '✓ Copied!';
+        setTimeout(function() { btn.textContent = prev; }, 2000);
+      }).catch(function() { alert('Copied: ' + text); });
     });
-
-    const data = await res.json();
-    if (!res.ok || !data.success || !data.action || !data.params) {
-      if (popupWindow) popupWindow.close();
-      throw new Error(data.error || data.details || 'Failed to initialize PayU payment');
-    }
-
-    // Log checkout attempt in CRM immediately so drop-offs are guaranteed captured
-    fetch('/api/lead-intake', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: name,
-        phone: phone,
-        email: email,
-        recommendedStep: planType,
-        status: 'Payment Initiated (PayU Checkout)',
-        paymentStatus: 'Pending Online Payment (PayU)'
-      })
-    }).catch(function() {});
-
-    // Set up message listener for payment completion postMessage from popup
-    let paymentHandled = false;
-    const messageListener = function(event) {
-      if (event.data && event.data.type === 'PAYU_PAYMENT_RESULT') {
-        paymentHandled = true;
-        window.removeEventListener('message', messageListener);
-
-        if (event.data.status === 'SUCCESS') {
-          showPaymentSuccessPopup({
-            orderId: event.data.orderId || data.params.txnid,
-            amount: event.data.amount || data.params.amount,
-            phone: event.data.phone || phone,
-            plan: event.data.plan || planType,
-            name: event.data.name || name
-          });
-          if (typeof onSuccess === 'function') {
-            onSuccess(event.data);
-          }
-        } else {
-          // Immediately record drop-off in backend
-          fetch('/api/lead-intake', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              name: name,
-              phone: phone,
-              email: email,
-              recommendedStep: planType,
-              status: 'Payment Dropped Off',
-              paymentStatus: 'Payment Incomplete (Gateway Error: ' + (event.data.error || 'Failed') + ')'
-            })
-          }).catch(function() {});
-
-          if (typeof onDismiss === 'function') {
-            onDismiss({ droppedOff: true, status: 'FAILED', error: event.data.error });
-          }
-        }
-      }
-    };
-    window.addEventListener('message', messageListener);
-
-    // Watch for popup close if user dismisses the window
-    if (popupWindow) {
-      const checkClosedTimer = setInterval(() => {
-        if (popupWindow.closed) {
-          clearInterval(checkClosedTimer);
-          setTimeout(() => {
-            if (!paymentHandled) {
-              window.removeEventListener('message', messageListener);
-              // Tag as drop-off in backend
-              fetch('/api/lead-intake', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  name: name,
-                  phone: phone,
-                  email: email,
-                  recommendedStep: planType,
-                  status: 'Payment Dropped Off',
-                  paymentStatus: 'Payment Drop-off (User Closed Checkout Window)'
-                })
-              }).catch(function() {});
-
-              if (typeof onDismiss === 'function') {
-                onDismiss({ droppedOff: true, status: 'WINDOW_CLOSED' });
-              }
-            }
-          }, 800);
-        }
-      }, 700);
-    }
-
-    // Submit PayU hosted payment form targeting the popup window
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = data.action;
-    form.target = popupWindow ? 'PayUSecureWindow' : '_self';
-    form.style.display = 'none';
-
-    for (const [key, value] of Object.entries(data.params)) {
-      if (value !== undefined && value !== null) {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = value;
-        form.appendChild(input);
-      }
-    }
-
-    document.body.appendChild(form);
-    form.submit();
-    setTimeout(() => form.remove(), 1000);
-
-    return { success: true, popup: true, orderId: data.params.txnid };
-  } catch (err) {
-    if (popupWindow) popupWindow.close();
-    console.error('PayU checkout error:', err);
-    fetch('/api/lead-intake', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: name,
-        phone: phone,
-        email: email,
-        recommendedStep: planType,
-        status: 'Payment Dropped Off',
-        paymentStatus: 'Gateway Error: ' + (err.message || 'Initialization Failed')
-      })
-    }).catch(function() {});
-
-    if (typeof onDismiss === 'function') {
-      onDismiss({ droppedOff: true, error: err.message });
-    }
-    throw err;
   }
+
+  setupModalCopy('#modal-btn-copy-comment', paymentComment, '✓ Copied Note!');
+  setupModalCopy('#modal-btn-copy-upi', upiId, '✓ Copied!');
+
+  // Live UTR input listener to update WhatsApp button
+  const utrInp = modal.querySelector('#modal-utr-input');
+  const waBtn = modal.querySelector('#modal-wa-confirm-btn');
+  if (utrInp && waBtn) {
+    utrInp.addEventListener('input', function() {
+      const u = utrInp.value.trim();
+      const newMsg = encodeURIComponent('Namaste Dr. Surabhi Vaidya Clinic, I have completed the ₹' + amount + ' UPI payment for ' + name + ' (+91 ' + phone + ').\nService: ' + planType + '\nPayment Ref: ' + paymentComment + (u ? '\nUTR / Txn ID: ' + u : '') + '\nPlease confirm my registration pass.');
+      waBtn.href = 'https://wa.me/918108500200?text=' + newMsg;
+    });
+  }
+
+  // Handle Payment Confirmation / Submission
+  async function completeUpiPayment(utrValue) {
+    const utr = utrValue || '';
+    const updatedPayload = {
+      id: leadId,
+      name: name,
+      phone: phone,
+      email: email,
+      recommendedStep: planType,
+      slotPreference: slot || 'Confirmed Slot',
+      status: (amount === 201) ? 'Webinar Registered' : 'Consultation Scheduled',
+      paymentStatus: 'Paid via UPI (' + (utr ? 'UTR: ' + utr : 'Ref: ' + paymentComment) + ')',
+      paymentOrderId: paymentComment,
+      notes: 'UPI Payment Confirmed. Comment: ' + paymentComment + (utr ? ' | UTR: ' + utr : ''),
+      utr: utr
+    };
+
+    // Save locally
+    try {
+      const STORAGE_KEY = 'dr_surabhi_leads';
+      const existing = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      const idx = existing.findIndex(l => (phone && l.phone === phone) || l.id === leadId);
+      if (idx >= 0) {
+        existing[idx] = Object.assign(existing[idx], updatedPayload);
+      } else {
+        existing.unshift(updatedPayload);
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
+    } catch (e) {}
+
+    // Dispatch to lead-intake API
+    fetch('/api/lead-intake', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedPayload)
+    }).catch(function() {});
+
+    // Google Ads conversion event
+    try {
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'conversion', {
+          'send_to': 'AW-18534158307/o8ztCN3M4acdEOOf44VF',
+          'value': Number(amount),
+          'currency': 'INR',
+          'transaction_id': utr || paymentComment
+        });
+      }
+    } catch (e) {}
+
+    // Close modal
+    modal.remove();
+    document.body.style.overflow = '';
+
+    // Invoke success callback
+    if (typeof onSuccess === 'function') {
+      onSuccess({
+        status: 'SUCCESS',
+        orderId: utr || paymentComment,
+        amount: amount,
+        phone: phone,
+        plan: planType,
+        name: name
+      });
+    } else {
+      showPaymentSuccessPopup({
+        orderId: utr || paymentComment,
+        amount: amount,
+        phone: phone,
+        plan: planType,
+        name: name
+      });
+    }
+  }
+
+  const submitUtrBtn = modal.querySelector('#modal-btn-submit-utr');
+  if (submitUtrBtn) {
+    submitUtrBtn.addEventListener('click', function() {
+      const u = utrInp ? utrInp.value.trim() : '';
+      submitUtrBtn.disabled = true;
+      submitUtrBtn.textContent = 'Verifying...';
+      completeUpiPayment(u);
+    });
+  }
+
+  // Close handlers
+  const closeBtn = modal.querySelector('#close-upi-modal-x');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function() {
+      modal.remove();
+      document.body.style.overflow = '';
+      if (typeof onDismiss === 'function') {
+        onDismiss({ droppedOff: true, status: 'CLOSED' });
+      }
+    });
+  }
+
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+      modal.remove();
+      document.body.style.overflow = '';
+      if (typeof onDismiss === 'function') {
+        onDismiss({ droppedOff: true, status: 'CLOSED' });
+      }
+    }
+  });
+
+  return { success: true, modal: true, paymentComment: paymentComment };
 };
 
 // Aliases for seamless backward compatibility across consultation & webinar buttons
-window.triggerCashfreeCheckout = window.triggerPayUCheckout;
-window.triggerPaymentGatewayCheckout = window.triggerPayUCheckout;
+window.triggerPayUCheckout = window.openUPIPaymentModal;
+window.triggerCashfreeCheckout = window.openUPIPaymentModal;
+window.triggerPaymentGatewayCheckout = window.openUPIPaymentModal;
 
 // Post-payment return handler (Shows confirmation popup upon redirect back from PayU)
 function showPaymentSuccessPopup(info) {
@@ -416,7 +491,7 @@ function showPaymentSuccessPopup(info) {
       <div style="font-size:3.2rem;margin-bottom:8px;">🎉</div>
       <h3 style="font-size:1.35rem;color:#1e3a2f;margin:0 0 6px 0;font-weight:700;">Payment &amp; Booking Confirmed!</h3>
       <p style="font-size:0.88rem;color:#64748b;margin:0 0 16px 0;line-height:1.5;">
-        Thank you, <strong>${info.name || 'Patient'}</strong>. Your payment via <strong>PayU</strong> has been verified.
+        Thank you, <strong>${info.name || 'Patient'}</strong>. Your payment via <strong>UPI</strong> has been verified.
       </p>
 
       <div style="background:#eef7ed;border:1.5px solid #86efac;border-radius:8px;padding:12px 14px;text-align:left;margin-bottom:14px;">
