@@ -377,7 +377,7 @@
               </button>
             </div>
 
-            <!-- 3-Stage Progress Stepper -->
+            <!-- 2-Stage Progress Stepper -->
             <div class="consultation-stepper">
               <div class="stepper-step active" id="stepper-step-1">
                 <div class="stepper-num">1</div>
@@ -386,12 +386,7 @@
               <div class="stepper-divider"></div>
               <div class="stepper-step" id="stepper-step-2">
                 <div class="stepper-num">2</div>
-                <span class="stepper-label">Select Slot</span>
-              </div>
-              <div class="stepper-divider"></div>
-              <div class="stepper-step" id="stepper-step-3">
-                <div class="stepper-num">3</div>
-                <span class="stepper-label">Payment</span>
+                <span class="stepper-label">Slot &amp; Payment</span>
               </div>
             </div>
 
@@ -399,7 +394,7 @@
             <div id="consult-stage-1" class="consult-stage-card">
               <div style="background: var(--bg-sand); border: 1px solid var(--border-light); border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;">
                 <div style="font-size: 0.75rem; font-weight: 700; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">
-                  Step 1 of 3: Patient Information
+                  Step 1 of 2: Patient Information
                 </div>
                 <div style="font-size: 0.84rem; color: var(--text-muted); line-height: 1.45;">
                   Enter the patient's contact details below to check live doctor availability and pick your slot.
@@ -433,7 +428,7 @@
                 </div>
 
                 <button type="submit" id="btn-to-stage-2" class="btn btn-primary btn-lg" style="width: 100%; padding: 12px; font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                  <span>📅</span> Next: Choose Appointment Slot →
+                  <span>📅</span> Next: Choose Slot &amp; Payment (₹1,000) →
                 </button>
 
                 <!-- Subtle Consent Disclaimer Below Next Button -->
@@ -443,7 +438,7 @@
               </form>
             </div>
 
-            <!-- STAGE 2: DIRECT CAL.ID SCHEDULE PICKER (NO POPUP IFRAME) -->
+            <!-- STAGE 2: SELECT SLOT & PAYMENT (ALL ON 2ND PAGE - ZERO 3RD PAGE) -->
             <div id="consult-stage-2" class="consult-stage-card" style="display: none;">
               <div style="display: flex; justify-content: space-between; align-items: center; background: #faf8f5; border: 1px solid var(--border-light); border-radius: 6px; padding: 10px 14px; margin-bottom: 12px;">
                 <div style="font-size: 0.84rem; color: var(--primary-deep);">
@@ -456,7 +451,7 @@
 
               <div style="background: #eef7ed; border: 1px solid #c7e8c6; border-radius: 6px; padding: 8px 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
                 <div style="font-size: 0.82rem; color: #166534; font-weight: 600;">
-                  📅 Step 2 of 3: Select your preferred day &amp; time slot below:
+                  📅 Step 2 of 2: Select your slot &amp; complete payment below:
                 </div>
                 <span class="auto-slot-badge">● Live Cal.id Schedule</span>
               </div>
@@ -469,82 +464,110 @@
                 </div>
               </div>
 
-              <div id="stage-2-bottom-actions" style="margin-top: 12px; background: var(--bg-sand); border: 1px solid var(--border-light); border-radius: 8px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                <div id="stage-2-selected-status" style="font-size: 0.84rem; color: var(--text-muted);">
-                  👉 Select any open time slot above to continue
-                </div>
-                <button type="button" id="btn-to-stage-3" class="btn btn-primary" style="padding: 10px 18px; font-weight: 700; font-size: 0.9rem; display: none; align-items: center; gap: 6px;">
-                  Next: Choose Payment Method (₹1,000) →
-                </button>
-              </div>
-            </div>
-
-            <!-- STAGE 3: CHOOSE PAYMENT METHOD -->
-            <div id="consult-stage-3" class="consult-stage-card" style="display: none;">
-              <div style="background: #faf8f5; border: 1.5px solid var(--border-light); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-                <div style="font-size: 0.74rem; font-weight: 700; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;">
-                  Step 3 of 3: Appointment Summary
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 0.86rem; color: var(--text-main);">
-                  <div>👤 <strong>Patient:</strong> <span id="summary-stage3-name"></span></div>
-                  <div>📱 <strong>Mobile (WhatsApp):</strong> <span id="summary-stage3-phone"></span></div>
-                  <div>📅 <strong>Selected Time Slot:</strong> <span id="summary-stage3-slot" style="color: #166534; font-weight: 700;">Confirmed on Cal.id Calendar</span></div>
-                  <div>🩺 <strong>Doctor:</strong> Dr. Surabhi Vaidya (Ayurvedic Naadi Pariksha &amp; Surgery Prevention)</div>
-                  <div>📍 <strong>Clinic Address:</strong> Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West</div>
-                  <div style="margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--border-light); display: flex; justify-content: space-between; align-items: baseline;">
-                    <span style="font-size: 0.9rem; color: var(--primary-deep); font-weight: 600;">Total Consultation Fee:</span>
-                    <strong style="font-size: 1.3rem; color: var(--primary-deep);">₹1,000</strong>
+              <!-- Selected Slot Confirmation Strip -->
+              <div id="stage-2-selected-status-card" style="margin-top: 14px; margin-bottom: 16px; background: #faf8f5; border: 1.5px solid var(--border-light); border-radius: 8px; padding: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                  <div>
+                    <div style="font-size: 0.74rem; font-weight: 700; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 0.05em;">Selected Appointment Slot:</div>
+                    <div id="stage-2-slot-val" style="font-size: 0.95rem; font-weight: 800; color: #166534; margin-top: 2px;">
+                      👉 Please click your preferred time slot above
+                    </div>
                   </div>
+                  <div style="text-align: right;">
+                    <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Consultation Fee</div>
+                    <div style="font-size: 1.25rem; font-weight: 800; color: var(--primary-deep);">₹1,000</div>
+                  </div>
+                </div>
+                <div style="margin-top: 8px; font-size: 0.78rem; color: var(--text-muted); border-top: 1px dashed var(--border-light); padding-top: 8px; line-height: 1.45;">
+                  📍 Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West &bull; 30-Min Diagnostic Assessment with Dr. Surabhi Vaidya
                 </div>
               </div>
 
-              <h4 style="font-size: 0.98rem; color: var(--primary-deep); margin-bottom: 12px; font-weight: 700;">
-                Select Payment Method to Finalize Your Booking:
-              </h4>
+              <!-- INLINE PAYMENT & QR DETAILS DIRECTLY ON 2ND PAGE -->
+              <div id="stage-2-payment-section" style="border-top: 2px solid var(--border-light); padding-top: 16px;">
+                <h4 style="font-size: 1rem; color: var(--primary-deep); margin-bottom: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                  <span>💳</span> Complete ₹1,000 Payment to Confirm Your Booking:
+                </h4>
 
-              <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
-                <!-- Option A: Pay Online via UPI QR -->
-                <div style="border: 2px solid var(--primary-sage); border-radius: 8px; padding: 14px 16px; background: #ffffff;">
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <span style="font-weight: 700; color: var(--primary-deep); font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
-                      <span>📲</span> Pay ₹1,000 Online via UPI / QR
-                    </span>
-                    <span style="background: #dcfce7; color: #166534; font-size: 0.72rem; padding: 2px 8px; border-radius: 9999px; font-weight: 700;">
-                      Instant Digital Pass
-                    </span>
+                <!-- MANDATORY PAYMENT REFERENCE COMMENT BOX -->
+                <div style="background: #fffbeb; border: 2px solid #f59e0b; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;">
+                  <div style="font-weight: 800; color: #b45309; font-size: 0.82rem; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 0.03em;">
+                    <span>⚠️</span> Mandatory Payment Reference Note
                   </div>
-                  <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0 0 10px 0; line-height: 1.4;">
-                    Instant confirmation via direct UPI QR &amp; any UPI App (GPay, PhonePe, Paytm, BHIM) with attached registration reference.
+                  <p style="font-size: 0.8rem; color: #92400e; line-height: 1.4; margin: 0 0 8px 0;">
+                    Please enter or paste this reference note in the <strong>"Add a note" / "Message"</strong> box in your UPI app:
                   </p>
-                  <button type="button" id="stage3-pay-cashfree-btn" class="btn btn-primary" style="width: 100%; padding: 10px; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <span>📲</span> Pay ₹1,000 Online via UPI / QR →
+                  <div style="background: #ffffff; border: 1.5px dashed #f59e0b; border-radius: 6px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                    <span id="stage2-upi-comment-val" style="font-family: monospace; font-weight: 800; font-size: 1.05rem; color: #78350f; letter-spacing: 0.04em;">CHK-PAYMENT</span>
+                    <button type="button" id="stage2-btn-copy-comment" style="background: #f59e0b; color: #ffffff; border: none; border-radius: 4px; padding: 6px 12px; font-size: 0.78rem; font-weight: 700; cursor: pointer; white-space: nowrap;">📋 Copy Note</button>
+                  </div>
+                </div>
+
+                <!-- INSTANT MOBILE UPI APP BUTTON -->
+                <a href="#" id="stage2-mobile-upi-btn" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 0.95rem; text-decoration: none; margin-bottom: 14px; box-shadow: 0 4px 14px rgba(22,163,74,0.25);">
+                  <span>📱</span> Tap to Pay ₹1,000 via UPI App (GPay / PhonePe / Paytm)
+                </a>
+
+                <!-- QR CODE & UPI ID CARD -->
+                <div style="text-align: center; background: #ffffff; border: 1.5px solid var(--border-light); border-radius: 10px; padding: 16px; margin-bottom: 14px;">
+                  <div style="font-size: 0.84rem; font-weight: 700; color: var(--primary-deep); margin-bottom: 8px;">
+                    Or Scan QR Code with Any UPI App:
+                  </div>
+                  <div style="max-width: 210px; margin: 0 auto 10px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-light); box-shadow: 0 4px 14px rgba(0,0,0,0.06);">
+                    <img src="assets/charak-upi-qr.jpg" alt="Charak Health Solutions UPI QR" style="width: 100%; height: auto; display: block;">
+                  </div>
+                  <div style="display: inline-flex; align-items: center; gap: 6px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 12px; font-size: 0.82rem; font-weight: 700; color: var(--primary-deep);">
+                    <span>UPI ID:</span>
+                    <span>surabhivaidya7@okhdfcbank</span>
+                    <button type="button" id="stage2-btn-copy-upi" style="background: #fff; border: 1px solid #94a3b8; border-radius: 4px; padding: 2px 8px; font-size: 0.72rem; cursor: pointer; font-weight: 600;">Copy</button>
+                  </div>
+                  <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 6px;">Payee: Charak Health Solutions</div>
+                </div>
+
+                <!-- VERIFY / UTR CONFIRMATION CARD -->
+                <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                  <div style="font-size: 0.86rem; font-weight: 700; color: var(--primary-deep); margin-bottom: 4px;">
+                    ✅ Confirm Your UPI Payment (Enter 12-digit UTR):
+                  </div>
+                  <p style="font-size: 0.76rem; color: #64748b; margin: 0 0 8px 0; line-height: 1.4;">
+                    After paying via UPI, enter the 12-digit UTR / Ref No. from your receipt and confirm your slot:
+                  </p>
+                  <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                    <input type="text" id="stage2-utr-input" placeholder="e.g. 431289567123 (12-digit UTR)" maxlength="20" style="flex: 1; padding: 10px 12px; font-size: 0.88rem; border: 1.5px solid #cbd5e1; border-radius: 6px; outline: none; background: #ffffff;">
+                    <button type="button" id="stage2-confirm-upi-btn" class="btn btn-primary" style="padding: 10px 16px; font-weight: 700; font-size: 0.88rem; white-space: nowrap;">
+                      ✓ Confirm Booking
+                    </button>
+                  </div>
+                  <a id="stage2-wa-receipt-btn" href="#" target="_blank" rel="noopener" style="background: #25d366; color: #ffffff; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border-radius: 6px; font-weight: 700; font-size: 0.82rem; text-decoration: none;">
+                    <span>💬</span> Send Receipt on WhatsApp (+91 8108500200)
+                  </a>
+                </div>
+
+                <!-- OPTION B: PAY AT CLINIC DESK -->
+                <div style="border: 1.5px solid var(--border-light); border-radius: 8px; padding: 12px 14px; background: #ffffff; margin-bottom: 14px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <span style="font-weight: 700; color: var(--primary-deep); font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+                      <span>🏥</span> Or Pay ₹1,000 at Clinic Reception on Arrival
+                    </span>
+                    <span style="background: #f1f5f9; color: #475569; font-size: 0.7rem; padding: 2px 8px; border-radius: 9999px; font-weight: 600;">
+                      Pay on Arrival
+                    </span>
+                  </div>
+                  <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0 0 10px 0; line-height: 1.4;">
+                    Prefer to pay in person? Reserve your slot now and pay at clinic reception on arrival via Cash, UPI, or Card.
+                  </p>
+                  <button type="button" id="stage2-pay-clinic-btn" class="btn btn-secondary" style="width: 100%; padding: 10px; font-weight: 700; font-size: 0.88rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <span>🏥</span> Lock Slot &amp; Pay at Clinic Desk →
                   </button>
                 </div>
 
-                <!-- Option B: Pay at Clinic Desk -->
-                <div style="border: 1.5px solid var(--border-light); border-radius: 8px; padding: 14px 16px; background: #ffffff;">
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <span style="font-weight: 700; color: var(--primary-deep); font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
-                      <span>🏥</span> Pay ₹1,000 at Clinic Desk
-                    </span>
-                    <span style="background: #f1f5f9; color: #475569; font-size: 0.72rem; padding: 2px 8px; border-radius: 9999px; font-weight: 600;">
-                      Pay on Appointment Day
-                    </span>
-                  </div>
-                  <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0 0 10px 0; line-height: 1.4;">
-                    Lock in your reserved time slot now. Pay ₹1,000 at clinic reception on arrival via Cash, UPI, or Card.
-                  </p>
-                  <button type="button" id="stage3-pay-clinic-btn" class="btn btn-secondary" style="width: 100%; padding: 10px; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <span>✅</span> Confirm Slot &amp; Pay at Clinic Desk →
+                <!-- Footer help info -->
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.74rem; color: var(--text-muted); flex-wrap: wrap; gap: 6px;">
+                  <button type="button" id="stage2-back-btn" style="background: none; border: none; color: var(--primary-sage); font-size: 0.8rem; text-decoration: underline; cursor: pointer; padding: 0;">
+                    ← Back to Details
                   </button>
+                  <span>Clinic Desk: +91 8108500200</span>
                 </div>
-              </div>
-
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <button type="button" id="btn-back-to-stage-2" class="quiz-back-btn" style="padding: 6px 14px; font-size: 0.82rem;">
-                  ← Back to Calendar
-                </button>
-                <span style="font-size: 0.74rem; color: var(--text-muted);">Clinic Desk: kneeandbackpainclinic@gmail.com</span>
               </div>
             </div>
 
@@ -667,7 +690,7 @@
         return lead;
       }
 
-      // If Consultation branch: Sequential 3-Stage Booking Flow
+      // If Consultation branch: Sequential 2-Stage Booking Flow (Stage 1: Details -> Stage 2: Slot & Inline Payment)
       if (branch === 'consultation') {
         const consultState = {
           stage: 1,
@@ -678,14 +701,30 @@
           slotEnd: '',
           slotTime: '',
           eventTypeId: null,
-          leadId: ''
+          leadId: '',
+          paymentComment: ''
         };
+
+        function updateStage2WhatsAppLink(utrVal) {
+          const waBtn = quizBody.querySelector('#stage2-wa-receipt-btn');
+          if (!waBtn) return;
+          const slotText = consultState.slotTime ? `\nChosen Slot: ${consultState.slotTime}` : '';
+          const utrText = utrVal ? `\nUTR / Txn ID: ${utrVal}` : '';
+          const msg = encodeURIComponent(
+            `Namaste Dr. Surabhi Vaidya Clinic, I have initiated/completed the ₹1,000 Consultation booking for ${consultState.name} (+91 ${consultState.phone}).` +
+            slotText +
+            `\nPayment Ref: ${consultState.paymentComment || 'CHK-CONSULT'}` +
+            utrText +
+            `\nPlease verify and confirm my appointment pass.`
+          );
+          waBtn.href = `https://wa.me/918108500200?text=${msg}`;
+        }
 
         function setStage(stageNum) {
           consultState.stage = stageNum;
 
-          // 1. Update Stepper Pills
-          for (let i = 1; i <= 3; i++) {
+          // 1. Update Stepper (2 steps)
+          for (let i = 1; i <= 2; i++) {
             const pill = quizBody.querySelector('#stepper-step-' + i);
             if (!pill) continue;
             pill.classList.remove('active', 'completed');
@@ -701,13 +740,11 @@
             }
           }
 
-          // 2. Toggle Stage Cards
+          // 2. Toggle Stage Cards (cards 1 and 2)
           const card1 = quizBody.querySelector('#consult-stage-1');
           const card2 = quizBody.querySelector('#consult-stage-2');
-          const card3 = quizBody.querySelector('#consult-stage-3');
           if (card1) card1.style.display = (stageNum === 1) ? 'block' : 'none';
           if (card2) card2.style.display = (stageNum === 2) ? 'block' : 'none';
-          if (card3) card3.style.display = (stageNum === 3) ? 'block' : 'none';
 
           // 3. Stage-Specific Setups
           if (stageNum === 2) {
@@ -716,20 +753,27 @@
             if (nameEl) nameEl.textContent = consultState.name;
             if (phoneEl) phoneEl.textContent = '+91 ' + consultState.phone;
 
-            initDirectScheduler();
-          }
+            const cleanP = (consultState.phone || '').replace(/[^0-9]/g, '').slice(-10);
+            const suffix = consultState.leadId ? consultState.leadId.replace(/[^a-zA-Z0-9]/g, '').slice(-4).toUpperCase() : Math.floor(1000 + Math.random() * 9000);
+            const paymentComment = `CHK-${cleanP || 'PAY'}-${suffix}`;
+            consultState.paymentComment = paymentComment;
 
-          if (stageNum === 3) {
-            const s3Name = quizBody.querySelector('#summary-stage3-name');
-            const s3Phone = quizBody.querySelector('#summary-stage3-phone');
-            const s3Slot = quizBody.querySelector('#summary-stage3-slot');
-            if (s3Name) s3Name.textContent = consultState.name;
-            if (s3Phone) s3Phone.textContent = '+91 ' + consultState.phone;
-            if (s3Slot) s3Slot.textContent = consultState.slotTime || 'Earliest Available Schedule';
+            const commentEl = quizBody.querySelector('#stage2-upi-comment-val');
+            if (commentEl) commentEl.textContent = paymentComment;
+
+            const upiId = 'surabhivaidya7@okhdfcbank';
+            const upiDeepLink = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent('Charak Health Solutions')}&am=1000&cu=INR&tn=${encodeURIComponent(paymentComment)}`;
+            const mobUpiBtn = quizBody.querySelector('#stage2-mobile-upi-btn');
+            if (mobUpiBtn) mobUpiBtn.href = upiDeepLink;
+
+            const utrInp = quizBody.querySelector('#stage2-utr-input');
+            updateStage2WhatsAppLink(utrInp ? utrInp.value.trim() : '');
+
+            initDirectScheduler();
           }
         }
 
-        // DIRECT CAL.ID SCHEDULER: Fetches available slots & allows 1-click selection without popup
+        // DIRECT CAL.ID SCHEDULER: Fetches available slots & allows 1-click selection right on Page 2
         function initDirectScheduler() {
           const mount = quizBody.querySelector('#direct-scheduler-mount');
           if (!mount) return;
@@ -746,7 +790,7 @@
             .then(data => {
               const days = (data && data.days) ? data.days : [];
               if (!days.length) {
-                mount.innerHTML = '<div style="padding: 20px; text-align: center; color: #b91c1c;">Unable to load schedule. Please try again.</div>';
+                mount.innerHTML = '<div style="padding: 20px; text-align: center; color: #b91c1c;">Unable to load schedule. Please try again or WhatsApp clinic desk.</div>';
                 return;
               }
 
@@ -838,7 +882,7 @@
                   });
                 });
 
-                // Slot click: 1-click selection with zero popups
+                // Slot click: 1-click selection right on Page 2 (Zero 3rd page!)
                 const slotBtns = mount.querySelectorAll('.scheduler-slot-btn');
                 slotBtns.forEach(btn => {
                   btn.addEventListener('click', function() {
@@ -853,27 +897,27 @@
                     consultState.slotEnd = sEnd;
                     consultState.slotTime = `${activeDay.displayDate} at ${sTime}`;
 
-                    const statusEl = quizBody.querySelector('#stage-2-selected-status');
-                    const toStage3Btn = quizBody.querySelector('#btn-to-stage-3');
-                    if (statusEl) {
-                      statusEl.innerHTML = `<strong>Selected Slot:</strong> <span style="color: #166534; font-weight: 700;">${consultState.slotTime}</span>`;
+                    const slotValEl = quizBody.querySelector('#stage-2-slot-val');
+                    if (slotValEl) {
+                      slotValEl.innerHTML = `✓ <strong>${consultState.slotTime}</strong> (Reserved)`;
                     }
-                    if (toStage3Btn) {
-                      toStage3Btn.style.display = 'inline-flex';
-                    }
+
+                    const utrInp = quizBody.querySelector('#stage2-utr-input');
+                    updateStage2WhatsAppLink(utrInp ? utrInp.value.trim() : '');
 
                     saveConsultationLead(
                       consultState.name,
                       consultState.phone,
                       consultState.slotTime,
-                      'Slot Chosen - Pending Payment Method',
+                      'Slot Selected - Awaiting Payment',
                       consultState.email
                     );
 
-                    // Seamless transition to Stage 3 (no friction, no popup!)
-                    setTimeout(() => {
-                      setStage(3);
-                    }, 350);
+                    // Smooth scroll down to inline payment details
+                    const paySec = quizBody.querySelector('#stage-2-payment-section');
+                    if (paySec) {
+                      paySec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
                   });
                 });
               }
@@ -886,7 +930,7 @@
             });
         }
 
-        // Switch to Webinar Pathway Button (Preserves any entered patient details)
+        // Switch to Webinar Pathway Button
         const switchWebinarBtn = quizBody.querySelector('#switch-to-webinar-btn');
         if (switchWebinarBtn) {
           switchWebinarBtn.addEventListener('click', function() {
@@ -898,7 +942,7 @@
             if (eInput && eInput.value.trim()) userProfile.email = eInput.value.trim();
 
             window.forcedBranch = 'webinar';
-            userAnswers[3] = 3; // Switch to webinar branch
+            userAnswers[3] = 3;
             renderQuiz();
           });
         }
@@ -934,7 +978,7 @@
             userProfile.phone = phoneVal;
             userProfile.email = emailVal;
 
-            // IMMEDIATE DROP-OFF CAPTURE (Patient consent recorded below next button)
+            // IMMEDIATE DROP-OFF CAPTURE
             const saved = saveConsultationLead(
               consultState.name,
               consultState.phone,
@@ -982,49 +1026,66 @@
           emailField.addEventListener('blur', autoCaptureDraft);
         }
 
-
         // STAGE 2: Return to Stage 1 (Edit Details)
         const btnBackTo1 = quizBody.querySelector('#btn-back-to-stage-1');
+        const stage2BackBtn = quizBody.querySelector('#stage2-back-btn');
         if (btnBackTo1) {
           btnBackTo1.addEventListener('click', function() {
             setStage(1);
           });
         }
-
-        // STAGE 2: Advance to Stage 3 Button
-        const btnToStage3 = quizBody.querySelector('#btn-to-stage-3');
-        if (btnToStage3) {
-          btnToStage3.addEventListener('click', function() {
-            if (!consultState.slotTime) {
-              consultState.slotTime = 'Earliest Available Schedule';
-            }
-            saveConsultationLead(
-              consultState.name,
-              consultState.phone,
-              consultState.slotTime,
-              'Slot Chosen - Pending Payment Method',
-              consultState.email
-            );
-            setStage(3);
+        if (stage2BackBtn) {
+          stage2BackBtn.addEventListener('click', function() {
+            setStage(1);
           });
         }
 
-        // STAGE 3: Return to Stage 2 (Change Slot)
-        const btnBackTo2 = quizBody.querySelector('#btn-back-to-stage-2');
-        if (btnBackTo2) {
-          btnBackTo2.addEventListener('click', function() {
-            setStage(2);
+        // STAGE 2: Copy Comment Note Button
+        const stage2CopyCommentBtn = quizBody.querySelector('#stage2-btn-copy-comment');
+        if (stage2CopyCommentBtn) {
+          stage2CopyCommentBtn.addEventListener('click', function() {
+            const text = consultState.paymentComment || (quizBody.querySelector('#stage2-upi-comment-val') ? quizBody.querySelector('#stage2-upi-comment-val').textContent : '');
+            navigator.clipboard.writeText(text).then(function() {
+              const prev = stage2CopyCommentBtn.textContent;
+              stage2CopyCommentBtn.textContent = '✓ Copied!';
+              setTimeout(function() { stage2CopyCommentBtn.textContent = prev; }, 2000);
+            }).catch(function() { alert('Copied: ' + text); });
           });
         }
 
-        // STAGE 3: Option A - Pay Online via Direct UPI QR
-        const payCashfreeBtn = quizBody.querySelector('#stage3-pay-cashfree-btn');
-        if (payCashfreeBtn) {
-          payCashfreeBtn.addEventListener('click', async function() {
-            payCashfreeBtn.disabled = true;
-            payCashfreeBtn.innerHTML = '<span>⏳</span> Opening UPI Payment...';
+        // STAGE 2: Copy UPI ID Button
+        const stage2CopyUpiBtn = quizBody.querySelector('#stage2-btn-copy-upi');
+        if (stage2CopyUpiBtn) {
+          stage2CopyUpiBtn.addEventListener('click', function() {
+            const upiId = 'surabhivaidya7@okhdfcbank';
+            navigator.clipboard.writeText(upiId).then(function() {
+              const prev = stage2CopyUpiBtn.textContent;
+              stage2CopyUpiBtn.textContent = '✓ Copied!';
+              setTimeout(function() { stage2CopyUpiBtn.textContent = prev; }, 2000);
+            }).catch(function() { alert('Copied: ' + upiId); });
+          });
+        }
 
-            // Sync pending slot reservation to Cal direct
+        // STAGE 2: Live UTR input listener to update WhatsApp button
+        const stage2UtrInp = quizBody.querySelector('#stage2-utr-input');
+        if (stage2UtrInp) {
+          stage2UtrInp.addEventListener('input', function() {
+            updateStage2WhatsAppLink(stage2UtrInp.value.trim());
+          });
+        }
+
+        // STAGE 2: Confirm UPI Payment Button (I Have Paid via UPI)
+        const stage2ConfirmUpiBtn = quizBody.querySelector('#stage2-confirm-upi-btn');
+        if (stage2ConfirmUpiBtn) {
+          stage2ConfirmUpiBtn.addEventListener('click', async function() {
+            const utr = stage2UtrInp ? stage2UtrInp.value.trim() : '';
+            stage2ConfirmUpiBtn.disabled = true;
+            stage2ConfirmUpiBtn.innerHTML = '<span>⏳</span> Confirming Booking...';
+
+            const effectiveSlot = consultState.slotTime || 'Earliest Available Schedule';
+            const paymentStatusStr = 'Paid Online via UPI' + (utr ? ` (UTR: ${utr})` : ` (Ref: ${consultState.paymentComment})`);
+
+            // 1. Sync slot reservation to Cal direct
             fetch('/api/cal-direct', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -1034,96 +1095,73 @@
                 email: consultState.email,
                 slotStart: consultState.slotStart,
                 slotEnd: consultState.slotEnd,
-                slotDisplay: consultState.slotTime,
+                slotDisplay: effectiveSlot,
                 eventTypeId: consultState.eventTypeId,
-                paymentStatus: 'Pending Online Payment (UPI)',
+                paymentStatus: paymentStatusStr,
                 paymentMethod: 'upi_direct',
+                paymentOrderId: consultState.paymentComment,
+                notes: 'UPI Payment Confirmed. Comment: ' + consultState.paymentComment + (utr ? ' | UTR: ' + utr : ''),
                 painArea: painArea
               })
             }).catch(e => console.warn('Cal Direct PG booking sync:', e));
 
-            // Immediate sync: record checkout attempt
+            // 2. Save lead with payment details locally & intake API
             saveConsultationLead(
               consultState.name,
               consultState.phone,
-              consultState.slotTime,
-              'Payment Initiated (UPI ₹1,000)',
+              effectiveSlot,
+              paymentStatusStr,
               consultState.email
             );
 
-            function showStage3RecoveryBanner() {
-              let recBox = quizBody.querySelector('#stage3-recovery-box');
-              if (!recBox) {
-                recBox = document.createElement('div');
-                recBox.id = 'stage3-recovery-box';
-                recBox.style.cssText = 'background: #fff7ed; border: 1.5px solid #f97316; border-radius: 8px; padding: 14px; margin-bottom: 16px; animation: fadeIn 0.2s ease;';
-                const container = payCashfreeBtn ? payCashfreeBtn.closest('div') : null;
-                if (container && container.parentNode) {
-                  container.parentNode.insertBefore(recBox, container);
-                }
-              }
-              const waMsg = encodeURIComponent('Namaste Dr. Surabhi Clinic, my name is ' + consultState.name + ' (+91 ' + consultState.phone + '). I would like to confirm my consultation for ' + consultState.slotTime + '. Please share your direct UPI QR or assist with booking.');
-              recBox.innerHTML = `
-                <div style="font-weight: 700; color: #9a3412; font-size: 0.9rem; margin-bottom: 4px;">
-                  ⚠️ Payment not completed? Your appointment slot is held!
-                </div>
-                <p style="font-size: 0.82rem; color: #7c2d12; margin: 0 0 10px 0; line-height: 1.45;">
-                  Don't worry, <strong>${consultState.name}</strong>. If your online payment was interrupted, you can pay ₹1,000 at clinic reception on arrival or chat with our desk on WhatsApp for instant assistance.
-                </p>
-                <button type="button" id="recovery-confirm-clinic-btn" class="btn btn-primary" style="width: 100%; padding: 10px; font-weight: 700; font-size: 0.88rem; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                  <span>🏥</span> Confirm Slot &amp; Pay at Clinic Desk →
-                </button>
-                <a href="https://wa.me/918108500200?text=${waMsg}" target="_blank" rel="noopener" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; color: #166534; background: #eef7ed; border: 1px solid #c7e8c6; border-radius: 6px; font-size: 0.82rem; font-weight: 600; text-decoration: none;">
-                  <span>💬</span> WhatsApp Clinic Desk for Payment Help
-                </a>
-              `;
-              const recClinicBtn = recBox.querySelector('#recovery-confirm-clinic-btn');
-              if (recClinicBtn) {
-                recClinicBtn.addEventListener('click', function() {
-                  const clinicBtn = quizBody.querySelector('#stage3-pay-clinic-btn');
-                  if (clinicBtn) clinicBtn.click();
-                });
-              }
-            }
+            fetch('/api/lead-intake', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                id: consultState.leadId || `LEAD-${Date.now()}`,
+                name: consultState.name,
+                phone: consultState.phone,
+                email: consultState.email,
+                recommendedStep: '₹1,000 Diagnostic Consultation (30-Min)',
+                slotPreference: effectiveSlot,
+                status: 'Consultation Scheduled',
+                paymentStatus: paymentStatusStr,
+                paymentOrderId: consultState.paymentComment,
+                notes: 'UPI Payment Confirmed. Comment: ' + consultState.paymentComment + (utr ? ' | UTR: ' + utr : ''),
+                utr: utr
+              })
+            }).catch(function() {});
 
+            // 3. Trigger Google Ads Purchase conversion event
             try {
-              if (window.triggerPayUCheckout) {
-                await window.triggerPayUCheckout({
-                  amount: 1000,
-                  name: consultState.name || 'Patient',
-                  phone: consultState.phone,
-                  email: consultState.email,
-                  slot: consultState.slotTime,
-                  planType: '₹1,000 Diagnostic Consultation (30-Min)',
-                  leadId: consultState.leadId || `LEAD-${Date.now()}`,
-                  onSuccess: function(result) {
-                    saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Paid Online via UPI', consultState.email);
-                    renderConsultationSuccess(consultState.name, consultState.phone, consultState.slotTime, true);
-                  },
-                  onDismiss: function(dismissData) {
-                    payCashfreeBtn.disabled = false;
-                    payCashfreeBtn.innerHTML = '<span>📲</span> Retry Pay ₹1,000 Online via UPI / QR →';
-                    saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Payment Dropped Off (UPI ₹1,000)', consultState.email);
-                    showStage3RecoveryBanner();
-                  }
+              if (typeof window.gtag === 'function') {
+                window.gtag('event', 'conversion', {
+                  'send_to': 'AW-18534158307/o8ztCN3M4acdEOOf44VF',
+                  'value': 1000,
+                  'currency': 'INR',
+                  'transaction_id': utr || consultState.paymentComment
                 });
               }
-            } catch (err) {
-              console.warn('Consultation UPI checkout notice:', err);
-              payCashfreeBtn.disabled = false;
-              payCashfreeBtn.innerHTML = '<span>📲</span> Retry Pay ₹1,000 Online via UPI / QR →';
-              saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Payment Dropped Off (UPI Error)', consultState.email);
-              showStage3RecoveryBanner();
-            }
+            } catch (e) {}
+
+            // 4. Render confirmation success pass (isPaid = true)
+            renderConsultationSuccess(
+              consultState.name,
+              consultState.phone,
+              effectiveSlot,
+              true
+            );
           });
         }
 
-        // STAGE 3: Option B - Pay at Clinic Desk
-        const payClinicBtn = quizBody.querySelector('#stage3-pay-clinic-btn');
-        if (payClinicBtn) {
-          payClinicBtn.addEventListener('click', async function() {
-            payClinicBtn.disabled = true;
-            payClinicBtn.textContent = 'Confirming Appointment...';
+        // STAGE 2: Option B - Pay at Clinic Desk Button
+        const stage2PayClinicBtn = quizBody.querySelector('#stage2-pay-clinic-btn');
+        if (stage2PayClinicBtn) {
+          stage2PayClinicBtn.addEventListener('click', async function() {
+            stage2PayClinicBtn.disabled = true;
+            stage2PayClinicBtn.textContent = 'Confirming Appointment...';
+
+            const effectiveSlot = consultState.slotTime || 'Earliest Available Schedule';
 
             try {
               const directResp = await fetch('/api/cal-direct', {
@@ -1135,7 +1173,7 @@
                   email: consultState.email,
                   slotStart: consultState.slotStart,
                   slotEnd: consultState.slotEnd,
-                  slotDisplay: consultState.slotTime,
+                  slotDisplay: effectiveSlot,
                   eventTypeId: consultState.eventTypeId,
                   paymentStatus: 'Pay at Clinic Reception',
                   paymentMethod: 'pay_at_clinic',
@@ -1161,8 +1199,20 @@
               console.warn('Cal Direct Booking API call:', e);
             }
 
-            saveConsultationLead(consultState.name, consultState.phone, consultState.slotTime, 'Pay at Clinic Desk', consultState.email);
-            renderConsultationSuccess(consultState.name, consultState.phone, consultState.slotTime, false);
+            saveConsultationLead(
+              consultState.name,
+              consultState.phone,
+              effectiveSlot,
+              'Pay at Clinic Desk',
+              consultState.email
+            );
+
+            renderConsultationSuccess(
+              consultState.name,
+              consultState.phone,
+              effectiveSlot,
+              false
+            );
           });
         }
       }
@@ -1246,141 +1296,228 @@
 
           // Webinar registration handling: SAVE LEAD IMMEDIATELY WITH NAME, PHONE, EMAIL & CITY
           const newLead = saveConsultationLead(name, phone, 'Sunday, 15 Nov (11:00 AM IST)', 'Unpaid Webinar Registration', email, city);
-            quizBody.innerHTML = `
-              <div style="text-align: center; padding: 16px 8px;">
-                <div style="font-size: 2.8rem; margin-bottom: 8px;">🎥</div>
-                <h3 style="font-size: 1.35rem; color: var(--primary-deep); margin-bottom: 6px;">
-                  Confirm Your Masterclass Seat (₹201)
-                </h3>
-                <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
-                  Thank you, <strong>${name}</strong>. Complete your registration via direct UPI QR or any UPI App to get your direct <strong>Webinar.gg</strong> joining pass.
-                </p>
-                <div style="background: var(--bg-sand); padding: 14px; border-radius: 8px; margin-bottom: 16px; text-align: left;">
-                  <div style="display: flex; justify-content: space-between; font-weight: 700; color: var(--primary-deep); margin-bottom: 4px;">
-                    <span>90-Min Live Masterclass (Sunday, 15th Nov, 11:00 AM)</span>
-                    <span>₹201</span>
-                  </div>
-                  <div style="font-size: 0.78rem; color: var(--text-muted);">Includes Live Q&amp;A + Anti-Inflammatory Ayurvedic Nutrition Protocol</div>
+
+          const cleanP = phone.replace(/[^0-9]/g, '').slice(-10);
+          const suffix = (newLead && newLead.id) ? newLead.id.replace(/[^a-zA-Z0-9]/g, '').slice(-4).toUpperCase() : Math.floor(1000 + Math.random() * 9000);
+          const paymentComment = `CHK-${cleanP || 'PAY'}-${suffix}`;
+          const upiId = 'surabhivaidya7@okhdfcbank';
+          const upiDeepLink = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent('Charak Health Solutions')}&am=201&cu=INR&tn=${encodeURIComponent(paymentComment)}`;
+          const waPreMsg = encodeURIComponent(`Namaste Dr. Surabhi Clinic, my name is ${name} (+91 ${phone}). I have paid ₹201 via UPI for the Sunday Masterclass.\nPayment Ref: ${paymentComment}\nPlease confirm my registration pass.`);
+
+          quizBody.innerHTML = `
+            <div style="text-align: center; padding: 16px 8px;">
+              <div style="font-size: 2.8rem; margin-bottom: 8px;">🎥</div>
+              <h3 style="font-size: 1.35rem; color: var(--primary-deep); margin-bottom: 6px;">
+                Confirm Your Masterclass Seat (₹201)
+              </h3>
+              <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
+                Thank you, <strong>${name}</strong>. Complete your ₹201 payment via direct UPI to receive your instant <strong>Webinar.gg</strong> joining pass.
+              </p>
+
+              <!-- Order summary -->
+              <div style="background: var(--bg-sand); padding: 12px 14px; border-radius: 8px; margin-bottom: 14px; text-align: left;">
+                <div style="display: flex; justify-content: space-between; font-weight: 700; color: var(--primary-deep); margin-bottom: 4px;">
+                  <span>90-Min Live Masterclass (Sunday, 15th Nov, 11:00 AM)</span>
+                  <span style="color: #166534; font-size: 1.15rem;">₹201</span>
                 </div>
-
-                <button type="button" id="pay-cashfree-webinar-btn" class="btn btn-deep btn-lg" style="width: 100%; margin-bottom: 14px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                  <span>📲</span> Pay ₹201 via UPI / QR (GPay / PhonePe / Paytm) ↗
-                </button>
-
-                <div id="webinar-access-box" style="display: none; background: #eef7ed; border: 1px solid #c7e8c6; padding: 16px; border-radius: 8px; margin-bottom: 16px; text-align: left;">
-                  <div style="font-weight: 700; color: #166534; margin-bottom: 6px;">🎉 Payment &amp; Registration Successful!</div>
-                  <p style="font-size: 0.85rem; color: #15803d; margin-bottom: 10px;">Your secure Webinar.gg join token has been issued for <strong>${phone}</strong>.</p>
-                  <a id="webinar-room-join-link" href="https://webinar.gg/charakhealth" target="_blank" rel="noopener" class="btn btn-primary" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;">
-                    <span>🎥</span> Enter Live Room on Webinar.gg ↗
-                  </a>
-                </div>
-
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">
-                  Clinic Desk: kneeandbackpainclinic@gmail.com · Raymond TenX Habitat, Pokharan Road No. 2, Thane West.
-                </p>
-                <button type="button" class="btn btn-secondary" style="margin-top: 6px;" onclick="document.querySelector('#quiz-modal').style.display='none'; document.body.style.overflow='';">
-                  Close &amp; Return
-                </button>
+                <div style="font-size: 0.76rem; color: var(--text-muted);">Includes Live Q&amp;A + Anti-Inflammatory Ayurvedic Nutrition Protocol</div>
               </div>
-            `;
 
-            const payBtn = quizBody.querySelector('#pay-cashfree-webinar-btn');
+              <!-- MANDATORY REFERENCE COMMENT BOX -->
+              <div style="background: #fffbeb; border: 2px solid #f59e0b; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; text-align: left;">
+                <div style="font-weight: 800; color: #b45309; font-size: 0.82rem; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; text-transform: uppercase;">
+                  <span>⚠️</span> Mandatory Payment Reference Note
+                </div>
+                <p style="font-size: 0.78rem; color: #92400e; margin: 0 0 6px 0; line-height: 1.4;">
+                  Please enter or paste this reference note in the <strong>"Add a note" / "Message"</strong> box in your UPI app:
+                </p>
+                <div style="background: #ffffff; border: 1.5px dashed #f59e0b; border-radius: 6px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                  <span id="webinar-upi-comment-val" style="font-family: monospace; font-weight: 800; font-size: 1.05rem; color: #78350f;">${paymentComment}</span>
+                  <button type="button" id="webinar-btn-copy-comment" style="background: #f59e0b; color: #ffffff; border: none; border-radius: 4px; padding: 6px 12px; font-size: 0.78rem; font-weight: 700; cursor: pointer; white-space: nowrap;">📋 Copy Note</button>
+                </div>
+              </div>
 
-            function showWebinarRecoveryBox() {
-              let recBox = quizBody.querySelector('#webinar-recovery-box');
-              if (!recBox) {
-                recBox = document.createElement('div');
-                recBox.id = 'webinar-recovery-box';
-                recBox.style.cssText = 'background: #fff7ed; border: 1.5px solid #f97316; border-radius: 8px; padding: 14px; margin-bottom: 14px; text-align: left; animation: fadeIn 0.2s ease;';
-                if (payBtn && payBtn.parentNode) {
-                  payBtn.parentNode.insertBefore(recBox, payBtn);
+              <!-- INSTANT MOBILE UPI PAY BUTTON -->
+              <a href="${upiDeepLink}" id="webinar-mobile-upi-btn" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 0.95rem; text-decoration: none; margin-bottom: 14px; box-shadow: 0 4px 14px rgba(22,163,74,0.25);">
+                <span>📱</span> Tap to Pay ₹201 via UPI App (GPay / PhonePe / Paytm)
+              </a>
+
+              <!-- QR CODE & UPI ID CARD -->
+              <div style="text-align: center; background: #ffffff; border: 1.5px solid var(--border-light); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                <div style="font-size: 0.82rem; font-weight: 700; color: var(--primary-deep); margin-bottom: 6px;">
+                  Or Scan QR Code with Any UPI App:
+                </div>
+                <div style="max-width: 195px; margin: 0 auto 10px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-light); box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+                  <img src="assets/charak-upi-qr.jpg" alt="Charak Health Solutions UPI QR" style="width: 100%; height: auto; display: block;">
+                </div>
+                <div style="display: inline-flex; align-items: center; gap: 6px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 12px; font-size: 0.82rem; font-weight: 700; color: var(--primary-deep);">
+                  <span>UPI ID:</span>
+                  <span>${upiId}</span>
+                  <button type="button" id="webinar-btn-copy-upi" style="background: #fff; border: 1px solid #94a3b8; border-radius: 4px; padding: 2px 8px; font-size: 0.72rem; cursor: pointer; font-weight: 600;">Copy</button>
+                </div>
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">Payee: Charak Health Solutions</div>
+              </div>
+
+              <!-- UTR / CONFIRMATION CARD -->
+              <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 14px; margin-bottom: 14px; text-align: left;">
+                <div style="font-size: 0.84rem; font-weight: 700; color: var(--primary-deep); margin-bottom: 4px;">
+                  ✅ Paid via UPI? Enter 12-digit UTR to Confirm:
+                </div>
+                <p style="font-size: 0.76rem; color: #64748b; margin: 0 0 8px 0; line-height: 1.4;">
+                  Enter the 12-digit UTR / Ref No. from your UPI receipt to activate your webinar pass:
+                </p>
+                <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                  <input type="text" id="webinar-utr-input" placeholder="e.g. 431289567123" maxlength="20" style="flex: 1; padding: 10px 12px; font-size: 0.88rem; border: 1.5px solid #cbd5e1; border-radius: 6px; outline: none; background: #ffffff;">
+                  <button type="button" id="webinar-confirm-upi-btn" class="btn btn-primary" style="padding: 10px 16px; font-weight: 700; font-size: 0.88rem; white-space: nowrap;">
+                    ✓ Confirm Seat
+                  </button>
+                </div>
+                <a id="webinar-wa-confirm-btn" href="https://wa.me/918108500200?text=${waPreMsg}" target="_blank" rel="noopener" style="background: #25d366; color: #ffffff; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border-radius: 6px; font-weight: 700; font-size: 0.82rem; text-decoration: none;">
+                  <span>💬</span> Send Receipt on WhatsApp (+91 8108500200)
+                </a>
+              </div>
+
+              <!-- Access Box Revealed After Confirmation -->
+              <div id="webinar-access-box" style="display: none; background: #eef7ed; border: 1.5px solid #86efac; padding: 16px; border-radius: 8px; margin-bottom: 16px; text-align: left;">
+                <div style="font-weight: 700; color: #166534; font-size: 1rem; margin-bottom: 4px;">🎉 Payment &amp; Registration Confirmed!</div>
+                <p style="font-size: 0.84rem; color: #15803d; margin-bottom: 12px;">Your secure Webinar.gg join pass has been activated for <strong>${phone}</strong>.</p>
+                <a id="webinar-room-join-link" href="https://webinar.gg/charakhealth" target="_blank" rel="noopener" class="btn btn-primary" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; padding: 12px;">
+                  <span>🎥</span> Enter Live Room on Webinar.gg ↗
+                </a>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+                <button type="button" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.82rem;" onclick="document.querySelector('#quiz-modal').style.display='none'; document.body.style.overflow='';">
+                  Close Window
+                </button>
+                <span style="font-size: 0.74rem; color: var(--text-muted);">Clinic Desk: +91 8108500200</span>
+              </div>
+            </div>
+          `;
+
+          // Copy comment note
+          const webCopyComment = quizBody.querySelector('#webinar-btn-copy-comment');
+          if (webCopyComment) {
+            webCopyComment.addEventListener('click', function() {
+              navigator.clipboard.writeText(paymentComment).then(function() {
+                webCopyComment.textContent = '✓ Copied!';
+                setTimeout(function() { webCopyComment.textContent = '📋 Copy Note'; }, 2000);
+              }).catch(function() { alert('Copied: ' + paymentComment); });
+            });
+          }
+
+          // Copy UPI ID
+          const webCopyUpi = quizBody.querySelector('#webinar-btn-copy-upi');
+          if (webCopyUpi) {
+            webCopyUpi.addEventListener('click', function() {
+              navigator.clipboard.writeText(upiId).then(function() {
+                webCopyUpi.textContent = '✓ Copied!';
+                setTimeout(function() { webCopyUpi.textContent = 'Copy'; }, 2000);
+              }).catch(function() { alert('Copied: ' + upiId); });
+            });
+          }
+
+          // Live UTR input listener to update WhatsApp button
+          const webUtrInp = quizBody.querySelector('#webinar-utr-input');
+          const webWaBtn = quizBody.querySelector('#webinar-wa-confirm-btn');
+          if (webUtrInp && webWaBtn) {
+            webUtrInp.addEventListener('input', function() {
+              const u = webUtrInp.value.trim();
+              const updatedMsg = encodeURIComponent(`Namaste Dr. Surabhi Clinic, my name is ${name} (+91 ${phone}). I have paid ₹201 via UPI for the Sunday Masterclass.\nPayment Ref: ${paymentComment}` + (u ? `\nUTR / Txn ID: ${u}` : '') + `\nPlease confirm my registration pass.`);
+              webWaBtn.href = `https://wa.me/918108500200?text=${updatedMsg}`;
+            });
+          }
+
+          // Confirm Payment Button
+          const webConfirmBtn = quizBody.querySelector('#webinar-confirm-upi-btn');
+          if (webConfirmBtn) {
+            webConfirmBtn.addEventListener('click', async function() {
+              const u = webUtrInp ? webUtrInp.value.trim() : '';
+              webConfirmBtn.disabled = true;
+              webConfirmBtn.textContent = 'Confirming...';
+
+              const paymentStatusStr = 'Paid Online (Webinar ₹201)' + (u ? ` (UTR: ${u})` : ` (Ref: ${paymentComment})`);
+
+              saveConsultationLead(
+                name,
+                phone,
+                'Sunday, 15 Nov (11:00 AM IST)',
+                paymentStatusStr,
+                email,
+                city
+              );
+
+              fetch('/api/lead-intake', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  id: (newLead && newLead.id) ? newLead.id : `LEAD-${Date.now()}`,
+                  name: name,
+                  phone: phone,
+                  email: email,
+                  city: city,
+                  recommendedStep: '₹201 Live Masterclass',
+                  slotPreference: 'Sunday, 15 Nov (11:00 AM IST)',
+                  status: 'Webinar Registered',
+                  paymentStatus: paymentStatusStr,
+                  paymentOrderId: paymentComment,
+                  notes: 'Webinar UPI Paid. Comment: ' + paymentComment + (u ? ' | UTR: ' + u : ''),
+                  utr: u
+                })
+              }).catch(function() {});
+
+              try {
+                if (typeof window.gtag === 'function') {
+                  window.gtag('event', 'conversion', {
+                    'send_to': 'AW-18534158307/o8ztCN3M4acdEOOf44VF',
+                    'value': 201,
+                    'currency': 'INR',
+                    'transaction_id': u || paymentComment
+                  });
+                }
+              } catch (e) {}
+
+              // Fetch token
+              try {
+                const tokenResp = await fetch('/api/get-webinar-token', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ name: name, phone: phone, email: email })
+                });
+                const tokenData = await tokenResp.json();
+                const accessBox = quizBody.querySelector('#webinar-access-box');
+                const joinLink = quizBody.querySelector('#webinar-room-join-link');
+                if (accessBox) {
+                  accessBox.style.display = 'block';
+                  accessBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+                if (joinLink) {
+                  joinLink.addEventListener('click', function(ev) {
+                    ev.preventDefault();
+                    document.querySelector('#quiz-modal').style.display = 'none';
+                    document.body.style.overflow = '';
+                    if (window.openWebinarModal) {
+                      window.openWebinarModal({
+                        token: (tokenData && tokenData.token) || '',
+                        webinarId: (tokenData && tokenData.webinarId) || 'charakhealth',
+                        name: name,
+                        phone: phone,
+                        email: email
+                      });
+                    } else {
+                      window.location.href = '/room?token=' + encodeURIComponent((tokenData && tokenData.token) || '');
+                    }
+                  });
+                }
+              } catch (tokErr) {
+                console.warn('Webinar token notice:', tokErr);
+                const accessBox = quizBody.querySelector('#webinar-access-box');
+                if (accessBox) {
+                  accessBox.style.display = 'block';
                 }
               }
-              const waMsg = encodeURIComponent('Namaste Dr. Surabhi Clinic, my name is ' + name + ' (+91 ' + phone + '). I would like to confirm my Sunday Masterclass (₹201) seat via UPI. Please assist with my registration pass.');
-              recBox.innerHTML = `
-                <div style="font-weight: 700; color: #9a3412; font-size: 0.9rem; margin-bottom: 4px;">
-                  ⚠️ Payment Incomplete? Your Seat Request is Saved!
-                </div>
-                <p style="font-size: 0.82rem; color: #7c2d12; margin: 0 0 10px 0; line-height: 1.45;">
-                  Don't worry, <strong>${name}</strong>. If your online payment was interrupted, our clinic desk has captured your registration. You can reach our clinic team directly on WhatsApp to get your direct Webinar.gg entry link or pay via direct UPI QR.
-                </p>
-                <a href="https://wa.me/918108500200?text=${waMsg}" target="_blank" rel="noopener" class="btn btn-primary" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 700; font-size: 0.88rem; box-sizing: border-box; margin-bottom: 6px;">
-                  <span>💬</span> WhatsApp Clinic Desk to Confirm Seat (₹201)
-                </a>
-                <a href="tel:+918108500200" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; color: #1e3a2f; background: #faf8f5; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.82rem; font-weight: 600; text-decoration: none;">
-                  <span>📞</span> Call Desk: +91 8108500200
-                </a>
-              `;
-            }
-
-            if (payBtn) {
-              payBtn.addEventListener('click', async function() {
-                payBtn.disabled = true;
-                payBtn.innerHTML = '<span>⏳</span> Opening UPI Payment...';
-                saveConsultationLead(name, phone, 'Sunday, 15 Nov (11:00 AM IST)', 'Payment Initiated (Webinar ₹201)', email, city);
-                try {
-                  if (window.triggerPayUCheckout) {
-                    await window.triggerPayUCheckout({
-                      amount: 201,
-                      name: name,
-                      phone: phone,
-                      email: email,
-                      planType: '₹201 Live Masterclass',
-                      leadId: newLead.id,
-                      onSuccess: async function(result) {
-                        saveConsultationLead(name, phone, 'Sunday, 15 Nov (11:00 AM IST)', 'Paid Online (Webinar ₹201)', email, city);
-                        // Generate Webinar.gg token & display room access ONLY after verified payment
-                        try {
-                          const tokenResp = await fetch('/api/get-webinar-token', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ name: name, phone: phone, email: email })
-                          });
-                          const tokenData = await tokenResp.json();
-                          const accessBox = quizBody.querySelector('#webinar-access-box');
-                          const joinLink = quizBody.querySelector('#webinar-room-join-link');
-                          if (accessBox && joinLink) {
-                            accessBox.style.display = 'block';
-                            payBtn.style.display = 'none';
-
-                            joinLink.addEventListener('click', function(ev) {
-                              ev.preventDefault();
-                              document.querySelector('#quiz-modal').style.display = 'none';
-                              document.body.style.overflow = '';
-                              if (window.openWebinarModal) {
-                                window.openWebinarModal({
-                                  token: tokenData.token || '',
-                                  webinarId: tokenData.webinarId || 'charakhealth',
-                                  name: name,
-                                  phone: phone,
-                                  email: email
-                                });
-                              } else {
-                                window.location.href = '/room?token=' + encodeURIComponent(tokenData.token || '');
-                              }
-                            });
-                          }
-                        } catch (tokErr) {
-                          console.warn('Webinar token fetch:', tokErr);
-                        }
-                      },
-                      onDismiss: function(dismissData) {
-                        payBtn.disabled = false;
-                        payBtn.innerHTML = '<span>📲</span> Retry Pay ₹201 Online via UPI / QR →';
-                        saveConsultationLead(name, phone, 'Sunday, 15 Nov (11:00 AM IST)', 'Payment Dropped Off (Webinar ₹201)', email, city);
-                        showWebinarRecoveryBox();
-                      }
-                    });
-                  }
-                } catch (e) {
-                  console.warn('Checkout note:', e.message);
-                  payBtn.disabled = false;
-                  payBtn.innerHTML = '<span>💳</span> Retry Pay ₹201 Online via PayU →';
-                  saveConsultationLead(name, phone, 'Sunday, 15 Nov (11:00 AM IST)', 'Payment Dropped Off (Webinar Error)', email, city);
-                  showWebinarRecoveryBox();
-                }
-              });
-            }
+            });
+          }
           });
         }
 
