@@ -258,9 +258,14 @@ window.openUPIPaymentModal = function(params) {
         <div>👤 <strong>Patient:</strong> ${escapeHtmlModal(name)} &bull; 📱 <strong>+91 ${phone || '---------'}</strong></div>
         <div>🏷️ <strong>Booking:</strong> ${escapeHtmlModal(planType)}</div>
         <div style="margin-top:4px;padding-top:4px;border-top:1px dashed #e5e0d8;display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-weight:600;color:#143026;">Total Amount:</span>
+          <span style="font-weight:600;color:#143026;">Payable Total:</span>
           <strong style="font-size:1.2rem;color:#166534;">₹${amount}</strong>
         </div>
+      </div>
+
+      <!-- Payment Scope Notice -->
+      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:8px 10px;margin-bottom:12px;font-size:0.75rem;color:#92400e;line-height:1.4;">
+        <strong>Payment Information:</strong> Payments on this website are collected for personal consultation bookings and live educational webinar registrations. Physical medicines, supplements and other products are not sold or shipped through these checkout flows.
       </div>
 
       <!-- ⭐ MANDATORY PAYMENT COMMENT / REFERENCE NOTE BOX -->
@@ -314,8 +319,11 @@ window.openUPIPaymentModal = function(params) {
         </a>
       </div>
 
-      <div style="text-align:center;font-size:0.75rem;color:#94a3b8;">
+      <div style="text-align:center;font-size:0.75rem;color:#94a3b8;margin-bottom:6px;">
         <a href="${fullPaymentUrl}" target="_blank" style="color:#1e3a2f;text-decoration:underline;">Open Full Dedicated Payment Page ↗</a>
+      </div>
+      <div style="text-align:center;font-size:0.72rem;color:#64748b;">
+        Protected by <a href="/refund-policy" target="_blank" style="color:#166534;text-decoration:underline;">Cancellation &amp; Refund Policy</a> &bull; <a href="/terms-and-conditions" target="_blank" style="color:#166534;text-decoration:underline;">Terms &amp; Conditions</a>
       </div>
     </div>
   `;

@@ -20,14 +20,14 @@
       const videoId = 's_OgsH07lCQ';
       if (vslHeader) vslHeader.textContent = 'DR. SURABHI VAIDYA · WEBINAR PRESENTATION';
       if (vslIframe) vslIframe.src = `https://www.youtube.com/embed/${videoId}?rel=0`;
-      if (vslTitle) vslTitle.innerHTML = 'Sunday Masterclass Invitation (₹201) · Joint Restoration Blueprint';
-      if (vslDesc) vslDesc.innerHTML = 'Watch Dr. Surabhi Vaidya preview what will be revealed in the live interactive Webinar.gg masterclass on <strong>Sunday, 15th November 2026</strong>.';
+      if (vslTitle) vslTitle.innerHTML = 'Sunday Educational Webinar (₹201) · Joint Care Guide';
+      if (vslDesc) vslDesc.innerHTML = 'Watch Dr. Surabhi Vaidya introduce what will be covered in the live interactive Webinar.gg educational masterclass on <strong>Sunday, 15th November 2026</strong>.';
     } else {
       const videoId = 'r9ckkmCa7Pw';
       if (vslHeader) vslHeader.textContent = 'DR. SURABHI VAIDYA · CLINICAL GUIDE';
       if (vslIframe) vslIframe.src = `https://www.youtube.com/embed/${videoId}?rel=0`;
-      if (vslTitle) vslTitle.innerHTML = 'Find Your Exact Treatment Pathway in 60 Seconds';
-      if (vslDesc) vslDesc.innerHTML = 'In this clinical introduction, Dr. Surabhi Vaidya explains how our 60-second diagnostic assessment evaluates your pain severity and helps you choose between an <strong>Online Masterclass (Pathway 1)</strong> or an <strong>In-Clinic Diagnostic Consultation (Pathway 2)</strong>.';
+      if (vslTitle) vslTitle.innerHTML = 'Find Your Recommended Care Pathway in 60 Seconds';
+      if (vslDesc) vslDesc.innerHTML = 'In this clinical guide, Dr. Surabhi Vaidya explains our doctor-led approach to knee and spine care, and how our short 60-second questionnaire suggests a suitable next step: an <strong>Online Educational Webinar (₹201)</strong> or an <strong>In-Clinic Diagnostic Consultation (₹1,000)</strong>.';
     }
   }
 
@@ -367,7 +367,7 @@
               In-Clinic Diagnostic Consultation (₹1,000)
             </h3>
             <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
-              You are at a suitable stage to get an in-depth 30-minute clinical assessment with Dr. Surabhi Vaidya for your <strong>${painArea}</strong>. She will perform Ayurvedic Naadi Pariksha (pulse analysis), evaluate your MRI / X-Rays, and map your surgical prevention plan.
+              You are at a suitable stage to get an in-depth 30-minute clinical assessment with Dr. Surabhi Vaidya for your <strong>${painArea}</strong>. She will perform Ayurvedic Naadi Pariksha (pulse analysis), evaluate your MRI / X-Rays, and map your personalized joint preservation roadmap.
             </p>
 
             <div style="background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
@@ -489,6 +489,11 @@
                   <span>💳</span> Complete ₹1,000 Payment to Confirm Your Booking:
                 </h4>
 
+                <!-- Payment Scope Notice -->
+                <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 10px 12px; margin-bottom: 12px; font-size: 0.76rem; color: #92400e; line-height: 1.45;">
+                  <strong>Payment Information:</strong> Payments on this website are collected for personal consultation bookings and live educational webinar registrations. Physical medicines, supplements and other products are not sold or shipped through these checkout flows.
+                </div>
+
                 <!-- MANDATORY PAYMENT REFERENCE COMMENT BOX -->
                 <div style="background: #fffbeb; border: 2px solid #f59e0b; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;">
                   <div style="font-weight: 800; color: #b45309; font-size: 0.82rem; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 0.03em;">
@@ -566,6 +571,9 @@
                   <button type="button" id="stage2-back-btn" style="background: none; border: none; color: var(--primary-sage); font-size: 0.8rem; text-decoration: underline; cursor: pointer; padding: 0;">
                     ← Back to Details
                   </button>
+                  <span style="font-size: 0.72rem; color: var(--text-muted);">
+                    Protected by <a href="/refund-policy" target="_blank" style="color: var(--primary-sage); text-decoration: underline;">Cancellation &amp; Refund Policy</a>
+                  </span>
                   <span>Clinic Desk: +91 8108500200</span>
                 </div>
               </div>
@@ -585,7 +593,7 @@
               Attend Live Hindi Masterclass on Webinar.gg (₹201)
             </h3>
             <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 12px;">
-              Since you are currently exploring or looking to understand how Ayurveda compares with surgery for <strong>${painArea}</strong>, we recommend starting with our 90-minute live online session with Dr. Surabhi Vaidya on our interactive <strong>Webinar.gg</strong> platform. Learn root-cause analysis and discover practical ways to protect your joints without visiting the clinic yet.
+              Since you are exploring options or want to understand how authentic Ayurveda compares with surgery for <strong>${painArea}</strong>, we recommend starting with our 90-minute live educational session with Dr. Surabhi Vaidya on our interactive <strong>Webinar.gg</strong> platform. Learn root causes, conservative joint care principles, and practical daily joint care.
             </p>
 
             <div class="quiz-flow-indicator">
@@ -1323,6 +1331,11 @@
                 <div style="font-size: 0.76rem; color: var(--text-muted);">Includes Live Q&amp;A + Anti-Inflammatory Ayurvedic Nutrition Protocol</div>
               </div>
 
+              <!-- Payment Scope Notice -->
+              <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 10px 12px; margin-bottom: 14px; font-size: 0.76rem; color: #92400e; line-height: 1.45; text-align: left;">
+                <strong>Payment Information:</strong> Payments on this website are collected for personal consultation bookings and live educational webinar registrations. Physical medicines, supplements and other products are not sold or shipped through these checkout flows.
+              </div>
+
               <!-- MANDATORY REFERENCE COMMENT BOX -->
               <div style="background: #fffbeb; border: 2px solid #f59e0b; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; text-align: left;">
                 <div style="font-weight: 800; color: #b45309; font-size: 0.82rem; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; text-transform: uppercase;">
@@ -1545,6 +1558,9 @@
         <span class="quiz-step-counter">STEP ${currentStep + 1} OF ${total}</span>
         <h3 class="quiz-step-title">${q.title}</h3>
         <p class="quiz-step-subtitle">${q.subtitle}</p>
+        <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
+          Note: This short 60-second assessment suggests a suitable next step. It does not provide a medical diagnosis.
+        </div>
       </div>
       <div class="quiz-options-list">
         ${optionsHtml}
