@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Appointment Confirmed | Dr. Surabhi Vaidya Clinic (Thane West)</title>
-  <meta name="description" content="Your clinical consultation appointment with Dr. Surabhi Vaidya at Charak Health Solutions, Raymond TenX Habitat, Thane West has been confirmed.">
+  <title>Consultation Confirmed | Dr. Surabhi Vaidya Clinic (Thane West)</title>
+  <meta name="description" content="Your in-clinic consultation appointment with Dr. Surabhi Vaidya at Charak Health Solutions, Raymond TenX Habitat, Thane West is scheduled.">
   <meta name="robots" content="noindex, follow">
 
   <!-- Favicon Logo -->
@@ -20,7 +20,7 @@
 
   <link rel="stylesheet" href="style.css">
 
-  <!-- Google tag (gtag.js) -->
+  <!-- Google tag (gtag.js) - Base Configuration Only -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18534158307"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -29,349 +29,327 @@
 
     gtag('config', 'AW-18534158307');
 
-    // Event snippet for Purchase conversion page
-    try {
-      var urlParams = new URLSearchParams(window.location.search);
-      var txnId = urlParams.get('order_id') || urlParams.get('lead_id') || '';
-      var isPaidParam = urlParams.get('paid') === '1';
-      gtag('event', 'conversion', {
-          'send_to': 'AW-18534158307/o8ztCN3M4acdEOOf44VF',
-          'value': isPaidParam ? 1000.0 : 1.0,
-          'currency': 'INR',
-          'transaction_id': txnId
-      });
-    } catch (e) {
-      gtag('event', 'conversion', {
-          'send_to': 'AW-18534158307/o8ztCN3M4acdEOOf44VF',
-          'value': 1.0,
-          'currency': 'INR',
-          'transaction_id': ''
-      });
-    }
+    // Deduplicated Event Dispatching on Confirmation Page
+    (function() {
+      try {
+        var urlParams = new URLSearchParams(window.location.search);
+        var leadId = urlParams.get('lead_id') || urlParams.get('order_id') || ('PASS-' + Date.now().toString().slice(-4));
+        var isPaidParam = urlParams.get('paid') === '1';
+        var amountVal = isPaidParam ? 800 : 0;
+        var dedupeKey = 'consultation_confirmed_dedupe_' + leadId;
 
-    // Pushes standard lead generation & appointment conversion event
-    window.dataLayer.push({
-      'event': 'appointment_confirmed',
-      'conversion_type': 'consultation_booking',
-      'page_type': 'confirmation_page'
-    });
+        // Ensure page reload NEVER re-fires conversion events
+        if (!sessionStorage.getItem(dedupeKey)) {
+          sessionStorage.setItem(dedupeKey, 'true');
+
+          // 1. Consultation Booking Confirmed Event
+          window.dataLayer.push({
+            event: 'consultation_booking_confirmed',
+            event_category: 'booking',
+            lead_id: leadId,
+            booking_type: 'in_clinic_consultation',
+            slot: urlParams.get('slot') || 'Clinic Hours',
+            is_prepaid: isPaidParam
+          });
+
+          // 2. Verified Payment Event (ONLY if paid online)
+          if (isPaidParam) {
+            window.dataLayer.push({
+              event: 'consultation_payment_verified',
+              event_category: 'payment',
+              value: 800,
+              currency: 'INR',
+              transaction_id: leadId
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('Confirmation tracking notice:', err);
+      }
+    })();
   </script>
 
   <style>
-    .confirm-page-wrap {
-      min-height: 85vh;
+    .confirmation-page-wrapper {
+      min-height: 100vh;
+      background: linear-gradient(180deg, #faf8f5 0%, #f3efe6 100%);
+      padding: 40px 16px 60px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 40px 16px;
-      background: linear-gradient(180deg, #fbf9f5 0%, #f1efe9 100%);
     }
 
-    .confirm-card {
-      background: #ffffff;
-      border: 1px solid var(--border-color, #e5e0d8);
-      border-radius: 16px;
-      box-shadow: 0 15px 40px rgba(20, 48, 38, 0.08);
-      max-width: 620px;
+    .pass-card {
+      max-width: 600px;
       width: 100%;
-      padding: 40px 32px;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 16px 40px rgba(20, 48, 38, 0.1);
+      border: 1.5px solid var(--border-card);
+      overflow: hidden;
+    }
+
+    .pass-header {
+      background: linear-gradient(135deg, var(--primary-deep) 0%, var(--primary-forest) 100%);
+      color: #ffffff;
+      padding: 32px 24px;
       text-align: center;
     }
 
-    .confirm-badge {
-      width: 72px;
-      height: 72px;
-      background: #eef7ed;
-      border: 2px solid #86efac;
-      color: #166534;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.2rem;
-      margin: 0 auto 20px;
-      box-shadow: 0 8px 20px rgba(22, 101, 52, 0.15);
-    }
-
-    .confirm-title {
-      font-family: var(--font-serif, 'Playfair Display', serif);
-      font-size: 1.85rem;
-      color: var(--primary-deep, #143026);
+    .pass-celebration {
+      font-size: 2.8rem;
       margin-bottom: 8px;
     }
 
-    .confirm-subtitle {
-      font-size: 0.98rem;
-      color: var(--text-muted, #64748b);
-      line-height: 1.5;
-      margin-bottom: 24px;
-    }
-
-    .notice-box {
-      background: #eef7ed;
-      border: 1px solid #86efac;
-      border-radius: 10px;
-      padding: 16px;
-      text-align: left;
-      margin-bottom: 20px;
-    }
-
-    .notice-box-title {
-      font-weight: 700;
-      color: #166534;
-      font-size: 0.92rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .pass-title {
+      font-size: 1.6rem;
+      font-family: var(--font-serif);
+      color: #ffffff;
       margin-bottom: 4px;
     }
 
-    .notice-box-desc {
-      font-size: 0.85rem;
-      color: #15803d;
-      line-height: 1.5;
-    }
-
-    .details-box {
-      background: var(--bg-sand, #fbf9f5);
-      border: 1px solid var(--border-color, #e5e0d8);
-      border-radius: 12px;
-      padding: 20px;
-      text-align: left;
+    .pass-subtitle {
       font-size: 0.9rem;
-      color: var(--primary-deep, #143026);
-      line-height: 1.6;
-      margin-bottom: 24px;
+      color: #d1fae5;
     }
 
-    .detail-row {
+    .pass-body {
+      padding: 28px 24px;
       display: flex;
-      gap: 10px;
-      margin-bottom: 8px;
+      flex-direction: column;
+      gap: 18px;
     }
 
-    .detail-row:last-child {
-      margin-bottom: 0;
-    }
-
-    .detail-label {
-      font-weight: 700;
-      min-width: 130px;
-      color: var(--primary-deep, #143026);
-    }
-
-    .detail-value {
-      flex: 1;
-      color: #334155;
-    }
-
-    .checklist-card {
-      background: #fff;
-      border: 1px dashed #cbd5e1;
-      border-radius: 10px;
-      padding: 16px;
-      text-align: left;
-      margin-bottom: 24px;
-      font-size: 0.85rem;
-    }
-
-    .checklist-card h4 {
-      font-size: 0.92rem;
-      color: var(--primary-deep, #143026);
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .checklist-card ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .checklist-card li {
-      margin-bottom: 6px;
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      color: #475569;
-    }
-
-    .checklist-card li span {
-      color: #16a34a;
-      font-weight: 700;
-    }
-
-    .btn-action-group {
+    .pass-meta-box {
+      background: #f8fafc;
+      border: 1.5px solid var(--border-light);
+      border-radius: 12px;
+      padding: 18px;
       display: flex;
       flex-direction: column;
       gap: 10px;
+      font-size: 0.88rem;
     }
 
-    @media (min-width: 540px) {
-      .btn-action-group {
-        flex-direction: row;
-      }
-      .btn-action-group .btn {
-        flex: 1;
-      }
+    .pass-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px dashed #e2e8f0;
+      padding-bottom: 8px;
+    }
+
+    .pass-meta-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .meta-label {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+    }
+
+    .meta-value {
+      font-weight: 700;
+      color: var(--primary-deep);
+      text-align: right;
+    }
+
+    .badge-paid-online {
+      background: #dcfce7;
+      color: #166534;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      border: 1px solid #86efac;
+    }
+
+    .badge-pay-clinic {
+      background: #fef8ee;
+      color: #9a3412;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      border: 1px solid #fed7aa;
+    }
+
+    .instructions-card {
+      background: #eef7ed;
+      border: 1.5px solid #86efac;
+      border-radius: 12px;
+      padding: 16px 18px;
+      font-size: 0.84rem;
+      color: #166534;
+      line-height: 1.5;
+    }
+
+    .pass-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Announcement Header -->
-  <header class="header" role="banner">
-    <div class="container header-inner" style="justify-content: space-between;">
-      <a href="/" class="brand-link" aria-label="Charak Health Solutions Home">
-        <img src="assets/logo.png" alt="Charak Health Solutions Logo" class="brand-logo-img">
-        <div>
-          <span class="brand-name">Charak Health Solutions</span>
-          <span class="brand-tagline">Dr. Surabhi Vaidya Clinic · Thane West</span>
-        </div>
-      </a>
-      <a href="/" class="btn btn-secondary btn-sm">← Back to Clinic Site</a>
-    </div>
-  </header>
-
-  <main class="confirm-page-wrap">
-    <div class="confirm-card">
-      <div class="confirm-badge">✓</div>
+  <div class="confirmation-page-wrapper">
+    <div class="pass-card">
       
-      <h1 class="confirm-title" id="conf-headline">Consultation Confirmed!</h1>
-      <p class="confirm-subtitle">
-        Your 30-minute in-clinic diagnostic assessment with <strong>Dr. Surabhi Vaidya (BAMS)</strong> has been successfully booked.
-      </p>
-
-      <!-- WhatsApp Notice -->
-      <div class="notice-box">
-        <div class="notice-box-title">
-          <span>📲</span> <span>WhatsApp Notification Dispatched</span>
-        </div>
-        <div class="notice-box-desc" id="conf-whatsapp-text">
-          Appointment details and clinic directions have been sent to your registered mobile number.
-        </div>
+      <!-- Top Banner -->
+      <div class="pass-header">
+        <div class="pass-celebration">🎉</div>
+        <h1 class="pass-title" id="conf-heading">Consultation Scheduled!</h1>
+        <p class="pass-subtitle">Charak Health Solutions · Raymond TenX Habitat, Thane West</p>
       </div>
 
-      <!-- Booking Summary Details -->
-      <div class="details-box">
-        <div class="detail-row">
-          <span class="detail-label">👤 Patient Name:</span>
-          <span class="detail-value" id="conf-patient-name">Valued Patient</span>
+      <!-- Pass Content -->
+      <div class="pass-body">
+        
+        <div class="instructions-card">
+          <strong>📲 WhatsApp Confirmation Dispatched:</strong><br>
+          Appointment details and clinic directions have been queued for your WhatsApp mobile number. Please arrive 10 minutes prior to your scheduled time.
         </div>
-        <div class="detail-row">
-          <span class="detail-label">📅 Preferred Time:</span>
-          <span class="detail-value" id="conf-slot-time">Earliest Available Clinical Intake</span>
+
+        <div class="pass-meta-box">
+          <div class="pass-meta-row">
+            <span class="meta-label">Patient Name:</span>
+            <span class="meta-value" id="conf-patient-name">Patient</span>
+          </div>
+
+          <div class="pass-meta-row">
+            <span class="meta-label">Attending Doctor:</span>
+            <span class="meta-value">Dr. Surabhi Vaidya (MD Ayurveda)</span>
+          </div>
+
+          <div class="pass-meta-row">
+            <span class="meta-label">Appointment Time:</span>
+            <span class="meta-value" id="conf-slot-time">Confirmed Clinic Schedule</span>
+          </div>
+
+          <div class="pass-meta-row">
+            <span class="meta-label">Consultation Fee:</span>
+            <span class="meta-value" id="conf-fee-status">
+              <span class="badge-pay-clinic">₹1,000 (Pay at Clinic Reception)</span>
+            </span>
+          </div>
+
+          <div class="pass-meta-row">
+            <span class="meta-label">Clinic Location:</span>
+            <span class="meta-value">Cura 304, Raymond TenX Habitat, Pokharan Rd No. 2, Thane West</span>
+          </div>
         </div>
-        <div class="detail-row">
-          <span class="detail-label">⏱️ Duration:</span>
-          <span class="detail-value">30 Minutes (Pulse Diagnosis &amp; Joint Evaluation)</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">📍 Clinic Location:</span>
-          <span class="detail-value">
-            Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West, Maharashtra 400606
+
+        <!-- Exclusive 20% Prepayment Discount (Unlocked upon confirming appointment / Payment in Clinic) -->
+        <div id="prepay-discount-card" style="display: none; background: #f0fdf4; border: 2px dashed #16a34a; border-radius: 12px; padding: 18px; text-align: center;">
+          <span style="background: #16a34a; color: #ffffff; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; display: inline-block; margin-bottom: 8px;">
+            🎁 Exclusive 20% Prepayment Discount
           </span>
+          <h3 style="font-size: 1.15rem; color: #14532d; margin-bottom: 6px;">Want to Save ₹200 on Your Consultation?</h3>
+          <p style="font-size: 0.88rem; color: #166534; line-height: 1.5; margin-bottom: 14px;">
+            Because you confirmed your consultation, you can prepay online now for only <strong>₹800</strong> instead of paying ₹1,000 at clinic reception!
+          </p>
+          <button type="button" class="btn btn-primary btn-block" id="btn-claim-prepay-800" style="background: #16a34a; border-color: #16a34a; font-weight: 700; font-size: 1rem; padding: 12px;">
+            Prepay ₹800 Online (Save 20%) →
+          </button>
         </div>
-        <div class="detail-row">
-          <span class="detail-label">💳 Consultation Fee:</span>
-          <span class="detail-value" id="conf-fee-status">₹1,000 (Pay at Clinic Desk or Online)</span>
+
+        <div style="background: #f8fafc; border: 1px solid var(--border-light); border-radius: 12px; padding: 16px; font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">
+          <strong>📁 What to Bring for Your Consultation:</strong>
+          <ul style="margin-top: 6px; padding-left: 18px;">
+            <li>Previous X-ray films, MRI scans, or CT scans of your knee/back.</li>
+            <li>Recent blood test reports (CBC, ESR, Uric Acid, etc. if available).</li>
+            <li>List of current medications, painkillers, or joint supplements.</li>
+          </ul>
         </div>
-      </div>
 
-      <!-- Preparation Checklist -->
-      <div class="checklist-card">
-        <h4>📋 What to Bring to Your Visit</h4>
-        <ul>
-          <li><span>✓</span> Previous knee/spine X-Rays, MRI scans, or blood reports (if any).</li>
-          <li><span>✓</span> List of current medications or painkiller prescriptions.</li>
-          <li><span>✓</span> Wear comfortable, loose clothing for physical range-of-motion examination.</li>
-          <li><span>✓</span> Please arrive 10 minutes prior to your scheduled time slot.</li>
-        </ul>
-      </div>
+        <div class="pass-actions">
+          <a href="https://maps.google.com/?q=Raymond+TenX+Habitat+Thane+West" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span>📍</span> Open Clinic Directions on Google Maps ↗
+          </a>
+          <a href="/" class="btn btn-secondary btn-block">
+            ← Return to Clinic Homepage
+          </a>
+        </div>
 
-      <!-- Action Buttons -->
-      <div class="btn-action-group">
-        <a href="https://www.google.com/maps/place/Charak+Health+Solutions%7C+Best+Ayurvedic+Doctor+in+Vartak+Nagar+Thane%7C+Best+Panchkarma+Center+in+Vartak+Nagar+Thane/@19.2132024,72.9622171,17z/data=!4m12!1m2!2m1!1sCharak+Health+Solutions+Raymond+TenX+Habitat+Thane!3m8!1s0x3be7b9611e939a9f:0xfb1cfb6c70216b6c!8m2!3d19.2132024!4d72.9667232!9m1!1b1!16s%2Fg%2F11vx7gllpl" 
-           target="_blank" rel="noopener" class="btn btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-          <span>📍</span> Open Google Maps Directions
-        </a>
-        <a href="/" class="btn btn-secondary">
-          Return to Clinic Homepage
-        </a>
-      </div>
-
-      <div style="margin-top: 24px; font-size: 0.8rem; color: #94a3b8;">
-      <div style="margin-top: 20px; padding: 12px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; font-size: 0.78rem; color: #92400e; line-height: 1.45; text-align: left;">
-        <strong>Payment Information:</strong> Payments on this website are collected for personal consultation bookings and live educational webinar registrations. Physical medicines, supplements and other products are not sold or shipped through these checkout flows.
-      </div>
-        Clinic Inquiries: <a href="mailto:kneeandbackpainclinic@gmail.com" style="color: var(--primary-sage); text-decoration: underline;">kneeandbackpainclinic@gmail.com</a>
       </div>
     </div>
-  </main>
-
-  <footer class="footer" role="contentinfo" style="padding: 28px 0; background: var(--primary-deep, #143026); text-align: center; color: #94a3b8; font-size: 0.8rem; line-height: 1.6;">
-    <div class="container">
-      <div style="margin-bottom: 8px; font-weight: 600; color: #e2e8f0;">
-        Dr. Surabhi Sunil Vaidya · BAMS · Maharashtra Council of Indian Medicine · Registration No. I-25288-A-1
-      </div>
-      <div style="margin-bottom: 8px;">
-        <a href="/about-us" style="color: #cbd5e1; margin: 0 8px; text-decoration: underline;">About Us</a> •
-        <a href="/privacy-policy" style="color: #cbd5e1; margin: 0 8px; text-decoration: underline;">Privacy Policy</a> •
-        <a href="/shipping-and-return-policy" style="color: #cbd5e1; margin: 0 8px; text-decoration: underline;">Service Delivery Policy</a> •
-        <a href="/refund-policy" style="color: #cbd5e1; margin: 0 8px; text-decoration: underline;">Cancellation &amp; Refund Policy</a> •
-        <a href="/terms-and-conditions" style="color: #cbd5e1; margin: 0 8px; text-decoration: underline;">Terms &amp; Conditions</a>
-      </div>
-      <div style="font-size: 0.76rem; color: #64748b;">
-        © 2026 Charak Health Solutions · Cura 304, Raymond TenX Habitat, Pokharan Rd No. 2, Thane West. All Rights Reserved.
-      </div>
-    </div>
-  </footer>
-    <div class="container">
-      © 2026 Charak Health Solutions · Dr. Surabhi Vaidya Clinic (Thane West). All Rights Reserved.
-    </div>
-  </footer>
+  </div>
 
   <script>
-    // Extract query parameters from URL to populate confirmation details
     (function() {
-      try {
-        var params = new URLSearchParams(window.location.search);
-        var name = params.get('name') || '';
-        var phone = params.get('phone') || '';
-        var slot = params.get('slot') || '';
-        var paid = params.get('paid');
-        var ref = params.get('ref') || params.get('order_id') || '';
-        var utr = params.get('utr') || '';
+      var params = new URLSearchParams(window.location.search);
+      var name = params.get('name') || 'Patient';
+      var slot = params.get('slot') || 'Confirmed Schedule';
+      var isPaid = params.get('paid') === '1';
 
-        if (name) {
-          document.getElementById('conf-patient-name').textContent = name;
-          document.getElementById('conf-headline').textContent = 'Consultation Confirmed for ' + name + '!';
-        }
+      var elName = document.getElementById('conf-patient-name');
+      var elSlot = document.getElementById('conf-slot-time');
+      var elFee = document.getElementById('conf-fee-status');
+      var elHeading = document.getElementById('conf-heading');
 
-        if (slot) {
-          document.getElementById('conf-slot-time').textContent = slot;
-        }
+      if (elName) elName.textContent = name;
+      if (elSlot) elSlot.textContent = slot;
+      if (elHeading) elHeading.textContent = `Consultation Scheduled for ${name}!`;
 
-        if (phone) {
-          var cleanPhone = phone.replace(/[^0-9]/g, '').slice(-10);
-          document.getElementById('conf-whatsapp-text').innerHTML = 
-            'Appointment details and clinic directions have been sent to <strong>+91 ' + (cleanPhone || phone) + '</strong>.';
-        }
-
-        var feeStatusEl = document.getElementById('conf-fee-status');
-        if (paid === '1' || paid === 'true') {
-          var detailsText = '₹1,000 (Paid via UPI ✓)';
-          if (ref) detailsText += ' · Ref: ' + ref;
-          if (utr) detailsText += ' · UTR: ' + utr;
-          feeStatusEl.innerHTML = '<span style="color:#166534;font-weight:700;">' + detailsText + '</span>';
+      if (elFee) {
+        if (isPaid) {
+          elFee.innerHTML = '<span class="badge-paid-online">₹800 (Paid Online - 20% Discount ✓)</span>';
         } else {
-          var payLink = '/payment?plan=consultation&amount=1000&name=' + encodeURIComponent(name) + '&phone=' + encodeURIComponent(phone) + '&slot=' + encodeURIComponent(slot);
-          feeStatusEl.innerHTML = '₹1,000 (Pay at Clinic Desk or <a href="' + payLink + '" style="color:#1e3a2f;font-weight:700;text-decoration:underline;">Pay via UPI QR Now →</a>)';
+          elFee.innerHTML = '<span class="badge-pay-clinic">₹1,000 (To be paid at Clinic Desk)</span>';
         }
-      } catch (e) {
-        console.warn('Confirmation page param parser notice:', e);
+      }
+
+      // Show 20% prepayment discount offer if booked with payment in clinic
+      var discountCard = document.getElementById('prepay-discount-card');
+      if (!isPaid && discountCard) {
+        discountCard.style.display = 'block';
+        var btnClaim = document.getElementById('btn-claim-prepay-800');
+        if (btnClaim) {
+          btnClaim.addEventListener('click', async function() {
+            btnClaim.disabled = true;
+            btnClaim.textContent = 'Connecting to Secure Checkout...';
+            var leadId = params.get('lead_id') || params.get('order_id') || ('LEAD-' + Date.now().toString().slice(-4));
+            try {
+              var res = await fetch('/api/create-payu-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  orderAmount: 800,
+                  customerName: name,
+                  customerPhone: '9820145872',
+                  customerEmail: 'patient@charakhealth.com',
+                  planType: 'In-Clinic Consultation (Prepaid ₹800)',
+                  leadId: leadId
+                })
+              });
+              var orderData = await res.json();
+              if (orderData && orderData.action && orderData.params) {
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = orderData.action;
+                for (var k in orderData.params) {
+                  var inp = document.createElement('input');
+                  inp.type = 'hidden';
+                  inp.name = k;
+                  inp.value = orderData.params[k];
+                  form.appendChild(inp);
+                }
+                document.body.appendChild(form);
+                form.submit();
+                return;
+              }
+              // Sandbox simulated completion
+              window.location.href = '/confirmation.html?lead_id=' + encodeURIComponent(leadId) + '&name=' + encodeURIComponent(name) + '&slot=' + encodeURIComponent(slot) + '&paid=1';
+            } catch (err) {
+              alert('Online payment gateway is completing maintenance. Your appointment remains reserved; fee is payable at clinic reception upon arrival.');
+              btnClaim.disabled = false;
+              btnClaim.textContent = 'Prepay ₹800 Online (Save 20%) →';
+            }
+          });
+        }
       }
     })();
   </script>

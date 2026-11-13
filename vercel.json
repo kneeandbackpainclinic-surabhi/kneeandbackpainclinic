@@ -2,12 +2,20 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "outputDirectory": "dist",
   "cleanUrls": true,
+  "redirects": [
+    { "source": "/webinar", "destination": "/", "permanent": true },
+    { "source": "/webinar.html", "destination": "/", "permanent": true },
+    { "source": "/room", "destination": "/", "permanent": true },
+    { "source": "/room.html", "destination": "/", "permanent": true }
+  ],
   "rewrites": [
+    { "source": "/blog", "destination": "/blog/index.html" },
+    { "source": "/blog/", "destination": "/blog/index.html" },
+    { "source": "/blog/:slug", "destination": "/blog/:slug.html" },
     { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/webinar", "destination": "/webinar.html" },
-    { "source": "/room", "destination": "/room.html" },
     { "source": "/confirmation", "destination": "/confirmation.html" },
     { "source": "/thank-you", "destination": "/confirmation.html" },
+    { "source": "/pay-upi", "destination": "/pay-upi.html" },
     { "source": "/payment", "destination": "/payment.html" },
     { "source": "/pay", "destination": "/payment.html" },
     { "source": "/about-us", "destination": "/about-us.html" },
@@ -19,5 +27,27 @@
     { "source": "/terms-and-conditions", "destination": "/terms-and-conditions.html" },
     { "source": "/terms", "destination": "/terms.html" },
     { "source": "/api/test-whatsapp", "destination": "/api/whatsapp-send?test=true" }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/(.*\\.(?:ico|png|jpg|jpeg|svg|webp|woff2))",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
   ]
 }

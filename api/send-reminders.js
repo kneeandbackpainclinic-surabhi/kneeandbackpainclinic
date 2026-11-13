@@ -1,16 +1,17 @@
-// Vercel Serverless Function: Automated 30-Minute Consultation Reminder Runner
+// Vercel Serverless Function: Automated Consultation Reminder & Drop-Off Recovery Engine
 // Endpoint: GET /api/send-reminders & POST /api/send-reminders
 // Purpose:
-//   - Autonomous reminder scheduler running within our system (no Cal.id Pro required).
-//   - Identifies active consultations scheduled to start in ~30 minutes (15 to 45 min window).
-//   - Dispatches approved 4-line WhatsApp reminder (surabhi_v4_no_image) via AgentBandhu.
-//   - Updates status to 'Consultation Scheduled (Reminded)' for 100% deduplication.
-//   - Supports direct test trigger: /api/send-reminders?phone=91XXXXXXXXXX&test=true
+//   1. 30-Minute Consultation Reminder: Dispatches utility reminder to patients whose slot starts in ~30 min.
+//   2. Incomplete Booking Recovery (15m): Dispatches recovery prompt to leads captured with no slot chosen.
+//   3. Abandoned Checkout Recovery (24h): Dispatches fee option prompt (₹800 online vs ₹1,000 at clinic).
+//   4. Strict Opt-Out & Deduplication: Respects opted_out flag and updates recovery_step in Supabase public.leads.
 
 import {
   AGENTBANDHU_MESSAGES_ENDPOINT,
   formatPhoneNumber,
-  buildAgentBandhuPayload
+  buildAgentBandhuPayload,
+  CLINIC_UPI_VPA,
+  CLINIC_UPI_QR_URL
 } from './_lib/whatsapp-templates.js';
 
 export default async function handler(req, res) {
@@ -41,38 +42,101 @@ export default async function handler(req, res) {
   const supabaseKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_nC7DTCfJj_vhf3YsK0LW9w_NKk54fd4';
 
   // ---------------------------------------------------------------------------
-  // 1. Direct Test / Ad-hoc Dispatch Mode (?phone=91XXXXXXXXXX)
+  // 1. Opt-Out / Unsubscribe Handler (?action=opt_out&phone=91XXXXXXXXXX)
+  // ---------------------------------------------------------------------------
+  if (query.action === 'opt_out' || body.action === 'opt_out' || query.opt_out === 'true' || body.opt_out === 'true') {
+    const rawTargetPhone = query.phone || body.phone;
+    if (!rawTargetPhone) {
+      return res.status(400).json({ success: false, error: 'Missing phone number for opt-out' });
+    }
+    const cleanPhone = String(rawTargetPhone).replace(/[^0-9]/g, '').slice(-10);
+
+    if (supabaseUrl && supabaseKey) {
+      try {
+        await fetch(`${supabaseUrl}/rest/v1/leads?phone=like.*${cleanPhone}*`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            opted_out: true,
+            whatsapp_consent: false,
+            notes: `Opted out from WhatsApp communications at ${new Date().toISOString()}`
+          })
+        });
+      } catch (dbErr) {
+        console.warn('Opt-out database sync warning:', dbErr.message);
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Phone +91${cleanPhone} has been opted out from promotional WhatsApp messages.`
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // 2. Direct Diagnostic / Test Dispatch Mode (?phone=91XXXXXXXXXX&test=true)
   // ---------------------------------------------------------------------------
   const testPhone = query.phone || body.phone;
-  const isTest = query.test === 'true' || Boolean(testPhone);
+  const isTest = query.test === 'true' || Boolean(testPhone && (query.scenario || body.scenario));
 
   if (isTest && testPhone) {
     const cleanPhone = String(testPhone).replace(/[^0-9]/g, '').slice(-10);
     const testName = query.name || body.name || 'Patient';
-    const testSlot = query.slot || body.slot || '10:00 AM IST';
+    const scenario = query.scenario || body.scenario || '30min'; // '30min' | 'incomplete' | 'abandoned'
 
     if (!agentBandhuKey) {
       return res.status(400).json({
         success: false,
-        error: 'Missing AgentBandhu API key in META_WHATSAPP_ACCESS_TOKEN'
+        error: 'Missing AgentBandhu API key in META_WHATSAPP_ACCESS_TOKEN or AGENTBANDHU_API_KEY'
       });
     }
 
     try {
       const formattedTo = formatPhoneNumber(cleanPhone);
-      const reminderTemplate = 'surabhi_v4_no_image';
-      const reminderVariables = [
-        testName,
-        `Reminder: Your in-clinic consultation with Dr. Surabhi Vaidya begins in 30 minutes at ${testSlot}.`,
-        'Location: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Thane West.',
-        'Please arrive 10 minutes early. Bring relevant reports and a current list of medicines, if available.'
-      ];
+      let reminderTemplate = 'surabhi_v4_no_image';
+      let reminderVariables = [];
+      let headerMediaUrl = null;
+
+      if (scenario === 'incomplete') {
+        reminderTemplate = 'surabhi_v4_no_image';
+        reminderVariables = [
+          testName,
+          'We noticed you started reserving a consultation with Dr. Surabhi Vaidya but haven\'t chosen your slot.',
+          `Exclusive 20% Discount: Prepay ₹800 via UPI VPA: ${CLINIC_UPI_VPA} (Save ₹200 vs standard ₹1,000 at clinic).`,
+          'To select your slot & pay ₹800 directly: https://kneeandbackpainrelief.com/pay-upi?am=800'
+        ];
+      } else if (scenario === 'abandoned') {
+        // Send QR Code Header Image + VPA ID + Deep Link
+        reminderTemplate = 'surabhi_v4_with_image';
+        headerMediaUrl = CLINIC_UPI_QR_URL;
+        reminderVariables = [
+          testName,
+          'Your in-clinic consultation slot with Dr. Surabhi Vaidya is held for you at Charak Health Solutions, Thane West.',
+          `Special 20% Savings: Prepay ₹800 via UPI VPA: ${CLINIC_UPI_VPA} (or pay standard ₹1,000 at clinic reception).`,
+          'Scan the QR code above or tap here to pay ₹800: https://kneeandbackpainrelief.com/pay-upi?am=800'
+        ];
+      } else {
+        // Default 30-min reminder
+        const testSlot = query.slot || body.slot || '11:00 AM IST';
+        reminderTemplate = 'surabhi_v4_no_image';
+        reminderVariables = [
+          testName,
+          `Reminder: Your in-clinic consultation with Dr. Surabhi Vaidya begins in 30 minutes at ${testSlot}.`,
+          'Location: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Thane West.',
+          'Please arrive 10 minutes early. Bring relevant reports and a current list of medicines, if available.'
+        ];
+      }
 
       const waPayload = buildAgentBandhuPayload({
         to: formattedTo,
         templateName: reminderTemplate,
         variables: reminderVariables,
-        reference: `test_rem_${Date.now()}`
+        headerMediaUrl,
+        reference: `test_${scenario}_${Date.now()}`
       });
 
       const waResp = await fetch(AGENTBANDHU_MESSAGES_ENDPOINT, {
@@ -92,7 +156,7 @@ export default async function handler(req, res) {
 
       return res.status(200).json({
         success: waResp.ok,
-        action: 'test_reminder_dispatched',
+        action: `test_${scenario}_dispatched`,
         recipient: formattedTo,
         template: reminderTemplate,
         variables: reminderVariables,
@@ -102,220 +166,390 @@ export default async function handler(req, res) {
     } catch (err) {
       return res.status(500).json({
         success: false,
-        error: 'Failed to dispatch test reminder',
+        error: 'Failed to dispatch test WhatsApp message',
         details: err.message
       });
     }
   }
 
   // ---------------------------------------------------------------------------
-  // 2. Automated Sweep Mode: Scan Upcoming Bookings ~30 min Ahead
+  // 3. Automated Sweep Engine: 30-Min Reminders + Drop-Off Recovery Sweeps
   // ---------------------------------------------------------------------------
   try {
+    const sweepType = query.type || body.type || 'all'; // '30min' | 'recovery' | 'all'
     const now = new Date();
     const nowMs = now.getTime();
-    // 30-minute reminder window: 15 to 45 minutes from now
-    const minLeadMs = 15 * 60 * 1000;
-    const maxLeadMs = 45 * 60 * 1000;
 
-    const results = {
+    const sweepResults = {
       timestamp: now.toISOString(),
       currentTimeIST: now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit', hour12: true }),
-      targetWindow: '15 to 45 minutes ahead (~30 min reminder)',
-      checkedCount: 0,
-      remindersSent: 0,
-      skippedAlreadyReminded: 0,
-      skippedNotInWindow: 0,
-      details: []
+      sweepType,
+      reminders30m: { checked: 0, sent: 0, skipped: 0, details: [] },
+      recoveryIncomplete: { checked: 0, sent: 0, skipped: 0, details: [] },
+      recoveryAbandoned: { checked: 0, sent: 0, skipped: 0, details: [] }
     };
 
-    let eligibleLeads = [];
-    if (supabaseUrl && supabaseKey) {
-      try {
-        const resp = await fetch(
-          `${supabaseUrl}/rest/v1/leads?status=eq.Consultation Scheduled&select=id,name,phone,slot_preference,status,prior_treatments`,
-          {
-            headers: {
-              'apikey': supabaseKey,
-              'Authorization': `Bearer ${supabaseKey}`
-            }
-          }
-        );
-        if (resp.ok) {
-          const rows = await resp.json();
-          if (Array.isArray(rows)) eligibleLeads = rows;
-        }
-      } catch (e) {
-        console.warn('Could not query Supabase leads for reminders:', e.message);
-      }
-    }
+    // -------------------------------------------------------------------------
+    // SWEEP A: 30-Minute Consultation Reminders (15 to 45 min ahead)
+    // -------------------------------------------------------------------------
+    if (sweepType === 'all' || sweepType === '30min') {
+      const minLeadMs = 15 * 60 * 1000;
+      const maxLeadMs = 45 * 60 * 1000;
 
-    results.checkedCount = eligibleLeads.length;
-
-    for (const lead of eligibleLeads) {
-      const cleanPhone = (lead.phone || '').replace(/[^0-9]/g, '').slice(-10);
-      if (!cleanPhone || cleanPhone.length !== 10) continue;
-
-      // Deduplication: skip if already reminded
-      if (lead.status === 'Consultation Scheduled (Reminded)' || (lead.prior_treatments && lead.prior_treatments.includes('Reminder: 30min sent'))) {
-        results.skippedAlreadyReminded++;
-        results.details.push({
-          id: lead.id,
-          name: lead.name,
-          phone: `+91${cleanPhone}`,
-          action: 'skipped_already_reminded'
-        });
-        continue;
-      }
-
-      // Parse appointment start time
-      const slotText = lead.slot_preference || '';
-      let appointmentDate = null;
-
-      // 1. Check for [ISO:...] tag
-      const isoMatch = slotText.match(/\[ISO:([^\]]+)\]/);
-      if (isoMatch && isoMatch[1]) {
-        const d = new Date(isoMatch[1]);
-        if (!isNaN(d.getTime())) appointmentDate = d;
-      }
-
-      // 2. Fallback to readable format: "Tuesday, 27 October 2026 at 10:00 AM IST"
-      if (!appointmentDate && slotText) {
+      let eligibleAppointments = [];
+      if (supabaseUrl && supabaseKey) {
         try {
-          const cleanStr = slotText
-            .replace(/\[ISO:[^\]]+\]/, '')
-            .replace(/^[A-Za-z]+,\s*/, '')
-            .replace(' at ', ' ')
-            .replace(' IST', ' +05:30')
-            .trim();
-          const d = new Date(cleanStr);
-          if (!isNaN(d.getTime())) appointmentDate = d;
-        } catch (e) {}
-      }
-
-      let isDue = false;
-      let timeLabel = '10:00 AM IST';
-
-      if (appointmentDate) {
-        const diffMs = appointmentDate.getTime() - nowMs;
-        timeLabel = appointmentDate.toLocaleTimeString('en-IN', {
-          timeZone: 'Asia/Kolkata',
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true
-        }).toUpperCase() + ' IST';
-
-        // Due if within 15 to 45 minutes ahead
-        if (diffMs >= minLeadMs && diffMs <= maxLeadMs) {
-          isDue = true;
-        } else if (diffMs < -60 * 60 * 1000) {
-          // Appointment completed over an hour ago, archive status
-          if (supabaseUrl && supabaseKey) {
-            await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${lead.id}`, {
-              method: 'PATCH',
+          const resp = await fetch(
+            `${supabaseUrl}/rest/v1/leads?status=in.(Consultation Scheduled,Appointment Requested - Pay at Clinic,Appointment Confirmed - Paid Online (₹800))&select=id,name,phone,slot_preference,status,opted_out,prior_treatments`,
+            {
               headers: {
                 'apikey': supabaseKey,
-                'Authorization': `Bearer ${supabaseKey}`,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ status: 'Consultation Completed' })
-            }).catch(() => {});
+                'Authorization': `Bearer ${supabaseKey}`
+              }
+            }
+          );
+          if (resp.ok) {
+            const rows = await resp.json();
+            if (Array.isArray(rows)) eligibleAppointments = rows;
           }
+        } catch (e) {
+          console.warn('Could not query leads for 30m reminders:', e.message);
         }
       }
 
-      if (query.force === 'true') {
-        isDue = true;
-      }
+      sweepResults.reminders30m.checked = eligibleAppointments.length;
 
-      if (!isDue) {
-        results.skippedNotInWindow++;
-        results.details.push({
-          id: lead.id,
-          name: lead.name,
-          phone: `+91${cleanPhone}`,
-          slot: slotText,
-          diffMinutes: appointmentDate ? Math.round((appointmentDate.getTime() - nowMs) / 60000) : null,
-          action: 'skipped_not_in_30m_window'
-        });
-        continue;
-      }
+      for (const lead of eligibleAppointments) {
+        const cleanPhone = (lead.phone || '').replace(/[^0-9]/g, '').slice(-10);
+        if (!cleanPhone || cleanPhone.length !== 10) continue;
 
-      // Dispatch 30-Minute WhatsApp Reminder
-      if (agentBandhuKey) {
-        try {
-          const formattedTo = formatPhoneNumber(cleanPhone);
-          const reminderTemplate = 'surabhi_v4_no_image';
-          const reminderVariables = [
-            lead.name || 'Patient',
-            `Reminder: Your in-clinic consultation with Dr. Surabhi Vaidya begins in 30 minutes at ${timeLabel}.`,
-            'Location: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Thane West.',
-            'Please arrive 10 minutes early. Bring relevant reports and a current list of medicines, if available.'
-          ];
+        // Strict Opt-Out check
+        if (lead.opted_out === true) {
+          sweepResults.reminders30m.skipped++;
+          continue;
+        }
 
-          const waPayload = buildAgentBandhuPayload({
-            to: formattedTo,
-            templateName: reminderTemplate,
-            variables: reminderVariables,
-            reference: `rem_${lead.id}_${Date.now()}`
-          });
+        // Deduplication check
+        if (lead.status === 'Consultation Scheduled (Reminded)' || (lead.prior_treatments && lead.prior_treatments.includes('Reminder: 30min sent'))) {
+          sweepResults.reminders30m.skipped++;
+          continue;
+        }
 
-          const waResp = await fetch(AGENTBANDHU_MESSAGES_ENDPOINT, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${agentBandhuKey}`,
-              'x-api-key': agentBandhuKey,
-              'api-key': agentBandhuKey
-            },
-            body: JSON.stringify(waPayload)
-          });
+        // Parse slot start time
+        const slotText = lead.slot_preference || '';
+        let appointmentDate = null;
 
-          if (waResp.ok) {
-            results.remindersSent++;
-            // Update Supabase CRM status to Reminded
-            if (supabaseUrl && supabaseKey) {
-              await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${lead.id}`, {
-                method: 'PATCH',
-                headers: {
-                  'apikey': supabaseKey,
-                  'Authorization': `Bearer ${supabaseKey}`,
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  status: 'Consultation Scheduled (Reminded)',
-                  prior_treatments: `Reminder: 30min sent at ${now.toISOString()}`
-                })
-              }).catch(() => {});
-            }
+        const isoMatch = slotText.match(/\[ISO:([^\]]+)\]/);
+        if (isoMatch && isoMatch[1]) {
+          const d = new Date(isoMatch[1]);
+          if (!isNaN(d.getTime())) appointmentDate = d;
+        }
 
-            results.details.push({
-              id: lead.id,
-              name: lead.name,
-              phone: formattedTo,
-              action: 'reminder_sent',
-              status: 'SUCCESS'
-            });
-          } else {
-            const errText = await waResp.text();
-            results.details.push({
-              id: lead.id,
-              phone: formattedTo,
-              action: 'dispatch_failed',
-              error: errText
-            });
+        if (!appointmentDate && slotText) {
+          try {
+            const cleanStr = slotText
+              .replace(/\[ISO:[^\]]+\]/, '')
+              .replace(/^[A-Za-z]+,\s*/, '')
+              .replace(' at ', ' ')
+              .replace(' IST', ' +05:30')
+              .trim();
+            const d = new Date(cleanStr);
+            if (!isNaN(d.getTime())) appointmentDate = d;
+          } catch (e) {}
+        }
+
+        let isDue = false;
+        let timeLabel = '11:00 AM IST';
+
+        if (appointmentDate) {
+          const diffMs = appointmentDate.getTime() - nowMs;
+          timeLabel = appointmentDate.toLocaleTimeString('en-IN', {
+            timeZone: 'Asia/Kolkata',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          }).toUpperCase() + ' IST';
+
+          if (diffMs >= minLeadMs && diffMs <= maxLeadMs) {
+            isDue = true;
           }
-        } catch (dispatchErr) {
-          results.details.push({
-            id: lead.id,
-            action: 'dispatch_exception',
-            error: dispatchErr.message
-          });
+        }
+
+        if (query.force === 'true') isDue = true;
+
+        if (!isDue) {
+          sweepResults.reminders30m.skipped++;
+          continue;
+        }
+
+        // Dispatch 30m reminder via AgentBandhu
+        if (agentBandhuKey) {
+          try {
+            const formattedTo = formatPhoneNumber(cleanPhone);
+            const waPayload = buildAgentBandhuPayload({
+              to: formattedTo,
+              templateName: 'surabhi_v4_no_image',
+              variables: [
+                lead.name || 'Patient',
+                `Reminder: Your in-clinic consultation with Dr. Surabhi Vaidya begins in 30 minutes at ${timeLabel}.`,
+                'Location: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Thane West.',
+                'Please arrive 10 minutes early. Bring relevant reports and a current list of medicines, if available.'
+              ],
+              reference: `rem30m_${lead.id}_${Date.now()}`
+            });
+
+            const waResp = await fetch(AGENTBANDHU_MESSAGES_ENDPOINT, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${agentBandhuKey}`,
+                'x-api-key': agentBandhuKey,
+                'api-key': agentBandhuKey
+              },
+              body: JSON.stringify(waPayload)
+            });
+
+            if (waResp.ok) {
+              sweepResults.reminders30m.sent++;
+              if (supabaseUrl && supabaseKey) {
+                await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${lead.id}`, {
+                  method: 'PATCH',
+                  headers: {
+                    'apikey': supabaseKey,
+                    'Authorization': `Bearer ${supabaseKey}`,
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    status: 'Consultation Scheduled (Reminded)',
+                    prior_treatments: `Reminder: 30min sent at ${now.toISOString()}`
+                  })
+                }).catch(() => {});
+              }
+              sweepResults.reminders30m.details.push({ id: lead.id, phone: formattedTo, status: 'SENT' });
+            }
+          } catch (waErr) {
+            sweepResults.reminders30m.details.push({ id: lead.id, error: waErr.message });
+          }
         }
       }
     }
 
-    return res.status(200).json(results);
+    // -------------------------------------------------------------------------
+    // SWEEP B: Incomplete Booking Recovery (15 minutes after Lead Captured)
+    // -------------------------------------------------------------------------
+    if (sweepType === 'all' || sweepType === 'recovery') {
+      const minAgeMs = 15 * 60 * 1000;       // At least 15 min old
+      const maxAgeMs = 24 * 60 * 60 * 1000;  // Within 24 hours
+
+      let incompleteLeads = [];
+      if (supabaseUrl && supabaseKey) {
+        try {
+          const resp = await fetch(
+            `${supabaseUrl}/rest/v1/leads?status=eq.Lead Captured&select=id,name,phone,created_at,recovery_step,opted_out,whatsapp_consent`,
+            {
+              headers: {
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`
+              }
+            }
+          );
+          if (resp.ok) {
+            const rows = await resp.json();
+            if (Array.isArray(rows)) incompleteLeads = rows;
+          }
+        } catch (e) {
+          console.warn('Could not query leads for incomplete recovery:', e.message);
+        }
+      }
+
+      sweepResults.recoveryIncomplete.checked = incompleteLeads.length;
+
+      for (const lead of incompleteLeads) {
+        const cleanPhone = (lead.phone || '').replace(/[^0-9]/g, '').slice(-10);
+        if (!cleanPhone || cleanPhone.length !== 10) continue;
+
+        // Skip if opted out
+        if (lead.opted_out === true) {
+          sweepResults.recoveryIncomplete.skipped++;
+          continue;
+        }
+
+        // Deduplication: skip if already sent incomplete recovery
+        if (lead.recovery_step && lead.recovery_step.includes('incomplete_15m')) {
+          sweepResults.recoveryIncomplete.skipped++;
+          continue;
+        }
+
+        // Check age: between 15m and 24h
+        const leadCreated = lead.created_at ? new Date(lead.created_at).getTime() : 0;
+        const ageMs = nowMs - leadCreated;
+        if ((ageMs < minAgeMs || ageMs > maxAgeMs) && query.force !== 'true') {
+          sweepResults.recoveryIncomplete.skipped++;
+          continue;
+        }
+
+        // Dispatch Incomplete Recovery prompt
+        if (agentBandhuKey) {
+          try {
+            const formattedTo = formatPhoneNumber(cleanPhone);
+            const waPayload = buildAgentBandhuPayload({
+              to: formattedTo,
+              templateName: 'surabhi_v4_no_image',
+              variables: [
+                lead.name || 'Patient',
+                'We noticed you started reserving a consultation with Dr. Surabhi Vaidya but haven\'t chosen your slot.',
+                `Exclusive 20% Discount: Prepay ₹800 via UPI VPA: ${CLINIC_UPI_VPA} (Save ₹200 vs standard ₹1,000 at clinic).`,
+                `To select your slot & pay ₹800 directly: https://kneeandbackpainrelief.com/pay-upi?lead=${lead.id}&am=800`
+              ],
+              reference: `rec_inc_${lead.id}_${Date.now()}`
+            });
+
+            const waResp = await fetch(AGENTBANDHU_MESSAGES_ENDPOINT, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${agentBandhuKey}`,
+                'x-api-key': agentBandhuKey,
+                'api-key': agentBandhuKey
+              },
+              body: JSON.stringify(waPayload)
+            });
+
+            if (waResp.ok) {
+              sweepResults.recoveryIncomplete.sent++;
+              if (supabaseUrl && supabaseKey) {
+                await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${lead.id}`, {
+                  method: 'PATCH',
+                  headers: {
+                    'apikey': supabaseKey,
+                    'Authorization': `Bearer ${supabaseKey}`,
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    recovery_step: 'incomplete_15m',
+                    delivered_message: 'incomplete_booking_followup_15m',
+                    delivered_message_time: now.toISOString()
+                  })
+                }).catch(() => {});
+              }
+              sweepResults.recoveryIncomplete.details.push({ id: lead.id, phone: formattedTo, status: 'SENT' });
+            }
+          } catch (waErr) {
+            sweepResults.recoveryIncomplete.details.push({ id: lead.id, error: waErr.message });
+          }
+        }
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // SWEEP C: Abandoned Checkout Recovery (24 hours after Slot chosen, Unpaid)
+    // -------------------------------------------------------------------------
+    if (sweepType === 'all' || sweepType === 'recovery') {
+      const minAgeMs = 24 * 60 * 60 * 1000;  // At least 24 hours old
+      const maxAgeMs = 72 * 60 * 60 * 1000;  // Within 72 hours
+
+      let pendingLeads = [];
+      if (supabaseUrl && supabaseKey) {
+        try {
+          const resp = await fetch(
+            `${supabaseUrl}/rest/v1/leads?payment_status=ilike.*pending*&select=id,name,phone,created_at,recovery_step,opted_out,whatsapp_consent`,
+            {
+              headers: {
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`
+              }
+            }
+          );
+          if (resp.ok) {
+            const rows = await resp.json();
+            if (Array.isArray(rows)) pendingLeads = rows;
+          }
+        } catch (e) {
+          console.warn('Could not query leads for abandoned recovery:', e.message);
+        }
+      }
+
+      sweepResults.recoveryAbandoned.checked = pendingLeads.length;
+
+      for (const lead of pendingLeads) {
+        const cleanPhone = (lead.phone || '').replace(/[^0-9]/g, '').slice(-10);
+        if (!cleanPhone || cleanPhone.length !== 10) continue;
+
+        // Skip if opted out
+        if (lead.opted_out === true) {
+          sweepResults.recoveryAbandoned.skipped++;
+          continue;
+        }
+
+        // Deduplication: skip if already sent abandoned checkout recovery
+        if (lead.recovery_step && lead.recovery_step.includes('abandoned_24h')) {
+          sweepResults.recoveryAbandoned.skipped++;
+          continue;
+        }
+
+        // Check age: between 24h and 72h
+        const leadCreated = lead.created_at ? new Date(lead.created_at).getTime() : 0;
+        const ageMs = nowMs - leadCreated;
+        if ((ageMs < minAgeMs || ageMs > maxAgeMs) && query.force !== 'true') {
+          sweepResults.recoveryAbandoned.skipped++;
+          continue;
+        }
+
+        // Dispatch Abandoned Checkout Recovery prompt
+        if (agentBandhuKey) {
+          try {
+            const formattedTo = formatPhoneNumber(cleanPhone);
+            const waPayload = buildAgentBandhuPayload({
+              to: formattedTo,
+              templateName: 'surabhi_v4_with_image',
+              variables: [
+                lead.name || 'Patient',
+                'Your in-clinic consultation slot with Dr. Surabhi Vaidya is held for you at Charak Health Solutions, Thane West.',
+                `Special 20% Savings: Prepay ₹800 via UPI VPA: ${CLINIC_UPI_VPA} (or pay standard ₹1,000 at clinic reception).`,
+                `Scan the QR code above or tap here to pay ₹800: https://kneeandbackpainrelief.com/pay-upi?lead=${lead.id}&am=800`
+              ],
+              headerMediaUrl: CLINIC_UPI_QR_URL,
+              reference: `rec_abn_${lead.id}_${Date.now()}`
+            });
+
+            const waResp = await fetch(AGENTBANDHU_MESSAGES_ENDPOINT, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${agentBandhuKey}`,
+                'x-api-key': agentBandhuKey,
+                'api-key': agentBandhuKey
+              },
+              body: JSON.stringify(waPayload)
+            });
+
+            if (waResp.ok) {
+              sweepResults.recoveryAbandoned.sent++;
+              if (supabaseUrl && supabaseKey) {
+                await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${lead.id}`, {
+                  method: 'PATCH',
+                  headers: {
+                    'apikey': supabaseKey,
+                    'Authorization': `Bearer ${supabaseKey}`,
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    recovery_step: 'abandoned_24h',
+                    delivered_message: 'abandoned_checkout_followup_24h',
+                    delivered_message_time: now.toISOString()
+                  })
+                }).catch(() => {});
+              }
+              sweepResults.recoveryAbandoned.details.push({ id: lead.id, phone: formattedTo, status: 'SENT' });
+            }
+          } catch (waErr) {
+            sweepResults.recoveryAbandoned.details.push({ id: lead.id, error: waErr.message });
+          }
+        }
+      }
+    }
+
+    return res.status(200).json(sweepResults);
 
   } catch (err) {
     console.error('Send Reminders Runner Error:', err);

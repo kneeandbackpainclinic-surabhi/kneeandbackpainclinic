@@ -621,12 +621,12 @@
         </form>
 
         <a id="wa-verify-link" href="#" target="_blank" rel="noopener" class="wa-fallback-btn">
-          <span>💬</span> Send Screenshot / Confirm on WhatsApp (+91 8108500200)
+          <span>💬</span> Send Screenshot / Confirm on WhatsApp (+91 9867510223)
         </a>
       </div>
 
       <div style="text-align: center; font-size: 0.78rem; color: #94a3b8;">
-        Clinic Support: <a href="mailto:kneeandbackpainclinic@gmail.com" style="color: var(--primary-sage); text-decoration: underline;">kneeandbackpainclinic@gmail.com</a> · Call: <a href="tel:+918108500200" style="color: var(--primary-sage); text-decoration: underline;">+91 8108500200</a>
+        Clinic Support: <a href="mailto:kneeandbackpainclinic@gmail.com" style="color: var(--primary-sage); text-decoration: underline;">kneeandbackpainclinic@gmail.com</a> · Call: <a href="tel:+919867510223" style="color: var(--primary-sage); text-decoration: underline;">+91 9867510223</a>
       </div>
       <div style="text-align: center; font-size: 0.76rem; color: #64748b; margin-top: 10px;">
         All bookings are protected by our <a href="/refund-policy" target="_blank" style="color: var(--primary-sage); text-decoration: underline;">Cancellation &amp; Refund Policy</a> and <a href="/terms-and-conditions" target="_blank" style="color: var(--primary-sage); text-decoration: underline;">Terms &amp; Conditions</a>.
@@ -758,7 +758,7 @@
                       '\nPlease confirm my registration pass.';
         const waLinkEl = document.getElementById('wa-verify-link');
         if (waLinkEl) {
-          waLinkEl.href = 'https://wa.me/918108500200?text=' + encodeURIComponent(waMsg);
+          waLinkEl.href = 'https://wa.me/919867510223?text=' + encodeURIComponent(waMsg);
         }
       }
       updateWaLink('');
@@ -827,14 +827,14 @@
           }).catch(function() {});
         } catch (e) {}
 
-        // 3. Trigger Google Ads Purchase conversion event
+        // 3. Analytics Tracking (No false purchase conversions on button clicks)
         try {
-          if (typeof window.gtag === 'function') {
-            window.gtag('event', 'conversion', {
-              'send_to': 'AW-18534158307/o8ztCN3M4acdEOOf44VF',
-              'value': Number(amount),
-              'currency': 'INR',
-              'transaction_id': utr || paymentComment
+          if (typeof window.dataLayer !== 'undefined' && Array.isArray(window.dataLayer)) {
+            window.dataLayer.push({
+              event: 'consultation_payment_attested',
+              event_category: 'payment',
+              amount: Number(amount),
+              lead_id: leadId
             });
           }
         } catch (e) {}
@@ -865,7 +865,7 @@
             <a href="/room" class="btn btn-primary btn-lg" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; background: #143026; color: #fff; padding: 14px; border-radius: 8px;">
               <span>🎥</span> Enter Live Masterclass Broadcast Room →
             </a>
-            <a href="https://wa.me/918108500200?text=${encodeURIComponent('Namaste Dr. Surabhi Clinic, I have confirmed my webinar registration with payment ref ' + paymentComment)}" target="_blank" rel="noopener" class="btn btn-secondary" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; padding: 12px; border-radius: 8px;">
+            <a href="https://wa.me/919867510223?text=${encodeURIComponent('Namaste Dr. Surabhi Clinic, I have confirmed my webinar registration with payment ref ' + paymentComment)}" target="_blank" rel="noopener" class="btn btn-secondary" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; padding: 12px; border-radius: 8px;">
               <span>💬</span> Get WhatsApp Reminder on +91 ${patientPhone}
             </a>
           `;
@@ -879,7 +879,7 @@
             <a href="${confUrl}" class="btn btn-primary btn-lg" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; background: #143026; color: #fff; padding: 14px; border-radius: 8px;">
               <span>📍</span> View Appointment Pass &amp; Clinic Directions →
             </a>
-            <a href="https://wa.me/918108500200?text=${encodeURIComponent('Namaste Dr. Surabhi Clinic, I have completed the ₹1,000 consultation payment with ref ' + paymentComment)}" target="_blank" rel="noopener" class="btn btn-secondary" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; padding: 12px; border-radius: 8px;">
+            <a href="https://wa.me/919867510223?text=${encodeURIComponent('Namaste Dr. Surabhi Clinic, I have completed the ₹1,000 consultation payment with ref ' + paymentComment)}" target="_blank" rel="noopener" class="btn btn-secondary" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; padding: 12px; border-radius: 8px;">
               <span>💬</span> Send Confirmation to Clinic WhatsApp Desk
             </a>
           `;

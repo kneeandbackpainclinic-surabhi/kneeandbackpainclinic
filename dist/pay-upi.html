@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pay via UPI | Charak Health Solutions</title>
+  <meta name="description" content="Direct UPI Payment with exclusive 20% prepayment discount for consultation with Dr. Surabhi Vaidya.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-deep: #143026;
+      --primary-sage: #2d6a4f;
+      --accent-warm: #c25e3b;
+      --bg-cream: #faf8f5;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #e2e8f0;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(180deg, #faf8f5 0%, #f3efe6 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 14px;
+    }
+
+    .upi-checkout-card {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      max-width: 460px;
+      width: 100%;
+      padding: 26px 22px;
+      box-shadow: 0 20px 40px -15px rgba(20, 48, 38, 0.12);
+      text-align: center;
+    }
+
+    .clinic-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #eef7ed;
+      color: #166534;
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      border: 1px solid #bbf7d0;
+      margin-bottom: 12px;
+    }
+
+    .page-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      color: var(--primary-deep);
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .page-sub {
+      color: var(--text-muted);
+      font-size: 0.86rem;
+      line-height: 1.4;
+      margin-bottom: 16px;
+    }
+
+    .discount-callout {
+      background: #f0fdf4;
+      border: 1.5px dashed #16a34a;
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .discount-pill {
+      background: #16a34a;
+      color: #ffffff;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+
+    .fee-comparison {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-top: 4px;
+    }
+
+    .fee-strike {
+      font-size: 0.92rem;
+      color: #94a3b8;
+      text-decoration: line-through;
+    }
+
+    .fee-active {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #166534;
+    }
+
+    .btn-mobile-pay {
+      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 1.02rem;
+      text-decoration: none;
+      width: 100%;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 14px rgba(22, 163, 74, 0.3);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn-mobile-pay:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(22, 163, 74, 0.4);
+    }
+
+    .qr-container {
+      background: #faf8f5;
+      border: 1.5px solid #e2e8f0;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .qr-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--primary-deep);
+      margin-bottom: 10px;
+    }
+
+    .qr-img-wrap {
+      max-width: 220px;
+      margin: 0 auto 10px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .qr-img-wrap img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .vpa-pill-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-top: 10px;
+    }
+
+    .vpa-text {
+      font-family: monospace;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--primary-deep);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-copy-vpa {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .note-ref-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      font-size: 0.8rem;
+      color: #92400e;
+      text-align: left;
+      line-height: 1.45;
+    }
+
+    .utr-confirm-section {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 14px;
+      text-align: left;
+    }
+
+    .utr-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--primary-deep);
+      margin-bottom: 6px;
+    }
+
+    .utr-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 0.92rem;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      font-family: inherit;
+      margin-bottom: 10px;
+    }
+
+    .btn-submit-utr {
+      width: 100%;
+      background: var(--primary-deep);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .return-link {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="upi-checkout-card">
+    
+    <div class="clinic-badge">
+      <span>🛡️</span> Verified Direct Clinic UPI
+    </div>
+
+    <h1 class="page-title">Direct UPI Prepayment</h1>
+    <p class="page-sub">Dr. Surabhi Vaidya · Charak Health Solutions, Thane West</p>
+
+    <!-- 20% Discount Callout -->
+    <div class="discount-callout">
+      <span class="discount-pill">🎁 20% Prepayment Discount Applied</span>
+      <div class="fee-comparison">
+        <div>
+          <div style="font-size: 0.82rem; color: #166534; font-weight: 600;">In-Clinic Desk Fee:</div>
+          <div class="fee-strike">₹1,000</div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 0.82rem; color: #166534; font-weight: 700;">Prepay Online (Save ₹200):</div>
+          <div class="fee-active" id="display-amount">₹800</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. Mobile Instant UPI App Launcher -->
+    <a href="#" id="btn-upi-deeplink" class="btn-mobile-pay">
+      <span>📱</span> Tap to Pay in GPay / PhonePe / Paytm
+    </a>
+
+    <!-- 2. QR Code Image & VPA Copy Box -->
+    <div class="qr-container">
+      <div class="qr-title">Or Scan with Any UPI App (Google Pay / PhonePe / Paytm / BHIM):</div>
+      <div class="qr-img-wrap">
+        <img src="/assets/charak-upi-qr.jpg" alt="Charak Health Solutions UPI QR Code">
+      </div>
+
+      <!-- VPA Copy Pill -->
+      <div class="vpa-pill-box">
+        <span class="vpa-text" id="vpa-id-text">surabhivaidya7@okhdfcbank</span>
+        <button type="button" class="btn-copy-vpa" id="btn-copy-vpa">📋 Copy VPA</button>
+      </div>
+    </div>
+
+    <!-- Mandatory Note / Comment Box -->
+    <div class="note-ref-box">
+      <strong>⚠️ Payment Reference Note:</strong><br>
+      Please enter reference <strong id="ref-code-display" style="font-family: monospace; color: #78350f;">CHK-CARE</strong> in your UPI app's <em>"Add a note" / "Message"</em> box so our accounts desk can identify your booking.
+    </div>
+
+    <!-- 3. Confirm Payment / Submit UTR -->
+    <div class="utr-confirm-section">
+      <div class="utr-title">✅ Step 2: Confirm Your Payment</div>
+      <div class="utr-sub">Once payment is completed in your UPI app, enter the 12-digit UTR / UPI Ref ID below to confirm your booking:</div>
+      <form id="utr-confirm-form">
+        <input type="text" id="utr-input" class="form-input" placeholder="e.g. 431289567123 (12 digits)" required minlength="8" maxlength="22">
+        <button type="submit" class="btn-submit-utr" id="btn-submit-utr">Confirm Payment &amp; View Pass →</button>
+      </form>
+    </div>
+
+    <a href="/confirmation?paid=0" id="link-return-desk" class="return-link">
+      ← Keep ₹1,000 Payment at Clinic Desk &amp; Return to Pass
+    </a>
+
+  </div>
+
+  <script>
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      var leadId = params.get('lead') || params.get('lead_id') || ('LEAD-' + Date.now().toString().slice(-4));
+      var patientName = params.get('name') || 'Patient';
+      var phone = params.get('phone') || '';
+      var amount = params.get('am') || params.get('amount') || '800';
+      var slot = params.get('slot') || 'Confirmed Schedule';
+
+      // Reference comment: CHK-{10DigitPhone}-{LeadId}
+      var cleanPhone = phone.replace(/[^0-9]/g, '').slice(-10) || 'CARE';
+      var cleanLead = leadId.replace(/[^0-9]/g, '').slice(-4) || '101';
+      var paymentComment = 'CHK-' + cleanPhone + '-' + cleanLead;
+
+      var vpa = 'surabhivaidya7@okhdfcbank';
+      var payee = 'Charak Health Solutions';
+      var upiUrl = 'upi://pay?pa=' + encodeURIComponent(vpa) +
+                   '&pn=' + encodeURIComponent(payee) +
+                   '&am=' + encodeURIComponent(amount) +
+                   '&cu=INR' +
+                   '&tn=' + encodeURIComponent(paymentComment);
+
+      var btnDeeplink = document.getElementById('btn-upi-deeplink');
+      if (btnDeeplink) btnDeeplink.href = upiUrl;
+
+      var elRef = document.getElementById('ref-code-display');
+      if (elRef) elRef.textContent = paymentComment;
+
+      var elAmount = document.getElementById('display-amount');
+      if (elAmount) elAmount.textContent = '₹' + amount;
+
+      var linkReturn = document.getElementById('link-return-desk');
+      if (linkReturn) {
+        linkReturn.href = '/confirmation.html?lead_id=' + encodeURIComponent(leadId) +
+                          '&name=' + encodeURIComponent(patientName) +
+                          '&slot=' + encodeURIComponent(slot) +
+                          '&paid=0';
+      }
+
+      // Copy VPA Button
+      var btnCopy = document.getElementById('btn-copy-vpa');
+      if (btnCopy) {
+        btnCopy.addEventListener('click', function() {
+          navigator.clipboard.writeText(vpa).then(function() {
+            btnCopy.textContent = '✓ Copied!';
+            setTimeout(function() { btnCopy.textContent = '📋 Copy VPA'; }, 2000);
+          }).catch(function() {
+            prompt('Copy UPI VPA:', vpa);
+          });
+        });
+      }
+
+      // UTR Confirmation Form
+      var utrForm = document.getElementById('utr-confirm-form');
+      var utrInput = document.getElementById('utr-input');
+      var btnSubmit = document.getElementById('btn-submit-utr');
+
+      if (utrForm) {
+        utrForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          var utrVal = (utrInput.value || '').trim();
+          if (!utrVal || utrVal.length < 8) {
+            alert('Please enter a valid 12-digit UPI transaction reference number.');
+            return;
+          }
+
+          btnSubmit.disabled = true;
+          btnSubmit.textContent = 'Verifying & Confirming...';
+
+          try {
+            await fetch('/api/lead-intake', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                id: leadId,
+                name: patientName,
+                phone: phone,
+                slotPreference: slot,
+                status: 'Appointment Confirmed - Paid Online (₹800)',
+                paymentStatus: 'Paid Online (₹800)',
+                paymentMethod: 'upi_direct',
+                amount: 800,
+                utr: utrVal,
+                paymentOrderId: paymentComment,
+                triggerWhatsApp: true
+              })
+            });
+
+            window.location.href = '/confirmation.html?lead_id=' + encodeURIComponent(leadId) +
+                                   '&name=' + encodeURIComponent(patientName) +
+                                   '&slot=' + encodeURIComponent(slot) +
+                                   '&paid=1';
+          } catch (err) {
+            alert('Could not update status automatically. Please share screenshot of payment on clinic WhatsApp.');
+            window.location.href = '/confirmation.html?lead_id=' + encodeURIComponent(leadId) +
+                                   '&name=' + encodeURIComponent(patientName) +
+                                   '&slot=' + encodeURIComponent(slot) +
+                                   '&paid=1';
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

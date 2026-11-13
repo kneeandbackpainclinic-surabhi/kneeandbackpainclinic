@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin CRM &amp; Automation Portal | Dr. Surabhi Vaidya Clinic</title>
+  <title>Clinic CRM &amp; Staff Administration | Dr. Surabhi Vaidya</title>
   
   <!-- Inter Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,769 +15,325 @@
 <body>
 
   <!-- ======================================================================
-       1. PASSCODE LOGIN OVERLAY (PIN: surabhi2026)
+       1. SECURE SERVER-AUTHENTICATED LOGIN OVERLAY
        ====================================================================== -->
   <div id="login-overlay" class="login-overlay">
     <div class="login-card">
-      <div class="login-logo"><img src="assets/logo.png" alt="Charak Health Solutions Logo" style="width: 72px; height: 72px; object-fit: contain; margin: 0 auto 14px; display: block;"></div>
+      <div class="login-logo">
+        <img src="assets/logo.png" alt="Charak Health Solutions Logo" style="width: 64px; height: 64px; object-fit: contain; margin: 0 auto 12px; display: block;">
+      </div>
       <h1 class="login-title">Charak Health Solutions</h1>
-      <p class="login-subtitle">Doctor &amp; Staff Administration Portal</p>
+      <p class="login-subtitle">Clinic Staff &amp; Doctor Administration Portal</p>
 
-      <form id="admin-login-form">
+      <form id="admin-login-form" novalidate autocomplete="off">
         <div class="form-field">
-          <label for="admin-passcode">Staff Passcode (Pre-filled below)</label>
-          <input type="text" id="admin-passcode" placeholder="PIN: surabhi2026" value="surabhi2026" required autofocus autocomplete="off">
+          <label for="admin-passcode" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 6px; display: block;">
+            Administrator Access Key
+          </label>
+          <input type="password" id="admin-passcode" placeholder="Enter clinic admin secret key" required autofocus style="width: 100%; padding: 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-size: 1rem;">
         </div>
-        <button type="submit" class="btn-login" id="login-submit-btn" style="font-size: 1rem; font-weight: 700;">
-          Unlock Admin Portal ↗
+
+        <button type="submit" class="btn-login" id="login-submit-btn" style="width: 100%; margin-top: 14px; padding: 12px; background: #1b4332; color: #ffffff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer;">
+          Authenticate &amp; Open Portal →
         </button>
-        <button type="button" class="btn-login" style="margin-top: 10px; background: #2e5a44; color: #ffffff; font-size: 0.95rem; font-weight: 700;" onclick="quickLogin()">
-          ⚡ Quick 1-Click Unlock (No PIN Needed)
-        </button>
-        <div id="login-error" class="login-error-msg" style="display: none; color: #dc2626; margin-top: 10px; font-size: 0.85rem; font-weight: 600;">
-          Incorrect passcode. Click the 1-Click Unlock button above to enter immediately.
+
+        <div id="login-error" class="login-error-msg" style="display: none; color: #dc2626; margin-top: 12px; font-size: 0.84rem; font-weight: 600; background: #fee2e2; padding: 8px 12px; border-radius: 6px;">
+          Authentication failed. Invalid administrator credentials.
         </div>
       </form>
     </div>
   </div>
 
   <!-- ======================================================================
-       2. MAIN ADMIN DASHBOARD
+       2. MAIN CLINIC CRM APPLICATION
        ====================================================================== -->
   <div id="admin-app" class="admin-wrapper" style="display: none;">
     
-    <!-- Top Bar -->
+    <!-- Top Navigation Bar -->
     <header class="admin-topbar">
       <div class="admin-brand">
-        <img src="assets/logo.png" alt="Charak Health Solutions Logo" class="admin-logo-img" style="width: 38px; height: 38px; object-fit: contain; border-radius: 6px; flex-shrink: 0; display: block;">
+        <img src="assets/logo.png" alt="Logo" class="admin-logo-img" style="width: 36px; height: 36px; object-fit: contain; border-radius: 6px; display: block;">
         <div>
-          <span class="admin-header-title">Dr. Surabhi Vaidya Clinic · Staff Portal</span>
-          <span class="admin-header-subtitle">Knee &amp; Back Pain Relief Lead Management &amp; AI Automation</span>
+          <span class="admin-header-title">Dr. Surabhi Vaidya Clinic · Staff CRM</span>
+          <span class="admin-header-subtitle">Consultation Enquiries, Bookings &amp; Patient Follow-up</span>
         </div>
       </div>
 
       <div class="admin-header-actions">
-        <a href="./index.html" target="_blank" class="btn-admin-nav">
-          <span>↗</span> View Public Website
+        <a href="/" target="_blank" class="btn-admin-nav">
+          <span>↗</span> View Live Website
         </a>
-        <button type="button" class="btn-admin-nav" id="logout-btn">
+        <button type="button" class="btn-admin-nav" id="btn-refresh-data" title="Reload leads from database">
+          🔄 Sync Database
+        </button>
+        <button type="button" class="btn-admin-nav" id="logout-btn" style="background: #f1f5f9; color: #dc2626;">
           Log Out
         </button>
       </div>
     </header>
 
-    <!-- Navigation Tabs -->
-    <nav class="admin-nav-tabs" aria-label="Admin Sections">
-      <button type="button" class="tab-btn active" data-tab="leads">
-        <span>📋 Patient Leads &amp; CRM</span>
+    <!-- Navigation Tabs (4 Simplified Sections) -->
+    <nav class="admin-nav-tabs" aria-label="Admin Navigation">
+      <button type="button" class="tab-btn active" data-tab="overview">
+        <span>📊 Overview &amp; KPIs</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="leads">
+        <span>📋 Leads &amp; Appointments</span>
         <span class="tab-badge" id="badge-total-leads">0</span>
       </button>
       <button type="button" class="tab-btn" data-tab="whatsapp">
-        <span>💬 WhatsApp Automation</span>
-      </button>
-      <button type="button" class="tab-btn" data-tab="webinar">
-        <span>🎥 Webinar Management</span>
+        <span>💬 WhatsApp Activity</span>
       </button>
       <button type="button" class="tab-btn" data-tab="settings">
-        <span>⚙️ Clinic Settings</span>
+        <span>⚙️ Settings &amp; Health</span>
       </button>
     </nav>
 
-    <!-- Main Content -->
-    <main class="admin-main">
-      
-      <!-- ====================================================================
-           TAB 1: PATIENT LEADS & CRM INTAKE
-           ==================================================================== -->
-      <section class="tab-content active" id="tab-leads">
-        
-        <!-- KPI Metrics Grid -->
-        <div class="metrics-grid">
-          <div class="metric-card">
-            <div class="metric-info">
-              <h3>Total Intake Leads</h3>
-              <div class="value" id="metric-total">0</div>
-            </div>
-            <div class="metric-icon icon-total">👥</div>
-          </div>
+    <!-- Main Content Area -->
+    <main class="admin-content">
 
-          <div class="metric-card">
-            <div class="metric-info">
-              <h3>₹4,000 Trial Requests</h3>
-              <div class="value" id="metric-trials">0</div>
-            </div>
-            <div class="metric-icon icon-trial">⚡</div>
-          </div>
-
-          <div class="metric-card">
-            <div class="metric-info">
-              <h3>₹1,000 Consultations</h3>
-              <div class="value" id="metric-consults">0</div>
-            </div>
-            <div class="metric-icon icon-consult">🩺</div>
-          </div>
-
-          <div class="metric-card">
-            <div class="metric-info">
-              <h3>₹201 Masterclass Leads</h3>
-              <div class="value" id="metric-webinars">0</div>
-            </div>
-            <div class="metric-icon icon-webinar">🎥</div>
-          </div>
-
-          <div class="metric-card" id="metric-card-dropoff" style="border-left: 4px solid #ea580c; cursor: pointer;" title="Click to filter by Payment Drop-Offs">
-            <div class="metric-info">
-              <h3>Payment Drop-Offs</h3>
-              <div class="value" id="metric-dropoffs" style="color: #ea580c;">0</div>
-            </div>
-            <div class="metric-icon" style="background: #fff7ed; color: #ea580c;">⚠️</div>
-          </div>
+      <!-- Actionable Error Alert Banner (Displayed if API/DB fails) -->
+      <div id="admin-error-banner" class="admin-alert-banner" style="display: none;">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+          <strong id="alert-title">Database Error:</strong>
+          <span id="alert-message">Unable to connect to Supabase database.</span>
         </div>
-
-        <!-- CRM Table Card -->
-        <div class="admin-card">
-          <div class="card-header-row">
-            <div class="card-header-title">
-              <h2>Incoming Patient Inquiries &amp; Bookings</h2>
-              <p>Real-time intake from 60-Second Pain Assessment and booking requests.</p>
-            </div>
-
-            <div class="table-controls">
-              <input type="text" id="search-leads" class="search-input" placeholder="Search by name, phone, condition...">
-              
-              <select id="filter-type" class="filter-select">
-                <option value="all">All Pathways</option>
-                <option value="trial">₹4,000 1-Day Trial</option>
-                <option value="consult">₹1,000 Consultation</option>
-                <option value="webinar">₹201 Masterclass</option>
-              </select>
-
-              <select id="filter-status" class="filter-select">
-                <option value="all">All Statuses</option>
-                <option value="dropoff" style="font-weight: 700; color: #ea580c;">⚠️ Payment Drop-Offs (Follow Up)</option>
-                <option value="New Lead">New Lead</option>
-                <option value="Contacted">Contacted</option>
-                <option value="Trial Scheduled">Trial Scheduled</option>
-                <option value="Consultation Scheduled">Consultation Scheduled</option>
-                <option value="Webinar Registered">Webinar Registered</option>
-                <option value="Enrolled in 21-Day Plan">Enrolled in 21-Day Plan</option>
-              </select>
-
-              <select id="filter-message" class="filter-select">
-                <option value="all">All Delivery States</option>
-                <option value="None">No Message Sent</option>
-                <option value="T1">T1: Trial Confirmed</option>
-                <option value="T2">T2: Consultation &amp; MRI</option>
-                <option value="T3">T3: Webinar Link</option>
-                <option value="R1">R1: 24h Reminder</option>
-                <option value="R2">R2: 1h Reminder</option>
-                <option value="F1">F1: Post-Session Check-in</option>
-              </select>
-
-              <button type="button" class="btn-export" id="btn-export-csv">
-                <span>📥</span> Export CSV
-              </button>
-              <button type="button" class="btn-export" style="background: #fef2f2; color: #dc2626; border-color: #fecaca;" onclick="window.clearAllPortalData()" title="Purge all leads and logs">
-                <span>🗑️</span> Clear All Leads
-              </button>
-            </div>
-          </div>
-
-          <div class="table-responsive">
-            <table class="leads-table">
-              <thead>
-                <tr>
-                  <th>Patient</th>
-                  <th>Condition / Severity</th>
-                  <th>Recommended Step</th>
-                  <th>Preferred Slot</th>
-                  <th>Payment Status</th>
-                  <th>Delivered Message</th>
-                  <th>Lead Status</th>
-                  <th>Staff Actions</th>
-                </tr>
-              </thead>
-              <tbody id="leads-tbody">
-                <!-- Injected via JavaScript -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-      </section>
-
-      <!-- ====================================================================
-           TAB 2: WHATSAPP AUTOMATION (HEALTHYHABITSRESET PARITY)
-           ==================================================================== -->
-      <section class="tab-content" id="tab-whatsapp">
-        
-        <!-- Top Banner: AgentBandhu WhatsApp Cloud API Integration Health -->
-        <div class="admin-card wa-header-banner">
-          <div class="wa-banner-left">
-            <div class="wa-banner-icon" style="background: #25D366; color: #fff;">
-              <span>💬</span>
-            </div>
-            <div>
-              <div class="wa-banner-title-row">
-                <h3>AgentBandhu WhatsApp Cloud API</h3>
-                <span class="badge-live-meta" id="wa-api-status-badge">
-                  <span class="pulse-dot-green"></span> Ready (Official BSP)
-                </span>
-              </div>
-              <p class="wa-banner-sub">Dispatches via <code>https://agentbandhu.com/api/v1/public/messages</code>. Inbox &amp; 2-way patient conversations are managed inside the AgentBandhu platform.</p>
-            </div>
-          </div>
-          <div class="wa-banner-actions">
-            <button type="button" class="btn-wa-action btn-wa-sweep" id="btn-open-wa-diag" title="Test API key and dispatch a diagnostic test message">
-              <span>⚡</span> Live API Diagnostics
-            </button>
-            <button type="button" class="btn-wa-action btn-wa-sweep" id="btn-wa-sweep" title="Runs multi-channel sweep to trigger due WhatsApp reminders">
-              <span>✨</span> Run Reminder Sweep
-            </button>
-            <button type="button" class="btn-wa-action btn-wa-refresh" id="btn-wa-refresh" title="Reload leads & dispatches">
-              <span>🔄</span> Refresh
-            </button>
-          </div>
-        </div>
-
-        <!-- 4 Summary KPI Cards -->
-        <div class="metrics-grid wa-kpi-grid">
-          <div class="metric-card">
-            <div class="metric-info">
-              <h3>Total Dispatches</h3>
-              <div class="value" id="wa-kpi-total">0</div>
-              <div class="kpi-subtext" id="wa-kpi-total-sub">0 queued / dispatched</div>
-            </div>
-            <div class="metric-icon icon-wa-total">🚀</div>
-          </div>
-
-          <div class="metric-card">
-            <div class="metric-info">
-              <h3>Delivered</h3>
-              <div class="value" id="wa-kpi-delivered">0</div>
-              <div class="kpi-subtext" style="color: var(--admin-success);"><span id="wa-kpi-delivery-rate">0.0%</span> delivery rate</div>
-            </div>
-            <div class="metric-icon icon-wa-delivered">✓</div>
-          </div>
-
-          <div class="metric-card">
-            <div class="metric-info">
-              <h3>Read Receipts</h3>
-              <div class="value" id="wa-kpi-read">0</div>
-              <div class="kpi-subtext" style="color: #2563eb;"><span id="wa-kpi-read-rate">0.0%</span> double-blue read rate</div>
-            </div>
-            <div class="metric-icon icon-wa-read">👁️</div>
-          </div>
-
-          <div class="metric-card">
-            <div class="metric-info">
-              <h3>Failed</h3>
-              <div class="value" id="wa-kpi-failed" style="color: #dc2626;">0</div>
-              <div class="kpi-subtext" style="color: #dc2626;">0 invalid / blocked</div>
-            </div>
-            <div class="metric-icon icon-wa-failed">⚠️</div>
-          </div>
-        </div>
-
-        <!-- AgentBandhu Live Diagnostics & Test Console Card -->
-        <div class="admin-card" id="card-wa-diagnostics" style="display: none; background: #fafcfb; border: 1px solid #16a34a; border-radius: 8px; margin-bottom: 20px; padding: 20px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <div>
-              <h3 style="font-size: 1.05rem; color: #166534; display: flex; align-items: center; gap: 8px;">
-                <span>🧪</span> AgentBandhu Public API Diagnostics &amp; Live Test Runner
-              </h3>
-              <p style="font-size: 0.8rem; color: var(--admin-muted); margin: 2px 0 0 0;">
-                Test your <code>META_WHATSAPP_ACCESS_TOKEN</code> against <code>https://agentbandhu.com/api/v1/public/messages</code>.
-              </p>
-            </div>
-            <button type="button" onclick="document.querySelector('#card-wa-diagnostics').style.display='none';" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--admin-muted);">&times;</button>
-          </div>
-
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 14px;">
-            <div class="form-field">
-              <label for="diag-wa-phone" style="font-size: 0.78rem; font-weight: 700;">Recipient Mobile Number *</label>
-              <input type="tel" id="diag-wa-phone" value="" placeholder="e.g. 98XXXXXXXX" style="font-size: 0.85rem; padding: 8px 10px; border: 1px solid var(--admin-border); border-radius: 6px; width: 100%;">
-            </div>
-            <div class="form-field">
-              <label for="diag-wa-template" style="font-size: 0.78rem; font-weight: 700;">Template</label>
-              <select id="diag-wa-template" style="font-size: 0.85rem; padding: 8px 10px; border: 1px solid var(--admin-border); border-radius: 6px; width: 100%; background: #fff;">
-                <option value="webinar_registration_confirmation_v1">webinar_registration_confirmation_v1 (en)</option>
-                <option value="consultation_booking_confirmation_v1">consultation_booking_confirmation_v1 (en_US)</option>
-                <option value="webinar_joining_details_v1">webinar_joining_details_v1 (en_US)</option>
-                <option value="knee_pain_webinar_invitation_v1">knee_pain_webinar_invitation_v1 (en_US)</option>
-                <option value="meet_dr_surabhi_v1">meet_dr_surabhi_v1 (en_US)</option>
-                <option value="ozone_therapy">ozone_therapy (en, image)</option>
-                <option value="webinar_reminder_1_day_v1">webinar_reminder_1_day_v1 (en_US)</option>
-                <option value="webinar_reminder_1_hour_v1">webinar_reminder_1_hour_v1 (en_US)</option>
-                <option value="surabhi_v4_with_image">surabhi_v4_with_image (en_US, image)</option>
-                <option value="post_experience_google_review_v1">post_experience_google_review_v1 (en_US)</option>
-              </select>
-            </div>
-            <div class="form-field">
-              <label for="diag-wa-key" style="font-size: 0.78rem; font-weight: 700;">API Key (Optional Override)</label>
-              <input type="password" id="diag-wa-key" placeholder="Defaults to META_WHATSAPP_ACCESS_TOKEN" style="font-size: 0.85rem; padding: 8px 10px; border: 1px solid var(--admin-border); border-radius: 6px; width: 100%;">
-            </div>
-          </div>
-
-          <div style="display: flex; gap: 10px; margin-bottom: 14px;">
-            <button type="button" class="btn-login" id="btn-run-wa-diagnostics" style="background: #16a34a; padding: 8px 16px; font-size: 0.85rem;">
-              <span>🚀</span> Dispatch Test &amp; Inspect HTTP Response
-            </button>
-            <button type="button" class="btn-admin-nav" id="btn-check-api-health" style="background: #f1f5f9; padding: 8px 14px; font-size: 0.85rem; border: 1px solid var(--admin-border);">
-              <span>🔍</span> Check Server Config
-            </button>
-          </div>
-
-          <div id="diag-results-box" style="display: none; background: #0f172a; color: #f8fafc; padding: 14px; border-radius: 6px; font-family: monospace; font-size: 0.78rem; max-height: 280px; overflow-y: auto; white-space: pre-wrap;"></div>
-        </div>
-
-        <!-- Template Management Cards -->
-        <div class="admin-card">
-          <div class="card-header-row">
-            <div class="card-header-title">
-              <h2>AgentBandhu Approved WhatsApp Message Templates</h2>
-              <p>Official verified templates registered with Meta WhatsApp Cloud API via AgentBandhu BSP.</p>
-            </div>
-          </div>
-
-          <div class="wa-templates-grid">
-            
-            <!-- Template 1: Consultation Booking Confirmation -->
-            <div class="wa-template-card">
-              <div class="wa-tmpl-top">
-                <div class="wa-tmpl-tag badge-consult">Utility · en_US</div>
-                <button type="button" class="btn-test-send" data-tmpl="consultation_booking_confirmation_v1">⚡ Test Send</button>
-              </div>
-              <h4 class="wa-tmpl-title">consultation_booking_confirmation_v1</h4>
-              <p class="wa-tmpl-desc">Confirms in-person consultation with Dr. Surabhi Vaidya at Cura 304, Raymond TenX Habitat, Thane West.</p>
-              
-              <div class="wa-vars-preview">
-                <span class="var-badge">{{1}} Patient Name</span>
-                <span class="var-badge">{{2}} Date</span>
-                <span class="var-badge">{{3}} Time</span>
-              </div>
-            </div>
-
-            <!-- Template 2: Webinar Registration Confirmation -->
-            <div class="wa-template-card">
-              <div class="wa-tmpl-top">
-                <div class="wa-tmpl-tag badge-webinar">Utility · en</div>
-                <button type="button" class="btn-test-send" data-tmpl="webinar_registration_confirmation_v1">⚡ Test Send</button>
-              </div>
-              <h4 class="wa-tmpl-title">webinar_registration_confirmation_v1</h4>
-              <p class="wa-tmpl-desc">Sent immediately upon patient registering for the Live Knee Pain Masterclass.</p>
-              
-              <div class="wa-vars-preview">
-                <span class="var-badge">{{1}} Patient Name</span>
-                <span class="var-badge">{{2}} Date</span>
-                <span class="var-badge">{{3}} Time</span>
-              </div>
-            </div>
-
-            <!-- Template 3: Webinar Joining Details -->
-            <div class="wa-template-card">
-              <div class="wa-tmpl-top">
-                <div class="wa-tmpl-tag badge-webinar">Utility · en_US</div>
-                <button type="button" class="btn-test-send" data-tmpl="webinar_joining_details_v1">⚡ Test Send</button>
-              </div>
-              <h4 class="wa-tmpl-title">webinar_joining_details_v1</h4>
-              <p class="wa-tmpl-desc">Dispatches direct Webinar.gg embedded room joining pass upon confirmed payment.</p>
-              
-              <div class="wa-vars-preview">
-                <span class="var-badge">{{1}} Patient Name</span>
-                <span class="var-badge">{{2}} Date</span>
-                <span class="var-badge">{{3}} Time</span>
-              </div>
-            </div>
-
-            <!-- Template 4: Knee Pain Webinar Invitation -->
-            <div class="wa-template-card">
-              <div class="wa-tmpl-top">
-                <div class="wa-tmpl-tag badge-lead" style="background: #eef2ff; color: #4338ca;">Marketing · en_US</div>
-                <button type="button" class="btn-test-send" data-tmpl="knee_pain_webinar_invitation_v1">⚡ Test Send</button>
-              </div>
-              <h4 class="wa-tmpl-title">knee_pain_webinar_invitation_v1</h4>
-              <p class="wa-tmpl-desc">Broadcasting invite to opted-in patient contacts for the upcoming live Hindi session.</p>
-              
-              <div class="wa-vars-preview">
-                <span class="var-badge">{{1}} Date</span>
-                <span class="var-badge">{{2}} Time</span>
-                <span class="var-badge">{{3}} Register URL</span>
-              </div>
-            </div>
-
-            <!-- Template 5: Meet Dr. Surabhi Vaidya -->
-            <div class="wa-template-card">
-              <div class="wa-tmpl-top">
-                <div class="wa-tmpl-tag badge-trial">Marketing · en_US</div>
-                <button type="button" class="btn-test-send" data-tmpl="meet_dr_surabhi_v1">⚡ Test Send</button>
-              </div>
-              <h4 class="wa-tmpl-title">meet_dr_surabhi_v1</h4>
-              <p class="wa-tmpl-desc">Introduces Dr. Surabhi Vaidya (BAMS, MBA) and Charak Health Solutions consultation process.</p>
-              
-              <div class="wa-vars-preview">
-                <span class="var-badge">{{1}} Booking URL</span>
-              </div>
-            </div>
-
-            <!-- Template 6: Ozone Therapy + Ayurveda -->
-            <div class="wa-template-card">
-              <div class="wa-tmpl-top">
-                <div class="wa-tmpl-tag badge-trial" style="background: #ecfdf5; color: #047857;">Marketing · Image · en</div>
-                <button type="button" class="btn-test-send" data-tmpl="ozone_therapy">⚡ Test Send</button>
-              </div>
-              <h4 class="wa-tmpl-title">ozone_therapy (Header Image)</h4>
-              <p class="wa-tmpl-desc">Personalized combination of Ozone Shots + Ayurveda at Charak Health Solutions, Thane.</p>
-              
-              <div class="wa-vars-preview">
-                <span class="var-badge">🖼️ Clinic Header Image</span>
-                <span class="var-badge">0 Text Variables</span>
-              </div>
-            </div>
-
-            <!-- Template 7: Webinar 24h Reminder -->
-            <div class="wa-template-card">
-              <div class="wa-tmpl-top">
-                <div class="wa-tmpl-tag badge-webinar">Marketing · en_US</div>
-                <button type="button" class="btn-test-send" data-tmpl="webinar_reminder_1_day_v1">⚡ Test Send</button>
-              </div>
-              <h4 class="wa-tmpl-title">webinar_reminder_1_day_v1</h4>
-              <p class="wa-tmpl-desc">Automated reminder sent 24 hours prior to the live knee pain masterclass.</p>
-              
-              <div class="wa-vars-preview">
-                <span class="var-badge">{{1}} Patient Name</span>
-                <span class="var-badge">{{2}} Time</span>
-                <span class="var-badge">{{3}} Joining Link</span>
-              </div>
-            </div>
-
-            <!-- Template 8: Webinar 1 Hour Reminder -->
-            <div class="wa-template-card">
-              <div class="wa-tmpl-top">
-                <div class="wa-tmpl-tag badge-webinar">Marketing · en_US</div>
-                <button type="button" class="btn-test-send" data-tmpl="webinar_reminder_1_hour_v1">⚡ Test Send</button>
-              </div>
-              <h4 class="wa-tmpl-title">webinar_reminder_1_hour_v1</h4>
-              <p class="wa-tmpl-desc">Urgent reminder dispatched 60 minutes before the live webinar broadcast.</p>
-              
-              <div class="wa-vars-preview">
-                <span class="var-badge">{{1}} Patient Name</span>
-              </div>
-            </div>
-
-            <!-- Template 9: Surabhi V4 With Image -->
-            <div class="wa-template-card">
-              <div class="wa-tmpl-top">
-                <div class="wa-tmpl-tag badge-consult">Utility · Image · en_US</div>
-                <button type="button" class="btn-test-send" data-tmpl="surabhi_v4_with_image">⚡ Test Send</button>
-              </div>
-              <h4 class="wa-tmpl-title">surabhi_v4_with_image</h4>
-              <p class="wa-tmpl-desc">Multi-purpose clinical update with header photo and 4 dynamic content lines.</p>
-              
-              <div class="wa-vars-preview">
-                <span class="var-badge">🖼️ Image</span>
-                <span class="var-badge">{{1}} Name</span>
-                <span class="var-badge">{{2}} L1</span>
-                <span class="var-badge">{{3}} L2</span>
-                <span class="var-badge">{{4}} L3</span>
-              </div>
-            </div>
-
-            <!-- Template 10: Google Review Request -->
-            <div class="wa-template-card">
-              <div class="wa-tmpl-top">
-                <div class="wa-tmpl-tag badge-lead" style="background: #fef3c7; color: #b45309;">Marketing · en_US</div>
-                <button type="button" class="btn-test-send" data-tmpl="post_experience_google_review_v1">⚡ Test Send</button>
-              </div>
-              <h4 class="wa-tmpl-title">post_experience_google_review_v1</h4>
-              <p class="wa-tmpl-desc">Sent post-consultation inviting patient to share an honest Google review.</p>
-              
-              <div class="wa-vars-preview">
-                <span class="var-badge">{{1}} Patient Name</span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Audience Selection & Follow-Up Campaign Table -->
-        <div class="admin-card">
-          <div class="card-header-row">
-            <div class="card-header-title">
-              <h2>Audience Selection &amp; WhatsApp Follow-Up Broadcast</h2>
-              <p>Filter patient leads by treatment pathway and send personalized 1-click WhatsApp broadcasts.</p>
-            </div>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <button type="button" class="btn-export" id="btn-broadcast-selected" style="background: #15803d; color: #fff;">
-                <span>🚀</span> Dispatch Broadcast to Selected (<span id="selected-leads-count">0</span>)
-              </button>
-            </div>
-          </div>
-
-          <!-- Cohort Filter Pills -->
-          <div class="wa-cohort-tabs" id="wa-cohort-tabs">
-            <button type="button" class="cohort-tab-btn active" data-cohort="all">All Intake Leads</button>
-            <button type="button" class="cohort-tab-btn" data-cohort="trial">₹4,000 Trial Inquiries</button>
-            <button type="button" class="cohort-tab-btn" data-cohort="consult">₹1,000 Consultation Leads</button>
-            <button type="button" class="cohort-tab-btn" data-cohort="webinar">₹201 Masterclass Leads</button>
-            <button type="button" class="cohort-tab-btn" data-cohort="uncontacted">Uncontacted / Pending Only</button>
-          </div>
-
-          <div class="table-controls" style="margin-bottom: 14px;">
-            <input type="text" id="search-wa-audience" class="search-input" placeholder="Search audience by patient name or phone...">
-            <button type="button" class="btn-admin-nav" id="btn-select-all-audience" style="color: var(--admin-primary); border-color: var(--admin-border); background: #fff;">
-              Toggle Select All
-            </button>
-          </div>
-
-          <div class="table-responsive">
-            <table class="leads-table">
-              <thead>
-                <tr>
-                  <th style="width: 40px; text-align: center;">
-                    <input type="checkbox" id="chk-select-all-audience">
-                  </th>
-                  <th>Patient</th>
-                  <th>Condition &amp; Severity</th>
-                  <th>Recommended Step</th>
-                  <th>Payment Status</th>
-                  <th>Delivered Message</th>
-                  <th>Quick Dispatch</th>
-                </tr>
-              </thead>
-              <tbody id="wa-audience-tbody">
-                <!-- Injected via JavaScript -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Recent Dispatches Log Table with Meta Status Badges -->
-        <div class="admin-card">
-          <div class="card-header-row">
-            <div class="card-header-title">
-              <h2>Recent WhatsApp Dispatches &amp; Meta Read Receipts Log</h2>
-              <p>Chronological feed of messages sent with real-time delivery and read confirmations from Meta Graph API.</p>
-            </div>
-            <button type="button" class="btn-export" id="btn-export-wa-csv">
-              <span>📥</span> Export Dispatch CSV
-            </button>
-          </div>
-
-          <div class="table-responsive">
-            <table class="leads-table">
-              <thead>
-                <tr>
-                  <th>Time (IST)</th>
-                  <th>Recipient Patient</th>
-                  <th>Mobile Number</th>
-                  <th>Message Template</th>
-                  <th>Meta Delivery Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="wa-dispatches-tbody">
-                <!-- Injected via JavaScript -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-      </section>
-
-      <!-- Test Send Modal (Staff WhatsApp Dispatcher) -->
-      <div id="wa-test-modal" class="login-overlay" style="display: none;">
-        <div class="login-card" style="max-width: 580px; text-align: left; max-height: 90vh; overflow-y: auto;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--admin-border); padding-bottom: 10px;">
-            <div>
-              <h3 style="font-size: 1.15rem; color: var(--admin-primary); margin: 0;" id="wa-modal-title">⚡ Dispatch WhatsApp Template</h3>
-              <p style="font-size: 0.76rem; color: var(--admin-muted); margin: 2px 0 0 0;">AgentBandhu Public API: <code>POST /api/v1/public/messages</code></p>
-            </div>
-            <button type="button" onclick="document.querySelector('#wa-test-modal').style.display='none';" style="background: none; border: none; font-size: 1.4rem; cursor: pointer;">&times;</button>
-          </div>
-          
-          <div class="form-field" style="margin-bottom: 12px;">
-            <label for="wa-modal-tmpl-select" style="font-size: 0.8rem; font-weight: 700;">Approved Message Template *</label>
-            <select id="wa-modal-tmpl-select" style="width: 100%; padding: 9px 10px; font-size: 0.85rem; border: 1px solid var(--admin-border); border-radius: 6px; background: #fff;">
-              <option value="consultation_booking_confirmation_v1">consultation_booking_confirmation_v1 (Utility · en_US · 3 vars)</option>
-              <option value="webinar_registration_confirmation_v1">webinar_registration_confirmation_v1 (Utility · en · 3 vars)</option>
-              <option value="webinar_joining_details_v1">webinar_joining_details_v1 (Utility · en_US · 3 vars)</option>
-              <option value="knee_pain_webinar_invitation_v1">knee_pain_webinar_invitation_v1 (Marketing · en_US · 3 vars)</option>
-              <option value="meet_dr_surabhi_v1">meet_dr_surabhi_v1 (Marketing · en_US · 1 var)</option>
-              <option value="ozone_therapy">ozone_therapy (Marketing · en · Media Image)</option>
-              <option value="webinar_reminder_1_day_v1">webinar_reminder_1_day_v1 (Marketing · en_US · 3 vars)</option>
-              <option value="webinar_reminder_1_hour_v1">webinar_reminder_1_hour_v1 (Marketing · en_US · 1 var)</option>
-              <option value="surabhi_v4_with_image">surabhi_v4_with_image (Utility · en_US · Media Image · 4 vars)</option>
-              <option value="surabhi_v4_no_image">surabhi_v4_no_image (Utility · en_US · 4 vars)</option>
-              <option value="surabhi_v4_docs">surabhi_v4_docs (Utility · en_US · Media Doc · 4 vars)</option>
-              <option value="surabhi_v5_with_image">surabhi_v5_with_image (Utility · en_US · Media Image · 5 vars)</option>
-              <option value="surabhi_v5_no_image">surabhi_v5_no_image (Utility · en_US · 5 vars)</option>
-              <option value="surabhi_v5_docs">surabhi_v5_docs (Utility · en_US · Media Doc · 5 vars)</option>
-              <option value="surabhi_v5_video">surabhi_v5_video (Utility · en_US · Media Video · 5 vars)</option>
-              <option value="knee_care_assessment_education_v1">knee_care_assessment_education_v1 (Marketing · en_US · 1 var)</option>
-              <option value="knee_care_movement_education_v1">knee_care_movement_education_v1 (Marketing · en_US · 1 var)</option>
-              <option value="patient_experience_story_v1">patient_experience_story_v1 (Marketing · en_US · 1 var)</option>
-              <option value="webinar_invitation_closing_v1">webinar_invitation_closing_v1 (Marketing · en_US · 2 vars)</option>
-              <option value="post_experience_google_review_v1">post_experience_google_review_v1 (Marketing · en_US · 1 var)</option>
-            </select>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-            <div class="form-field">
-              <label for="wa-test-phone" style="font-size: 0.8rem; font-weight: 700;">Recipient Mobile (+91...) *</label>
-              <input type="tel" id="wa-test-phone" placeholder="e.g. 9820145872" style="width: 100%; padding: 8px 10px; font-size: 0.85rem; border: 1px solid var(--admin-border); border-radius: 6px;">
-            </div>
-
-            <div class="form-field">
-              <label for="wa-test-name" style="font-size: 0.8rem; font-weight: 700;">Patient Name</label>
-              <input type="text" id="wa-test-name" value="" placeholder="Patient Full Name" style="width: 100%; padding: 8px 10px; font-size: 0.85rem; border: 1px solid var(--admin-border); border-radius: 6px;">
-            </div>
-          </div>
-
-          <!-- Dynamic Template Variables Container -->
-          <div id="wa-modal-vars-container" style="background: #f8faf9; border: 1px solid var(--admin-border); border-radius: 6px; padding: 12px; margin-bottom: 12px;">
-            <div style="font-size: 0.78rem; font-weight: 700; color: var(--admin-primary); margin-bottom: 8px;">Template Variables:</div>
-            <div id="wa-modal-vars-inputs" style="display: flex; flex-direction: column; gap: 8px;">
-              <!-- Populated dynamically via JS -->
-            </div>
-          </div>
-
-          <!-- Media URL container (if template has media) -->
-          <div id="wa-modal-media-wrap" style="display: none; margin-bottom: 12px;">
-            <label for="wa-modal-media-url" style="font-size: 0.8rem; font-weight: 700;">Header Media URL (https://...)</label>
-            <input type="url" id="wa-modal-media-url" placeholder="https://..." style="width: 100%; padding: 8px 10px; font-size: 0.85rem; border: 1px solid var(--admin-border); border-radius: 6px;">
-          </div>
-
-          <div class="form-field" style="margin-bottom: 12px;">
-            <label for="wa-test-msg" style="font-size: 0.8rem; font-weight: 700;">Rendered Message Preview</label>
-            <textarea id="wa-test-msg" rows="5" readonly style="width: 100%; padding: 10px; font-size: 0.8rem; font-family: inherit; border: 1px solid var(--admin-border); border-radius: 6px; background: #fdfdfd;"></textarea>
-          </div>
-
-          <div id="wa-modal-status-box" style="display: none; padding: 10px 12px; border-radius: 6px; font-size: 0.8rem; margin-bottom: 12px;"></div>
-
-          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <button type="button" class="btn-login" id="btn-submit-test-dispatch" style="background: #16a34a; flex: 2; min-width: 200px;">
-              <span>🚀</span> Send via AgentBandhu API
-            </button>
-            <button type="button" class="btn-admin-nav" id="btn-fallback-wa-web" style="background: #25D366; color: #fff; flex: 1;">
-              <span>💬</span> WhatsApp Web
-            </button>
-            <button type="button" class="btn-admin-nav" onclick="document.querySelector('#wa-test-modal').style.display='none';" style="padding: 10px 16px; color: var(--admin-text); background: #eee;">
-              Cancel
-            </button>
-          </div>
-        </div>
+        <button type="button" class="alert-retry-btn" id="btn-alert-retry">Retry Connection</button>
       </div>
 
-      <!-- ====================================================================
-           TAB 3: WEBINAR MANAGEMENT & ANALYTICS
-           ==================================================================== -->
-      <section class="tab-content" id="tab-webinar">
-        <div class="admin-card">
-          <div class="card-header-row">
-            <div class="card-header-title">
-              <h2>Live Hindi Webinar Controller &amp; Analytics (webinar.gg)</h2>
-              <p>Schedule upcoming webinar.gg batches, track attendee conversions, and update countdown timers.</p>
-            </div>
+      <!-- ==================================================================
+           TAB 1: OVERVIEW & KPIS
+           ================================================================== -->
+      <section id="tab-overview" class="tab-content active" aria-labelledby="tab-overview-title">
+        <h2 id="tab-overview-title" style="font-size: 1.4rem; color: var(--admin-text); margin-bottom: 16px;">Clinic Performance Overview</h2>
+        
+        <div class="metrics-grid">
+          <!-- Total Leads -->
+          <div class="metric-card">
+            <span class="metric-label">Total Enquiries</span>
+            <span class="metric-value" id="kpi-total-leads">0</span>
+            <span class="metric-sub">All patient contacts captured</span>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 16px;">
-            <div style="border: 1px solid var(--admin-border); border-radius: 8px; padding: 20px;">
-              <h3 style="font-size: 1rem; color: var(--admin-primary); margin-bottom: 12px;">Next Live Masterclass Schedule</h3>
-              <div class="form-field">
-                <label for="webinar-datetime">Next Webinar Date &amp; Time (IST)</label>
-                <input type="datetime-local" id="webinar-datetime" value="2026-11-15T11:00">
-              </div>
-              <div class="form-field">
-                <label for="webinar-zoom-link">Webinar.gg Room Join Link</label>
-                <input type="url" id="webinar-zoom-link" value="https://webinar.gg/charakhealth">
-              </div>
-              <button type="button" class="btn-login" style="margin-top: 10px;" onclick="alert('Webinar schedule updated across landing pages!');">
-                Update Schedule &amp; Sync Public Timer
-              </button>
-            </div>
-
-            <div style="border: 1px solid var(--admin-border); border-radius: 8px; padding: 20px;">
-              <h3 style="font-size: 1rem; color: var(--admin-primary); margin-bottom: 12px;">Webinar Funnel Performance (Live API Sync)</h3>
-              <div style="display: grid; gap: 12px; font-size: 0.9rem;">
-                <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--admin-border);">
-                  <span>Ticket Price:</span>
-                  <strong>₹201 (PayU PG)</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--admin-border);">
-                  <span>Total Registered Attendees:</span>
-                  <strong id="stat-webinar-registered">0 Patients</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--admin-border);">
-                  <span>Peak Live Users:</span>
-                  <strong id="stat-webinar-peak" style="color: var(--admin-primary);">0 Attendees</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--admin-border);">
-                  <span>Attendance Rate:</span>
-                  <strong id="stat-webinar-rate" style="color: var(--admin-success);">0.0%</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--admin-border);">
-                  <span>Post-Webinar Clinic Consultations:</span>
-                  <strong id="stat-webinar-consults" style="color: var(--admin-accent);">0 Bookings</strong>
-                </div>
-              </div>
-              <button type="button" class="btn-export" style="margin-top: 14px; width: 100%; justify-content: center; background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe;" id="btn-sync-webinar-metrics">
-                🔄 Sync Live Webinar.gg API Metrics
-              </button>
-            </div>
+          <!-- New Enquiries -->
+          <div class="metric-card">
+            <span class="metric-label">New Enquiries</span>
+            <span class="metric-value" id="kpi-new-leads" style="color: #0284c7;">0</span>
+            <span class="metric-sub">Contact saved, slot pending</span>
           </div>
+
+          <!-- Pending Appointments -->
+          <div class="metric-card">
+            <span class="metric-label">Pending Appointments</span>
+            <span class="metric-value" id="kpi-pending-appts" style="color: #ea580c;">0</span>
+            <span class="metric-sub">Pay at Clinic / Slot reserved</span>
+          </div>
+
+          <!-- Payment Pending -->
+          <div class="metric-card">
+            <span class="metric-label">Payment Pending</span>
+            <span class="metric-value" id="kpi-pending-payment" style="color: #ca8a04;">0</span>
+            <span class="metric-sub">Checkout started (₹800/₹1,000)</span>
+          </div>
+
+          <!-- Confirmed Bookings -->
+          <div class="metric-card">
+            <span class="metric-label">Confirmed Bookings</span>
+            <span class="metric-value" id="kpi-confirmed-bookings" style="color: #16a34a;">0</span>
+            <span class="metric-sub">Prepaid or verified slots</span>
+          </div>
+
+          <!-- Completed Consultations -->
+          <div class="metric-card">
+            <span class="metric-label">Completed Visits</span>
+            <span class="metric-value" id="kpi-completed-visits" style="color: #15803d;">0</span>
+            <span class="metric-sub">Attended consultation</span>
+          </div>
+
+          <!-- Drop-offs & Recovery -->
+          <div class="metric-card">
+            <span class="metric-label">Drop-Offs &amp; Incomplete</span>
+            <span class="metric-value" id="kpi-dropoffs" style="color: #dc2626;">0</span>
+            <span class="metric-sub">Eligible for recovery reminder</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 24px; padding: 20px; background: #ffffff; border: 1.5px solid var(--admin-border); border-radius: 12px;">
+          <h3 style="font-size: 1.1rem; color: var(--admin-text); margin-bottom: 8px;">Active Consultation Strategy</h3>
+          <p style="font-size: 0.88rem; color: var(--admin-muted); line-height: 1.5;">
+            The clinic operates on a simplified consultation-only journey. All incoming ad traffic is directed toward in-person consultations with Dr. Surabhi Vaidya.
+            <br><strong>Standard Consultation Fee:</strong> ₹1,000 (Payable at clinic desk) | <strong>Online Prepaid Fee:</strong> ₹800 (Save 20%)
+          </p>
         </div>
       </section>
 
+      <!-- ==================================================================
+           TAB 2: LEADS & APPOINTMENTS (Unified Table)
+           ================================================================== -->
+      <section id="tab-leads" class="tab-content" aria-labelledby="tab-leads-title">
+        
+        <div class="leads-toolbar">
+          <input type="text" id="search-input" class="search-input" placeholder="Search by patient name, phone, or concern..." style="min-width: 280px;">
 
+          <select id="filter-status" class="filter-select">
+            <option value="all">All Booking Statuses</option>
+            <option value="Lead Captured">Lead Captured (No Slot)</option>
+            <option value="Slot Selected">Slot Selected</option>
+            <option value="Appointment Requested - Pay at Clinic">Pay at Clinic (Pending)</option>
+            <option value="Appointment Confirmed - Paid Online (₹800)">Confirmed - Paid Online (₹800)</option>
+            <option value="Consultation Completed">Consultation Completed</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
 
-      <!-- ====================================================================
-           TAB 5: CLINIC SETTINGS
-           ==================================================================== -->
-      <section class="tab-content" id="tab-settings">
-        <div class="admin-card">
-          <div class="card-header-row">
-            <div class="card-header-title">
-              <h2>Clinic Configuration &amp; Credentials</h2>
-              <p>Manage administrator credentials, Cal.id scheduling, clinic address, and contact email.</p>
+          <select id="filter-date" class="filter-select">
+            <option value="all">All Dates</option>
+            <option value="today">Today</option>
+            <option value="7days">Past 7 Days</option>
+            <option value="30days">Past 30 Days</option>
+          </select>
+
+          <button type="button" class="btn-export" id="btn-export-csv" title="Download CSV spreadsheet">
+            <span>📥</span> Export CSV
+          </button>
+        </div>
+
+        <!-- Unified Leads & Appointments Table -->
+        <div class="table-responsive">
+          <table class="leads-table" id="main-leads-table">
+            <thead>
+              <tr>
+                <th>Patient Details</th>
+                <th>Concern</th>
+                <th>Source &amp; Campaign</th>
+                <th>Appointment Slot</th>
+                <th>Booking Status</th>
+                <th>Fee &amp; Payment</th>
+                <th>WhatsApp Status</th>
+                <th>Follow-up</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="leads-tbody">
+              <tr>
+                <td colspan="9" style="text-align: center; padding: 36px; color: var(--admin-muted);">
+                  Loading verified clinic enquiries...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </section>
+
+      <!-- ==================================================================
+           TAB 3: WHATSAPP ACTIVITY & RECOVERY SEQUENCES
+           ================================================================== -->
+      <section id="tab-whatsapp" class="tab-content" aria-labelledby="tab-whatsapp-title">
+        <h2 id="tab-whatsapp-title" style="font-size: 1.4rem; color: var(--admin-text); margin-bottom: 12px;">WhatsApp Business Automation (AgentBandhu)</h2>
+        <p style="font-size: 0.88rem; color: var(--admin-muted); margin-bottom: 20px;">
+          Compliant event-driven messaging using Meta-approved templates. Drop-off recovery reminders respect opt-outs and service windows.
+        </p>
+
+        <!-- Template Registry Cards -->
+        <div class="wa-templates-grid">
+          
+          <div class="wa-template-card">
+            <div class="wa-card-header">
+              <span class="badge badge-consult">Utility</span>
+              <span class="wa-tpl-name">consultation_booking_confirmation_v1</span>
+            </div>
+            <p class="wa-tpl-desc">Dispatched upon confirmed slot reservation. Includes date, time, and Raymond TenX Habitat directions.</p>
+            <div class="wa-tpl-meta">Variables: {{1}} Patient Name, {{2}} Date, {{3}} Time</div>
+          </div>
+
+          <div class="wa-template-card">
+            <div class="wa-card-header">
+              <span class="badge badge-consult">Utility</span>
+              <span class="wa-tpl-name">surabhi_v4_no_image</span>
+            </div>
+            <p class="wa-tpl-desc">Used for incomplete booking recovery reminders (15 mins, 24 hrs, 72 hrs) and ₹800 checkout links.</p>
+            <div class="wa-tpl-meta">Variables: 4 Multi-purpose lines + Opt-out instruction</div>
+          </div>
+
+          <div class="wa-template-card">
+            <div class="wa-card-header">
+              <span class="badge" style="background: #fef8ee; color: #9a3412;">Marketing</span>
+              <span class="wa-tpl-name">meet_dr_surabhi_v1</span>
+            </div>
+            <p class="wa-tpl-desc">Introduction to Dr. Surabhi Vaidya credentials for top-of-funnel callback enquiries.</p>
+            <div class="wa-tpl-meta">Consent required · Respects STOP opt-out</div>
+          </div>
+
+          <div class="wa-template-card">
+            <div class="wa-card-header">
+              <span class="badge" style="background: #fef8ee; color: #9a3412;">Marketing</span>
+              <span class="wa-tpl-name">post_experience_google_review_v1</span>
+            </div>
+            <p class="wa-tpl-desc">Neutral Google review request sent after consultation completion.</p>
+            <div class="wa-tpl-meta">Triggered manually by staff post-visit</div>
+          </div>
+
+        </div>
+
+        <div style="margin-top: 24px; padding: 20px; background: #ffffff; border: 1.5px solid var(--admin-border); border-radius: 12px;">
+          <h3 style="font-size: 1.1rem; color: var(--admin-text); margin-bottom: 8px;">Automated Drop-off Recovery Logic</h3>
+          <ul style="font-size: 0.86rem; color: var(--admin-muted); line-height: 1.6; padding-left: 18px;">
+            <li><strong>Reminder 1 (15 Minutes):</strong> If contact captured but no slot selected, sends a polite link to choose an appointment.</li>
+            <li><strong>Reminder 2 (24 Hours):</strong> If checkout abandoned, reminds patient of the ₹800 prepaid consultation option (Save 20%).</li>
+            <li><strong>Reminder 3 (72 Hours):</strong> Final neutral reminder before archiving inactive enquiries.</li>
+            <li><strong>Opt-Out Enforcement:</strong> Any patient who replies "STOP" is immediately flagged as opted-out; all automated sequences stop permanently.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           TAB 4: SETTINGS & INTEGRATION HEALTH
+           ================================================================== -->
+      <section id="tab-settings" class="tab-content" aria-labelledby="tab-settings-title">
+        <h2 id="tab-settings-title" style="font-size: 1.4rem; color: var(--admin-text); margin-bottom: 16px;">Clinic Settings &amp; Integration Diagnostics</h2>
+
+        <div class="settings-grid">
+          
+          <div class="settings-card">
+            <h3 class="settings-card-title">Fee &amp; Clinic Configuration</h3>
+            <div class="settings-item">
+              <label>Standard Consultation Fee:</label>
+              <strong>₹1,000 (In-Clinic Reception)</strong>
+            </div>
+            <div class="settings-item">
+              <label>Online Prepaid Fee (20% Discount):</label>
+              <strong style="color: #15803d;">₹800 (Prepay via UPI / Card)</strong>
+            </div>
+            <div class="settings-item">
+              <label>Clinic Operational Hours:</label>
+              <span>Mon – Sat: 10:00 AM – 1:00 PM &amp; 4:30 PM – 7:30 PM<br>Sun: 10:00 AM – 1:00 PM</span>
+            </div>
+            <div class="settings-item">
+              <label>Clinic Address:</label>
+              <span>Cura 304, Raymond TenX Habitat, Pokharan Rd No. 2, Thane West 400606</span>
             </div>
           </div>
 
-          <div style="max-width: 600px;">
-            <div class="form-field">
-              <label for="setting-clinic-name">Clinic Name</label>
-              <input type="text" id="setting-clinic-name" value="Charak Health Solutions">
+          <div class="settings-card">
+            <h3 class="settings-card-title">Integration Diagnostics</h3>
+            <div class="settings-item">
+              <label>Database (Supabase):</label>
+              <span id="diag-db-status" class="badge badge-consult">● Connected (leqbwiexuzggdxgxngrm)</span>
             </div>
-            <div class="form-field">
-              <label for="setting-doctor-name">Doctor Name &amp; Title</label>
-              <input type="text" id="setting-doctor-name" value="Dr. Surabhi Vaidya, BAMS, MD (Ayurveda)">
+            <div class="settings-item">
+              <label>WhatsApp API (AgentBandhu):</label>
+              <span id="diag-wa-status" class="badge badge-consult">● Configured (BSP Cloud API)</span>
             </div>
-            <div class="form-field">
-              <label for="setting-clinic-address">Clinic Address</label>
-              <input type="text" id="setting-clinic-address" value="Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West, Maharashtra 400606">
+            <div class="settings-item">
+              <label>Payment Gateway (PayU):</label>
+              <span id="diag-payu-status" class="badge" style="background: #fef8ee; color: #9a3412;">● Sandbox Mode (Key: 46AxYt)</span>
             </div>
-            <div class="form-field">
-              <label for="setting-phone">Clinic Desk Phone</label>
-              <input type="text" id="setting-phone" placeholder="e.g. +91 98XXXXXXXX" value="">
+            <div class="settings-item">
+              <label>Google Ads Tracking:</label>
+              <span id="diag-tracking-status" class="badge badge-consult">● Enhanced Consultation Events</span>
             </div>
-            <div class="form-field">
-              <label for="setting-email">Clinic Email / Cal.id Account</label>
-              <input type="email" id="setting-email" value="kneeandbackpainclinic@gmail.com">
-            </div>
-            <div class="form-field">
-              <label for="setting-cal-link">Cal.id Booking Calendar URL</label>
-              <input type="url" id="setting-cal-link" value="https://cal.id/charakhealth/consultation">
-            </div>
-            <div class="form-field">
-              <label for="setting-passcode">Admin Passcode</label>
-              <input type="password" id="setting-passcode" value="surabhi2026">
-            </div>
-
-            <button type="button" class="btn-login" style="margin-top: 14px;" onclick="alert('Clinic settings updated successfully.');">
-              Save Clinic Configuration
-            </button>
           </div>
-
 
         </div>
       </section>
@@ -786,7 +342,19 @@
 
   </div>
 
-  <!-- JavaScript -->
+  <!-- Staff Notes Modal -->
+  <div id="notes-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-card modal-card-sm">
+      <h3 style="margin-bottom: 8px;">Patient Staff Notes</h3>
+      <p id="notes-patient-label" style="font-size: 0.84rem; color: var(--admin-muted); margin-bottom: 12px;"></p>
+      <textarea id="staff-notes-textarea" rows="4" style="width: 100%; padding: 10px; border-radius: 6px; border: 1.5px solid var(--admin-border); font-family: inherit; font-size: 0.88rem;" placeholder="Add private clinic notes regarding reports, symptoms, or follow-up details..."></textarea>
+      <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px;">
+        <button type="button" class="btn-admin-nav" id="btn-cancel-notes">Cancel</button>
+        <button type="button" class="btn-login" id="btn-save-notes" style="padding: 8px 16px; background: #1b4332; color: #ffffff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">Save Notes</button>
+      </div>
+    </div>
+  </div>
+
   <script src="admin.js"></script>
 </body>
 </html>

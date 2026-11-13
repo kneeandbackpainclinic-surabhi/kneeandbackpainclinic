@@ -19,12 +19,12 @@ window.BOOKING_LINKS = {
   // Clinic location & reviews
   googleMapsUrl: 'https://www.google.com/maps/place/Charak+Health+Solutions%7C+Best+Ayurvedic+Doctor+in+Vartak+Nagar+Thane%7C+Best+Panchkarma+Center+in+Vartak+Nagar+Thane/@19.2132024,72.9622171,17z/data=!4m12!1m2!2m1!1sCharak+Health+Solutions+Raymond+TenX+Habitat+Thane!3m8!1s0x3be7b9611e939a9f:0xfb1cfb6c70216b6c!8m2!3d19.2132024!4d72.9667232!9m1!1b1!16s%2Fg%2F11vx7gllpl',
   googleReviewsUrl: 'https://g.page/r/CWxrIXBs-xz7EAE/review',
-  clinicWebsite: 'https://www.kneeandbackpainclinic.com',
+  clinicWebsite: 'https://kneeandbackpainrelief.com',
   vaidyaWebsite: 'https://www.vaidyaparampara.com',
   
   // Clinic Address
   clinicAddress: 'Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Vartak Nagar, Thane West, Maharashtra 400606',
-  confirmationUrl: 'https://kneeandbackpainclinic.vercel.app/confirmation',
+  confirmationUrl: 'https://kneeandbackpainrelief.com/confirmation',
   
   // Webinar start ISO
   webinarStartIso: '2026-09-27T11:30:00Z'
@@ -314,8 +314,8 @@ window.openUPIPaymentModal = function(params) {
           <input type="text" id="modal-utr-input" placeholder="e.g. 431289567123" maxlength="20" style="flex:1;padding:8px 10px;font-size:0.88rem;border:1.5px solid #cbd5e1;border-radius:6px;outline:none;">
           <button type="button" id="modal-btn-submit-utr" style="background:#143026;color:#ffffff;border:none;padding:8px 14px;border-radius:6px;font-weight:700;font-size:0.84rem;cursor:pointer;white-space:nowrap;">Confirm</button>
         </div>
-        <a id="modal-wa-confirm-btn" href="https://wa.me/918108500200?text=${waPreMsg}" target="_blank" rel="noopener" style="background:#25d366;color:#ffffff;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;border-radius:6px;font-weight:700;font-size:0.82rem;text-decoration:none;">
-          <span>💬</span> Send Receipt on Clinic WhatsApp (+91 8108500200)
+        <a id="modal-wa-confirm-btn" href="https://wa.me/919867510223?text=${waPreMsg}" target="_blank" rel="noopener" style="background:#25d366;color:#ffffff;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;border-radius:6px;font-weight:700;font-size:0.82rem;text-decoration:none;">
+          <span>💬</span> Send Receipt on Clinic WhatsApp (+91 9867510223)
         </a>
       </div>
 
@@ -354,7 +354,7 @@ window.openUPIPaymentModal = function(params) {
     utrInp.addEventListener('input', function() {
       const u = utrInp.value.trim();
       const newMsg = encodeURIComponent('Namaste Dr. Surabhi Vaidya Clinic, I have completed the ₹' + amount + ' UPI payment for ' + name + ' (+91 ' + phone + ').\nService: ' + planType + '\nPayment Ref: ' + paymentComment + (u ? '\nUTR / Txn ID: ' + u : '') + '\nPlease confirm my registration pass.');
-      waBtn.href = 'https://wa.me/918108500200?text=' + newMsg;
+      waBtn.href = 'https://wa.me/919867510223?text=' + newMsg;
     });
   }
 
@@ -395,14 +395,14 @@ window.openUPIPaymentModal = function(params) {
       body: JSON.stringify(updatedPayload)
     }).catch(function() {});
 
-    // Google Ads conversion event
+    // Analytics event (Safe tracking without false purchase conversion)
     try {
-      if (typeof window.gtag === 'function') {
-        window.gtag('event', 'conversion', {
-          'send_to': 'AW-18534158307/o8ztCN3M4acdEOOf44VF',
-          'value': Number(amount),
-          'currency': 'INR',
-          'transaction_id': utr || paymentComment
+      if (typeof window.dataLayer !== 'undefined' && Array.isArray(window.dataLayer)) {
+        window.dataLayer.push({
+          event: 'consultation_payment_attested',
+          event_category: 'payment',
+          amount: Number(amount),
+          orderId: utr || paymentComment
         });
       }
     } catch (e) {}
@@ -474,18 +474,19 @@ window.triggerPaymentGatewayCheckout = window.openUPIPaymentModal;
 
 // Post-payment return handler (Shows confirmation popup upon redirect back from PayU)
 function showPaymentSuccessPopup(info) {
-  // Trigger Google Ads Purchase Conversion tracking upon confirmed payment
+  // Trigger Verified Consultation Payment event
   try {
-    if (typeof window.gtag === 'function') {
-      window.gtag('event', 'conversion', {
-        'send_to': 'AW-18534158307/o8ztCN3M4acdEOOf44VF',
-        'value': Number(info.amount) || 1.0,
-        'currency': 'INR',
-        'transaction_id': info.orderId || ''
+    if (typeof window.dataLayer !== 'undefined' && Array.isArray(window.dataLayer)) {
+      window.dataLayer.push({
+        event: 'consultation_payment_verified',
+        event_category: 'payment',
+        value: Number(info.amount) || 800,
+        currency: 'INR',
+        transaction_id: info.orderId || ''
       });
     }
   } catch (e) {
-    console.warn('Google Ads conversion trigger notice:', e);
+    console.warn('Payment success event dispatch notice:', e);
   }
   const isWebinar = (info.plan || '').toLowerCase().includes('masterclass') || (info.plan || '').toLowerCase().includes('webinar') || Number(info.amount) === 201;
   const cleanPhone = (info.phone || '').replace(/[^0-9]/g, '').slice(-10);
@@ -585,11 +586,11 @@ function showPaymentFailureRecovery(info) {
       </div>
 
       <div style="display:flex;flex-direction:column;gap:10px;">
-        <a href="https://wa.me/918108500200?text=${waText}" target="_blank" rel="noopener" style="background:#25d366;color:#ffffff;padding:12px;border-radius:8px;font-weight:700;text-decoration:none;font-size:0.92rem;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 12px rgba(37,211,102,0.3);">
+        <a href="https://wa.me/919867510223?text=${waText}" target="_blank" rel="noopener" style="background:#25d366;color:#ffffff;padding:12px;border-radius:8px;font-weight:700;text-decoration:none;font-size:0.92rem;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 12px rgba(37,211,102,0.3);">
           <span>💬</span> WhatsApp Clinic Desk for Payment Help ↗
         </a>
-        <a href="tel:+918108500200" style="background:#1e3a2f;color:#ffffff;padding:11px;border-radius:8px;font-weight:700;text-decoration:none;font-size:0.9rem;display:flex;align-items:center;justify-content:center;gap:8px;">
-          <span>📞</span> Call Clinic Reception (+91 8108500200)
+        <a href="tel:+919867510223" style="background:#1e3a2f;color:#ffffff;padding:11px;border-radius:8px;font-weight:700;text-decoration:none;font-size:0.9rem;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <span>📞</span> Call Clinic Reception (+91 9867510223)
         </a>
         <button type="button" id="close-payu-failure-modal" style="background:#f1f5f9;color:#475569;border:none;padding:10px;border-radius:8px;font-weight:600;font-size:0.86rem;cursor:pointer;margin-top:4px;">
           ← Return to Clinic Website

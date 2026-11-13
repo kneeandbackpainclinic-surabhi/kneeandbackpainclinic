@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <!-- Primary In-Clinic Consultation Landing Page -->
+  <url>
+    <loc>https://kneeandbackpainrelief.com/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Health Guides & Blog Hub -->
+  <url>
+    <loc>https://kneeandbackpainrelief.com/blog</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Blog Article 1: Knee Pain While Climbing Stairs -->
+  <url>
+    <loc>https://kneeandbackpainrelief.com/blog/knee-pain-climbing-stairs-thane</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog Article 2: Lower Back Pain From Sitting -->
+  <url>
+    <loc>https://kneeandbackpainrelief.com/blog/lower-back-pain-sitting-thane</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog Article 3: Knee Pain After 50: Is It Arthritis? -->
+  <url>
+    <loc>https://kneeandbackpainrelief.com/blog/knee-pain-after-50-arthritis-thane</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog Article 4: Sciatica Pain Symptoms & Care -->
+  <url>
+    <loc>https://kneeandbackpainrelief.com/blog/sciatica-pain-treatment-thane</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- About Us & Doctor Credentials -->
+  <url>
+    <loc>https://kneeandbackpainrelief.com/about-us</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Privacy Policy -->
+  <url>
+    <loc>https://kneeandbackpainrelief.com/privacy-policy</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Terms & Conditions -->
+  <url>
+    <loc>https://kneeandbackpainrelief.com/terms-and-conditions</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Cancellation & Refund Policy -->
+  <url>
+    <loc>https://kneeandbackpainrelief.com/refund-policy</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Appointment Fulfillment / Shipping Policy -->
+  <url>
+    <loc>https://kneeandbackpainrelief.com/shipping-policy</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+</urlset>

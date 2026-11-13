@@ -1,5 +1,6 @@
-// Vercel Serverless Function: Secure Lead Intake, Supabase Sync & WhatsApp/Email Dispatcher
+// Vercel Serverless Function: Secure Lead Intake, Supabase Sync & WhatsApp Dispatcher
 // Endpoint: POST /api/lead-intake
+// Purpose: Handles consultation enquiry capture, slot selection, and payment status updates
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -15,35 +16,77 @@ export default async function handler(req, res) {
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed.' });
+    return res.status(405).json({ error: 'Method not allowed. Use POST.' });
   }
 
   try {
-    const lead = req.body || {};
-    const rawPhone = lead.phone || '';
+    const body = req.body || {};
+    const rawPhone = body.phone || '';
     const cleanPhone = rawPhone.replace(/[^0-9]/g, '').slice(-10);
 
-    if (!cleanPhone || cleanPhone.length !== 10) {
-      return res.status(400).json({ error: 'Missing or invalid 10-digit mobile phone number' });
+    // Validate 10-digit Indian mobile number
+    if (!cleanPhone || cleanPhone.length !== 10 || !/^[6-9]\d{9}$/.test(cleanPhone)) {
+      return res.status(400).json({ error: 'Please provide a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9.' });
     }
 
-    const patientName = (lead.name || 'Patient').trim();
-    const patientEmail = (lead.email || '').trim().toLowerCase();
-    const city = (lead.city || 'Thane').trim();
-    const painArea = lead.painArea || 'Joint Pain';
-    const severity = lead.severity || '';
-    const priorTreatments = lead.priorTreatments || '';
-    const readiness = lead.readiness || '';
-    const recommendedStep = lead.recommendedStep || 'Assessment Completed';
-    const slotPreference = lead.slotPreference || 'Flexible';
-    const status = lead.status || 'New Lead';
-    const paymentStatus = lead.paymentStatus || 'Unpaid';
-    const paymentOrderId = lead.paymentOrderId || lead.payment_order_id || lead.paymentRef || lead.paymentComment || null;
-    const utr = (lead.utr || '').trim();
-    const notes = lead.notes || (utr ? `UPI UTR: ${utr} | Ref: ${paymentOrderId || 'None'}` : (paymentOrderId ? `UPI Ref: ${paymentOrderId}` : null));
-    const deliveredMessage = lead.deliveredMessage || 'None';
-    const createdAt = lead.createdAt || new Date().toISOString();
-    const leadId = lead.id || ('LEAD-' + Math.floor(1000 + Math.random() * 9000));
+    const patientName = (body.name || 'Patient').trim();
+    if (!patientName || patientName.length < 2) {
+      return res.status(400).json({ error: 'Please provide a valid patient name (at least 2 characters).' });
+    }
+
+    const concern = body.concern || body.painArea || 'Knee Pain';
+    const whatsappConsent = Boolean(body.whatsappConsent || body.whatsapp_consent);
+    const patientEmail = (body.email || '').trim().toLowerCase();
+    const city = (body.city || 'Thane West').trim();
+
+    // Consultation pricing logic:
+    // Option 1: Pay Online ₹800 (Save 20%)
+    // Option 2: Pay at Clinic ₹1,000
+    const paymentMethod = body.paymentMethod || body.payment_method || 'pending';
+    let amount = 1000;
+    let discountApplied = 0;
+
+    if (paymentMethod === 'pay_online_payu' || body.amount === 800) {
+      amount = 800;
+      discountApplied = 200;
+    } else if (body.amount) {
+      amount = Number(body.amount);
+    }
+
+    const slotPreference = (body.slotPreference || body.slot || '').trim();
+    const slotDate = (body.slotDate || body.slot_date || '').trim();
+    const slotTime = (body.slotTime || body.slot_time || '').trim();
+
+    // Booking & Payment Statuses
+    let status = body.status || 'Lead Captured';
+    let paymentStatus = body.paymentStatus || body.payment_status || 'Unpaid';
+
+    if (paymentMethod === 'pay_at_clinic') {
+      if (!body.status) status = 'Appointment Requested - Pay at Clinic';
+      if (!body.paymentStatus) paymentStatus = 'Pay at Clinic - Pending (₹1,000)';
+    } else if (paymentMethod === 'pay_online_payu' && (paymentStatus.includes('Paid') || body.isPaid)) {
+      status = 'Appointment Confirmed - Paid Online (₹800)';
+      paymentStatus = 'Paid Online (₹800)';
+    }
+
+    const paymentOrderId = body.paymentOrderId || body.payment_order_id || body.orderId || null;
+    const utr = (body.utr || '').trim();
+    const notes = body.notes || (utr ? `UTR: ${utr}` : null);
+    const staffNotes = body.staffNotes || body.staff_notes || null;
+    const createdAt = body.createdAt || new Date().toISOString();
+    const leadId = body.id || ('LEAD-' + Math.floor(1000 + Math.random() * 9000));
+
+    // Marketing Attribution
+    const utmSource = body.utm_source || body.utmSource || null;
+    const utmMedium = body.utm_medium || body.utmMedium || null;
+    const utmCampaign = body.utm_campaign || body.utmCampaign || null;
+    const utmContent = body.utm_content || body.utmContent || null;
+    const utmTerm = body.utm_term || body.utmTerm || null;
+    const gclid = body.gclid || null;
+
+    const recommendedStep = amount === 800
+      ? 'In-Clinic Consultation (Prepaid ₹800 - 20% Discount)'
+      : 'In-Clinic Consultation (₹1,000 at Clinic Desk)';
 
     const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://leqbwiexuzggdxgxngrm.supabase.co';
     const supabaseKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_nC7DTCfJj_vhf3YsK0LW9w_NKk54fd4';
@@ -51,10 +94,9 @@ export default async function handler(req, res) {
     let syncedToSupabase = false;
     let savedLeadId = leadId;
 
-    // 1. Resilient Sync Lead directly into Supabase Table: public.leads
     if (supabaseUrl && supabaseKey) {
       try {
-        // Step 1A: Search if lead already exists by phone to update instead of duplicate
+        // Step 1: Idempotent lookup by phone to update existing lead rather than creating duplicate
         let existingId = null;
         try {
           const searchResp = await fetch(`${supabaseUrl}/rest/v1/leads?phone=like.*${cleanPhone}*&select=id,status,slot_preference&limit=1`, {
@@ -79,28 +121,39 @@ export default async function handler(req, res) {
           : `${supabaseUrl}/rest/v1/leads`;
         const method = existingId ? 'PATCH' : 'POST';
 
-        // Step 1B: Attempt rich insert/update (assuming all columns exist)
+        // Step 2: Attempt rich payload with all new columns
         const richPayload = {
           id: savedLeadId,
           name: patientName,
           phone: cleanPhone,
-          email: patientEmail,
+          email: patientEmail || null,
           city: city,
-          pain_area: painArea,
-          severity: severity,
-          prior_treatments: priorTreatments,
-          readiness: readiness,
+          pain_area: concern,
+          concern: concern,
+          whatsapp_consent: whatsappConsent,
           recommended_step: recommendedStep,
-          slot_preference: slotPreference,
+          slot_preference: slotPreference || null,
+          slot_date: slotDate || null,
+          slot_time: slotTime || null,
           status: status,
           payment_status: paymentStatus,
+          payment_method: paymentMethod,
+          amount: amount,
+          discount_applied: discountApplied,
           payment_order_id: paymentOrderId,
           notes: notes,
-          delivered_message: deliveredMessage,
+          staff_notes: staffNotes,
+          utm_source: utmSource,
+          utm_medium: utmMedium,
+          utm_campaign: utmCampaign,
+          utm_content: utmContent,
+          utm_term: utmTerm,
+          gclid: gclid,
+          booking_type: 'in_clinic_consultation',
           created_at: createdAt
         };
 
-        let dbResp = await fetch(endpoint, {
+        const dbResp = await fetch(endpoint, {
           method,
           headers: {
             'apikey': supabaseKey,
@@ -114,13 +167,14 @@ export default async function handler(req, res) {
         if (dbResp.ok) {
           syncedToSupabase = true;
         } else {
-          // Step 1C: Schema fallback: If custom columns (email, payment_status, delivered_message) don't exist yet in Supabase,
-          // safely embed email and payment status into base columns so NO data is lost!
+          // Step 3: Resilient fallback: If custom columns are not yet migrated in Supabase,
+          // safely embed extra attributes into base columns so NO data is lost
           const metaParts = [];
-          if (patientEmail) metaParts.push(`Email: ${patientEmail}`);
-          if (paymentStatus && paymentStatus !== 'Unpaid') metaParts.push(`Payment: ${paymentStatus}`);
-          if (paymentOrderId) metaParts.push(`Ref: ${paymentOrderId}`);
-          if (utr) metaParts.push(`UTR: ${utr}`);
+          if (concern) metaParts.push(`Concern: ${concern}`);
+          if (amount) metaParts.push(`Fee: ₹${amount}`);
+          if (paymentMethod) metaParts.push(`Method: ${paymentMethod}`);
+          if (utmSource) metaParts.push(`UTM: ${utmSource}/${utmCampaign || ''}`);
+          if (gclid) metaParts.push(`GCLID: ${gclid}`);
           const metaString = metaParts.length > 0 ? ` [${metaParts.join(' | ')}]` : '';
 
           const basePayload = {
@@ -128,13 +182,13 @@ export default async function handler(req, res) {
             name: patientName,
             phone: cleanPhone,
             city: city + (patientEmail ? ` [Email: ${patientEmail}]` : ''),
-            pain_area: painArea,
-            severity: severity,
-            prior_treatments: (priorTreatments ? `${priorTreatments} | ` : '') + (metaParts.length ? metaParts.join(' | ') : ''),
-            readiness: readiness,
+            pain_area: concern,
             recommended_step: recommendedStep,
-            slot_preference: slotPreference + metaString,
+            slot_preference: (slotPreference || 'Flexible') + metaString,
             status: status,
+            payment_status: paymentStatus,
+            payment_order_id: paymentOrderId,
+            notes: notes ? `${notes} ${metaString}` : metaString,
             created_at: createdAt
           };
 
@@ -157,26 +211,53 @@ export default async function handler(req, res) {
           }
         }
       } catch (dbErr) {
-        console.warn('Supabase DB Sync Notice:', dbErr.message);
+        console.warn('Supabase DB Connection Warning:', dbErr.message);
       }
     }
 
-    // 2. Trigger AgentBandhu WhatsApp Cloud API if configured and requested
+    // Step 4: Event-driven WhatsApp confirmation (AgentBandhu) if appointment is booked
     const agentBandhuKey = (process.env.AGENTBANDHU_API_KEY || process.env.META_WHATSAPP_ACCESS_TOKEN || '').trim();
-    const shouldSendWhatsApp = (lead.triggerWhatsApp === true);
-    if (agentBandhuKey && shouldSendWhatsApp) {
-      try {
-        const isWebinar = (recommendedStep || '').toLowerCase().includes('webinar') || (recommendedStep || '').toLowerCase().includes('masterclass');
-        const templateName = isWebinar ? 'webinar_registration_confirmation_v1' : 'consultation_booking_confirmation_v1';
-        const variables = isWebinar
-          ? [patientName, 'Sunday, 15 November 2026', '11:00 AM IST']
-          : [patientName, slotPreference || 'Upcoming Clinic Hours', 'Flexible'];
+    const isAppointmentBooked = status.includes('Appointment') || status.includes('Confirmed');
+    const shouldSendWA = body.triggerWhatsApp === true || (isAppointmentBooked && body.sendConfirmation !== false);
 
-        const { formatPhoneNumber, buildAgentBandhuPayload, AGENTBANDHU_MESSAGES_ENDPOINT } = await import('./_lib/whatsapp-templates.js');
+    if (agentBandhuKey && shouldSendWA) {
+      try {
+        const {
+          formatPhoneNumber,
+          buildAgentBandhuPayload,
+          AGENTBANDHU_MESSAGES_ENDPOINT,
+          CLINIC_UPI_VPA,
+          CLINIC_UPI_QR_URL
+        } = await import('./_lib/whatsapp-templates.js');
+
+        const displaySlot = slotPreference || `${slotDate || 'Upcoming Date'} at ${slotTime || '11:00 AM'}`;
+        const isPaidOnline = status.includes('Paid Online') || paymentStatus.includes('Paid Online');
+
+        let templateName = 'surabhi_v4_with_image';
+        let variables = [];
+        let headerMediaUrl = null;
+
+        if (isPaidOnline) {
+          // If already paid, send clean booking confirmation pass
+          templateName = 'consultation_booking_confirmation_v1';
+          variables = [patientName, slotDate || 'Clinic Hours', slotTime || '30-Minute Consultation'];
+        } else {
+          // If Payment in Clinic / Unpaid, deliver the UPI QR Code & VPA ID in WhatsApp!
+          templateName = 'surabhi_v4_with_image';
+          headerMediaUrl = CLINIC_UPI_QR_URL;
+          variables = [
+            patientName,
+            `Your consultation with Dr. Surabhi Vaidya is confirmed for ${displaySlot}. Location: Cura 304, Raymond TenX Habitat, Thane West.`,
+            `Standard Fee: ₹1,000 at clinic desk. Special 20% Discount: Prepay ₹800 via UPI VPA: ${CLINIC_UPI_VPA}`,
+            `Scan the QR code above or tap here to pay ₹800: https://kneeandbackpainrelief.com/pay-upi?lead=${savedLeadId}&am=800`
+          ];
+        }
+
         const waPayload = buildAgentBandhuPayload({
           to: formatPhoneNumber(cleanPhone),
           templateName,
           variables,
+          headerMediaUrl,
           reference: `lead_${savedLeadId}`
         });
 
@@ -206,48 +287,27 @@ export default async function handler(req, res) {
           }).catch(() => {});
         }
       } catch (waErr) {
-        console.warn('AgentBandhu WhatsApp Intake Dispatch Warning:', waErr.message);
+        console.warn('WhatsApp booking confirmation dispatch note:', waErr.message);
       }
     }
 
-    // 3. Trigger External Webhook (Make.com / Zapier / Google Sheets) if configured
-    const externalWebhookUrl = process.env.MAKE_WEBHOOK_URL || process.env.ZAPIER_WEBHOOK_URL;
-    if (externalWebhookUrl) {
-      try {
-        await fetch(externalWebhookUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            leadId: savedLeadId,
-            name: patientName,
-            phone: cleanPhone,
-            email: patientEmail,
-            city: city,
-            painArea: painArea,
-            recommendedStep: recommendedStep,
-            slotPreference: slotPreference,
-            status: status,
-            paymentStatus: paymentStatus,
-            createdAt: createdAt,
-            source: 'Google Ads / Website Direct'
-          })
-        });
-      } catch (hookErr) {
-        console.warn('Webhook dispatch warning:', hookErr.message);
-      }
-    }
-
+    // Return structured response
     return res.status(200).json({
       success: true,
-      message: 'Lead received and secured successfully',
+      message: 'Consultation enquiry saved successfully',
       leadId: savedLeadId,
       supabaseSynced: syncedToSupabase,
-      patient: {
+      lead: {
+        id: savedLeadId,
         name: patientName,
         phone: cleanPhone,
-        email: patientEmail,
+        concern: concern,
         status: status,
-        paymentStatus: paymentStatus
+        slotPreference: slotPreference,
+        amount: amount,
+        discountApplied: discountApplied,
+        paymentStatus: paymentStatus,
+        paymentMethod: paymentMethod
       }
     });
 

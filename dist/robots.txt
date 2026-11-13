@@ -1,0 +1,29 @@
+# Robots.txt for Dr. Surabhi Vaidya Knee & Back Pain Clinic
+# Production Domain: https://kneeandbackpainrelief.com
+
+User-agent: *
+Allow: /
+Allow: /blog
+Allow: /about-us
+Allow: /privacy-policy
+Allow: /terms-and-conditions
+Allow: /terms
+Allow: /refund-policy
+Allow: /shipping-policy
+
+# Disallow Private & Administrative Paths
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /payment
+Disallow: /payment.html
+Disallow: /pay
+Disallow: /pay.html
+Disallow: /confirmation
+Disallow: /confirmation.html
+Disallow: /thank-you
+Disallow: /pay-upi
+Disallow: /pay-upi.html
+
+# XML Sitemap
+Sitemap: https://kneeandbackpainrelief.com/sitemap.xml

@@ -1,21 +1,21 @@
 -- ==============================================================================
--- CHARAK HEALTH SOLUTIONS - SUPABASE DATABASE INITIALIZATION SCRIPT
--- Paste this script into your Supabase Dashboard -> SQL Editor and click "Run".
+-- CHARAK HEALTH SOLUTIONS - SUPABASE DATABASE INITIALIZATION & MIGRATION SCRIPT
+-- Dr. Surabhi Vaidya Knee & Back Pain Clinic (Thane West)
 -- ==============================================================================
 
--- 1. Create the 'leads' table with message delivery and payment tracking
+-- 1. Base 'leads' table
 CREATE TABLE IF NOT EXISTS public.leads (
     id TEXT PRIMARY KEY DEFAULT ('LEAD-' || floor(random() * 900 + 100)::text),
     name TEXT NOT NULL,
     phone TEXT NOT NULL,
-    city TEXT,
-    pain_area TEXT,
+    city TEXT DEFAULT 'Thane',
+    pain_area TEXT DEFAULT 'Knee / Back Pain',
     severity TEXT,
     prior_treatments TEXT,
     readiness TEXT,
-    recommended_step TEXT,
+    recommended_step TEXT DEFAULT '₹1,000 In-Clinic Diagnostic Consultation',
     slot_preference TEXT,
-    status TEXT DEFAULT 'New Lead',
+    status TEXT DEFAULT 'Lead Captured',
     delivered_message TEXT DEFAULT 'None',
     delivered_message_time TIMESTAMPTZ,
     payment_status TEXT DEFAULT 'Unpaid',
@@ -24,16 +24,41 @@ CREATE TABLE IF NOT EXISTS public.leads (
     created_at TIMESTAMPTZ DEFAULT now()
 );
 
--- Migration support: add columns if table already exists
+-- 2. Idempotent column additions for Consultation-Only Funnel
 ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS email TEXT;
 ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS notes TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS staff_notes TEXT;
 ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS delivered_message TEXT DEFAULT 'None';
 ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS delivered_message_time TIMESTAMPTZ;
 ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS payment_status TEXT DEFAULT 'Unpaid';
 ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS payment_order_id TEXT;
 ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS payment_updated_at TIMESTAMPTZ;
 
--- 2. Create 'webinar_event_logs' table (Webinar.gg Integration)
+-- Funnel simplification columns
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS concern TEXT DEFAULT 'Knee Pain';
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS whatsapp_consent BOOLEAN DEFAULT false;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS booking_type TEXT DEFAULT 'in_clinic_consultation';
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS amount NUMERIC DEFAULT 1000;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS discount_applied NUMERIC DEFAULT 0;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT 'pending';
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS slot_date TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS slot_time TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS follow_up_required BOOLEAN DEFAULT false;
+
+-- Marketing attribution & deduplication columns
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS utm_source TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS utm_medium TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS utm_campaign TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS utm_content TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS utm_term TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS gclid TEXT;
+
+-- Drop-off recovery & opt-out compliance
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS recovery_step TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS recovery_last_sent_at TIMESTAMPTZ;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS opted_out BOOLEAN DEFAULT false;
+
+-- 3. Historical preservation of 'webinar_event_logs' (read-only historical storage)
 CREATE TABLE IF NOT EXISTS public.webinar_event_logs (
     id BIGSERIAL PRIMARY KEY,
     webinar_id TEXT NOT NULL,
@@ -45,11 +70,11 @@ CREATE TABLE IF NOT EXISTS public.webinar_event_logs (
     created_at TIMESTAMPTZ DEFAULT now()
 );
 
--- 3. Enable Row Level Security (RLS)
+-- 4. Enable Row Level Security (RLS)
 ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.webinar_event_logs ENABLE ROW LEVEL SECURITY;
 
--- 4. Create policies to allow website intake, payment updates, and admin access
+-- 5. Safe RLS Policies
 DROP POLICY IF EXISTS "Allow public insert to leads" ON public.leads;
 CREATE POLICY "Allow public insert to leads" ON public.leads
     FOR INSERT WITH CHECK (true);
@@ -65,11 +90,3 @@ CREATE POLICY "Allow update for all" ON public.leads
 DROP POLICY IF EXISTS "Allow all for webinar logs" ON public.webinar_event_logs;
 CREATE POLICY "Allow all for webinar logs" ON public.webinar_event_logs
     FOR ALL USING (true);
-
--- 5. Insert initial seed clinic leads (optional)
-INSERT INTO public.leads (id, name, phone, city, pain_area, severity, prior_treatments, readiness, recommended_step, slot_preference, status, delivered_message, payment_status)
-VALUES 
-  ('LEAD-101', 'Rajesh K. Sharma', '9820145872', 'Vartak Nagar, Thane', 'Knee Joint (Osteoarthritis / Advised TKR)', 'Severe distress: Walking or stairs are agonizing', 'Total Knee Replacement advised by Orthopaedic', 'Ready to begin treatment to avoid surgery', '₹4,000 1-Day Experience Session', 'Tomorrow Morning (10:00 AM - 1:00 PM)', 'Trial Scheduled', 'T1: Trial Confirmed', 'Unpaid'),
-  ('LEAD-102', 'Sunita Deshmukh', '9819234567', 'Mulund West', 'Lower Back & Spine (L4-L5 / Sciatica)', 'Advanced restriction: Getting up takes 2 minutes', 'Daily painkillers with only temporary relief', 'Fairly ready and wants in-clinic consultation first', '₹1,000 Diagnostic Consultation', 'This Weekend (Saturday)', 'Consultation Scheduled', 'T2: Consultation Confirmed', 'Unpaid'),
-  ('LEAD-103', 'Arvind Mehta', '9833451290', 'Navi Mumbai', 'Bilateral Knee Stiffness & Grinding', 'Severe distress: Cannot climb stairs', 'Physiotherapy & steroid injections', 'Ready to begin treatment', '₹4,000 1-Day Experience Session', 'Next Week', 'New Lead', 'None', 'Unpaid')
-ON CONFLICT (id) DO NOTHING;

@@ -4,6 +4,12 @@
 export const AGENTBANDHU_API_BASE_URL = 'https://agentbandhu.com/api/v1/public';
 export const AGENTBANDHU_MESSAGES_ENDPOINT = `${AGENTBANDHU_API_BASE_URL}/messages`;
 
+// Clinic UPI Payment Configuration
+export const CLINIC_UPI_VPA = 'surabhivaidya7@okhdfcbank';
+export const CLINIC_UPI_PAYEE = 'Charak Health Solutions';
+export const CLINIC_UPI_QR_URL = 'https://kneeandbackpainrelief.com/assets/charak-upi-qr.jpg';
+export const CLINIC_UPI_DEEPLINK_BASE = 'upi://pay?pa=surabhivaidya7%40okhdfcbank&pn=Charak%20Health%20Solutions&cu=INR';
+
 export const WHATSAPP_TEMPLATES = {
   consultation_booking_confirmation_v1: {
     name: 'consultation_booking_confirmation_v1',
@@ -112,7 +118,7 @@ export const WHATSAPP_TEMPLATES = {
     hasMedia: true,
     mediaType: 'image',
     defaultMediaUrl: 'https://kneeandbackpainclinic.vercel.app/assets/garden-mobile-draft.png',
-    body: '🫧 TIRED? STIFF? SLOW TO RECOVER?\n\nNow experience a personalised combination of Ozone Shots + Ayurveda at Charak Health Solutions 🌿\n\n✨ Support for recovery, circulation & overall wellness — with the holistic approach of Ayurveda.\n\n👩‍⚕️ Assessment before treatment\n📍 Vartak Nagar, Thane\n📞 9082280274\n\n👉 Book your Assessment today!'
+    body: '🫧 TIRED? STIFF? SLOW TO RECOVER?\n\nNow experience a personalised combination of Ozone Shots + Ayurveda at Charak Health Solutions 🌿\n\n✨ Support for recovery, circulation & overall wellness — with the holistic approach of Ayurveda.\n\n👩‍⚕️ Assessment before treatment\n📍 Vartak Nagar, Thane\n📞 9867510223\n\n👉 Book your Assessment today!'
   },
 
   knee_care_assessment_education_v1: {
@@ -182,10 +188,10 @@ export const WHATSAPP_TEMPLATES = {
     category: 'utility',
     variableCount: 4,
     variableLabels: ['Recipient Name', 'Body Line 1', 'Body Line 2', 'Body Line 3'],
-    defaultVariables: ['Patient', 'Your appointment is confirmed at Charak Health Solutions.', 'Dr. Surabhi Vaidya will conduct your clinical assessment.', 'Clinic address: Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Thane West.'],
+    defaultVariables: ['Patient', 'Your appointment is confirmed at Charak Health Solutions.', 'Prepay online via UPI to save 20% on consultation fee.', 'Clinic address: Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Thane West.'],
     hasMedia: true,
     mediaType: 'image',
-    defaultMediaUrl: 'https://kneeandbackpainclinic.vercel.app/assets/garden-mobile-draft.png',
+    defaultMediaUrl: CLINIC_UPI_QR_URL,
     body: 'Hello {{1}},\n\n{{2}}\n\n{{3}}\n\n{{4}}\n\nThis information is being shared for reference purposes.\n\n*Thank You.*'
   },
 
