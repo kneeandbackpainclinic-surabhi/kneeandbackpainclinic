@@ -237,8 +237,8 @@
           </div>
 
           <div class="pass-meta-row">
-            <span class="meta-label">Clinic Location:</span>
-            <span class="meta-value">Cura 304, Raymond TenX Habitat, Pokharan Rd No. 2, Thane West</span>
+            <span class="meta-label" id="conf-loc-label">Clinic Location:</span>
+            <span class="meta-value" id="conf-loc-val">Cura 304, Raymond TenX Habitat, Pokharan Rd No. 2, Thane West</span>
           </div>
 
           <div class="pass-meta-row">
@@ -293,21 +293,39 @@
       var name = params.get('name') || 'Patient';
       var slot = params.get('slot') || 'Confirmed Schedule';
       var isPaid = params.get('paid') === '1';
+      var mode = params.get('mode') || 'in_clinic';
+      var isOnline = (mode === 'online_video');
 
       var elName = document.getElementById('conf-patient-name');
       var elSlot = document.getElementById('conf-slot-time');
       var elFee = document.getElementById('conf-fee-status');
       var elHeading = document.getElementById('conf-heading');
+      var elSub = document.querySelector('.pass-subtitle');
+      var elLocLabel = document.getElementById('conf-loc-label');
+      var elLocVal = document.getElementById('conf-loc-val');
 
       if (elName) elName.textContent = name;
       if (elSlot) elSlot.textContent = slot;
       if (elHeading) elHeading.textContent = `Consultation Scheduled for ${name}!`;
 
+      if (isOnline) {
+        if (elSub) elSub.textContent = 'Charak Health Solutions · Online Video Consultation';
+        if (elLocLabel) elLocLabel.textContent = 'Consultation Type:';
+        if (elLocVal) elLocVal.textContent = '💻 Online Video Call (WhatsApp Video / Google Meet)';
+        var mapBtn = document.querySelector('.pass-actions a[href*="maps.google"]');
+        if (mapBtn) {
+          mapBtn.innerHTML = '<span>💬</span> Message Clinic on WhatsApp (+91 9867510223) ↗';
+          mapBtn.href = 'https://wa.me/919867510223?text=' + encodeURIComponent('Hello Dr. Surabhi Clinic, I have confirmed my Online Video Consultation booking (Patient: ' + name + ').');
+        }
+      }
+
       if (elFee) {
         if (isPaid) {
           elFee.innerHTML = '<span class="badge-paid-online">₹800 (Paid Online - 20% Discount ✓)</span>';
         } else {
-          elFee.innerHTML = '<span class="badge-pay-clinic">₹1,000 (To be paid at Clinic Desk)</span>';
+          elFee.innerHTML = isOnline
+            ? '<span class="badge-pay-clinic">₹1,000 (To be paid via WhatsApp / UPI)</span>'
+            : '<span class="badge-pay-clinic">₹1,000 (To be paid at Clinic Desk)</span>';
         }
       }
 

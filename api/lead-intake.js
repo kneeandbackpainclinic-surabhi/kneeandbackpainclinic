@@ -84,9 +84,13 @@ export default async function handler(req, res) {
     const utmTerm = body.utm_term || body.utmTerm || null;
     const gclid = body.gclid || null;
 
-    const recommendedStep = amount === 800
-      ? 'In-Clinic Consultation (Prepaid ₹800 - 20% Discount)'
-      : 'In-Clinic Consultation (₹1,000 at Clinic Desk)';
+    const consultationMode = body.consultation_mode || body.consultationMode || 'in_clinic';
+    const isOnline = (consultationMode === 'online_video');
+    const bookingType = isOnline ? 'online_video_consultation' : 'in_clinic_consultation';
+
+    const recommendedStep = isOnline
+      ? (amount === 800 ? 'Online Video Consultation (Prepaid ₹800 - 20% Discount)' : 'Online Video Consultation (₹1,000)')
+      : (amount === 800 ? 'In-Clinic Consultation (Prepaid ₹800 - 20% Discount)' : 'In-Clinic Consultation (₹1,000 at Clinic Desk)');
 
     const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://leqbwiexuzggdxgxngrm.supabase.co';
     const supabaseKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_nC7DTCfJj_vhf3YsK0LW9w_NKk54fd4';
@@ -149,7 +153,8 @@ export default async function handler(req, res) {
           utm_content: utmContent,
           utm_term: utmTerm,
           gclid: gclid,
-          booking_type: 'in_clinic_consultation',
+          booking_type: bookingType,
+          consultation_mode: consultationMode,
           created_at: createdAt
         };
 
@@ -242,13 +247,16 @@ export default async function handler(req, res) {
           templateName = 'consultation_booking_confirmation_v1';
           variables = [patientName, slotDate || 'Clinic Hours', slotTime || '30-Minute Consultation'];
         } else {
-          // If Payment in Clinic / Unpaid, deliver the UPI QR Code & VPA ID in WhatsApp!
+          // If Unpaid / Pay Later, deliver the UPI QR Code & VPA ID in WhatsApp!
           templateName = 'surabhi_v4_with_image';
           headerMediaUrl = CLINIC_UPI_QR_URL;
+          const locDetails = isOnline
+            ? `Online Video Consultation (Meeting link will be shared prior to the call).`
+            : `Location: Cura 304, Raymond TenX Habitat, Thane West.`;
           variables = [
             patientName,
-            `Your consultation with Dr. Surabhi Vaidya is confirmed for ${displaySlot}. Location: Cura 304, Raymond TenX Habitat, Thane West.`,
-            `Standard Fee: ₹1,000 at clinic desk. Special 20% Discount: Prepay ₹800 via UPI VPA: ${CLINIC_UPI_VPA}`,
+            `Your consultation with Dr. Surabhi Vaidya is confirmed for ${displaySlot}. ${locDetails}`,
+            `Standard Fee: ₹1,000. Special 20% Discount: Prepay ₹800 via UPI VPA: ${CLINIC_UPI_VPA}`,
             `Scan the QR code above or tap here to pay ₹800: https://kneeandbackpainrelief.com/pay-upi?lead=${savedLeadId}&am=800`
           ];
         }

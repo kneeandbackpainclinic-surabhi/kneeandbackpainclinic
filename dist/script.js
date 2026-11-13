@@ -15,6 +15,7 @@
     email: '',
     phone: '',
     concern: 'Knee Osteoarthritis / Cartilage Wear (Difficulty Walking/Stairs)',
+    consultationMode: 'in_clinic', // 'in_clinic' or 'online_video'
     whatsappConsent: false,
     selectedSlotDate: '',
     selectedSlotTime: '',
@@ -119,6 +120,7 @@
     if (modalPhone && state.phone) modalPhone.value = state.phone;
     if (modalConcern && state.concern) modalConcern.value = state.concern;
 
+    updateModePillStyles();
     setBookingStep(startStep);
   }
 
@@ -156,13 +158,95 @@
     const elEmail = document.getElementById('summary-patient-email');
     const elConcern = document.getElementById('summary-patient-concern');
     const elSlot = document.getElementById('summary-slot-time');
+    const elLoc = document.getElementById('summary-location-line');
+    const slotModalSub = document.getElementById('slot-modal-sub');
+    const payDeskBtn = document.getElementById('btn-confirm-payment-in-clinic');
+    const modalBoxTitle = document.getElementById('step-2-mode-title');
+    const modalBoxDesc = document.getElementById('step-2-mode-desc');
+
+    const isOnline = (state.consultationMode === 'online_video');
 
     if (elName) elName.textContent = state.name || 'Patient';
     if (elPhone) elPhone.textContent = state.phone ? `+91 ${state.phone}` : '+91 98XXXXXXXX';
     if (elEmail) elEmail.textContent = state.email || '';
     if (elConcern) elConcern.textContent = state.concern || 'Knee / Back Concern';
     if (elSlot) elSlot.textContent = state.selectedSlotDisplay || 'Please select a time slot below';
+
+    if (elLoc) {
+      elLoc.innerHTML = isOnline
+        ? '💻 Consultation Type: <strong>Online Video Consultation</strong> (WhatsApp Video / Meet)'
+        : '📍 Consultation Type: <strong>In-Clinic Visit</strong> (Thane Clinic)';
+    }
+
+    if (slotModalSub) {
+      slotModalSub.textContent = isOnline
+        ? 'Select your preferred 30-minute online video consultation slot, then choose your payment option.'
+        : 'Select your 30-minute consultation slot at our Thane West clinic, then choose your payment option.';
+    }
+
+    if (modalBoxTitle) {
+      modalBoxTitle.textContent = isOnline
+        ? '💻 Online Video Consultation Booking'
+        : '🏥 In-Clinic Consultation Booking';
+    }
+
+    if (modalBoxDesc) {
+      modalBoxDesc.textContent = isOnline
+        ? 'Your dedicated 30-minute evaluation with Dr. Surabhi Vaidya will be held via secure Video Call. Consultation fee (₹1,000) can be paid at confirmation or online.'
+        : 'Your dedicated 30-minute evaluation with Dr. Surabhi Vaidya will be held at our Thane clinic. Consultation fee (₹1,000) is payable at reception upon arrival.';
+    }
+
+    if (payDeskBtn) {
+      payDeskBtn.textContent = isOnline
+        ? 'Confirm Video Consultation (Pay Later / UPI ₹1,000) →'
+        : 'Confirm Appointment (Payment in Clinic ₹1,000) →';
+    }
   }
+
+  function updateModePillStyles() {
+    const isOnline = (state.consultationMode === 'online_video');
+
+    // Hero Form Pills
+    const heroClinicLabel = document.getElementById('hero-mode-clinic-label');
+    const heroOnlineLabel = document.getElementById('hero-mode-online-label');
+    const heroRadios = document.querySelectorAll('input[name="hero_consult_mode"]');
+    if (heroClinicLabel && heroOnlineLabel) {
+      heroClinicLabel.classList.toggle('active', !isOnline);
+      heroOnlineLabel.classList.toggle('active', isOnline);
+    }
+    heroRadios.forEach(r => {
+      r.checked = (r.value === state.consultationMode);
+    });
+
+    // Modal Form Pills
+    const modalClinicLabel = document.getElementById('modal-mode-clinic-label');
+    const modalOnlineLabel = document.getElementById('modal-mode-online-label');
+    const modalRadios = document.querySelectorAll('input[name="modal_consult_mode"]');
+    if (modalClinicLabel && modalOnlineLabel) {
+      modalClinicLabel.classList.toggle('active', !isOnline);
+      modalOnlineLabel.classList.toggle('active', isOnline);
+    }
+    modalRadios.forEach(r => {
+      r.checked = (r.value === state.consultationMode);
+    });
+  }
+
+  // Setup Consultation Mode Radio Listeners
+  document.querySelectorAll('input[name="hero_consult_mode"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      state.consultationMode = e.target.value;
+      updateModePillStyles();
+      updateSummaryCard();
+    });
+  });
+
+  document.querySelectorAll('input[name="modal_consult_mode"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      state.consultationMode = e.target.value;
+      updateModePillStyles();
+      updateSummaryCard();
+    });
+  });
 
   // --------------------------------------------------------------------------
   // 4. LEAD CAPTURE & VALIDATION
@@ -173,6 +257,7 @@
       email: data.email || (data.phone ? `${data.phone}@patient.charakhealth.com` : ''),
       phone: data.phone,
       concern: data.concern || 'Knee Osteoarthritis / Cartilage Wear (Difficulty Walking/Stairs)',
+      consultation_mode: state.consultationMode || 'in_clinic',
       whatsappConsent: Boolean(data.whatsapp_consent || data.whatsappConsent),
       utm_source: state.utm.source,
       utm_medium: state.utm.medium,
@@ -603,10 +688,11 @@
         return;
       }
 
+      const isOnline = (state.consultationMode === 'online_video');
       btnConfirmPaymentInClinic.disabled = true;
-      btnConfirmPaymentInClinic.textContent = 'Reserving Appointment...';
+      btnConfirmPaymentInClinic.textContent = isOnline ? 'Reserving Video Slot...' : 'Reserving Appointment...';
 
-      state.paymentMethod = 'pay_at_clinic';
+      state.paymentMethod = isOnline ? 'pay_later_video' : 'pay_at_clinic';
       state.amount = 1000;
       state.discountApplied = 0;
 
@@ -621,12 +707,14 @@
             email: state.email,
             phone: state.phone,
             concern: state.concern,
+            consultation_mode: state.consultationMode,
+            booking_type: isOnline ? 'online_video_consultation' : 'in_clinic_consultation',
             slotPreference: state.selectedSlotDisplay,
             slotDate: state.selectedSlotDate,
             slotTime: state.selectedSlotTime,
-            status: 'Appointment Requested - Pay at Clinic',
-            paymentStatus: 'Pay at Clinic - Pending (₹1,000)',
-            paymentMethod: 'pay_at_clinic',
+            status: isOnline ? 'Appointment Requested - Online Video Consultation' : 'Appointment Requested - Pay at Clinic',
+            paymentStatus: isOnline ? 'Video Consultation - Pending (₹1,000)' : 'Pay at Clinic - Pending (₹1,000)',
+            paymentMethod: state.paymentMethod,
             amount: 1000,
             paymentOrderId: `DESK-${Date.now().toString().slice(-4)}`,
             triggerWhatsApp: true
@@ -667,6 +755,7 @@
       });
 
       try {
+        const isOnline = (state.consultationMode === 'online_video');
         const orderResp = await fetch('/api/create-payu-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -675,7 +764,7 @@
             customerName: state.name,
             customerPhone: state.phone,
             customerEmail: state.email || `${state.phone}@patient.charakhealth.com`,
-            planType: 'In-Clinic Consultation (Prepaid ₹800)',
+            planType: isOnline ? 'Online Video Consultation (Prepaid ₹800)' : 'In-Clinic Consultation (Prepaid ₹800)',
             leadId: state.leadId
           })
         });
@@ -713,6 +802,7 @@
         window.location.href = '/confirmation?lead_id=' + encodeURIComponent(state.leadId) +
                                '&name=' + encodeURIComponent(state.name) +
                                '&slot=' + encodeURIComponent(state.selectedSlotDisplay) +
+                               '&mode=' + encodeURIComponent(state.consultationMode) +
                                '&paid=1&amount=800';
       }
     });
@@ -730,17 +820,19 @@
                              '&phone=' + encodeURIComponent(state.phone) +
                              '&email=' + encodeURIComponent(state.email) +
                              '&slot=' + encodeURIComponent(state.selectedSlotDisplay) +
+                             '&mode=' + encodeURIComponent(state.consultationMode) +
                              '&paid=0&amount=1000';
     });
   }
 
   async function completeBookingFlow({ isPaid, amount, paymentMethod, orderId }) {
+    const isOnline = (state.consultationMode === 'online_video');
     const finalStatus = isPaid
-      ? 'Appointment Confirmed - Paid Online (₹800)'
-      : 'Appointment Requested - Pay at Clinic';
+      ? (isOnline ? 'Online Video Consultation Confirmed - Paid Online (₹800)' : 'Appointment Confirmed - Paid Online (₹800)')
+      : (isOnline ? 'Appointment Requested - Online Video Consultation' : 'Appointment Requested - Pay at Clinic');
     const payStatus = isPaid
       ? 'Paid Online (₹800)'
-      : 'Pay at Clinic - Pending (₹1,000)';
+      : (isOnline ? 'Video Consultation - Pending (₹1,000)' : 'Pay at Clinic - Pending (₹1,000)');
 
     try {
       // 1. Sync completed status to Supabase
@@ -753,6 +845,8 @@
           email: state.email,
           phone: state.phone,
           concern: state.concern,
+          consultation_mode: state.consultationMode,
+          booking_type: isOnline ? 'online_video_consultation' : 'in_clinic_consultation',
           slotPreference: state.selectedSlotDisplay,
           slotDate: state.selectedSlotDate,
           slotTime: state.selectedSlotTime,
@@ -779,7 +873,7 @@
       trackEvent('consultation_booking_confirmed', {
         event_category: 'booking',
         lead_id: state.leadId,
-        booking_type: 'in_clinic_consultation',
+        booking_type: isOnline ? 'online_video_consultation' : 'in_clinic_consultation',
         slot: state.selectedSlotDisplay,
         payment_method: paymentMethod
       });
@@ -791,6 +885,7 @@
         phone: state.phone || '',
         email: state.email || '',
         slot: state.selectedSlotDisplay || 'Confirmed Clinic Schedule',
+        mode: state.consultationMode || 'in_clinic',
         paid: isPaid ? '1' : '0',
         amount: String(amount),
         order_id: orderId || ''
@@ -800,7 +895,7 @@
 
     } catch (err) {
       console.error('Completion error:', err);
-      window.location.href = `/confirmation?lead_id=${encodeURIComponent(state.leadId)}&name=${encodeURIComponent(state.name)}&paid=${isPaid ? '1' : '0'}`;
+      window.location.href = `/confirmation?lead_id=${encodeURIComponent(state.leadId)}&name=${encodeURIComponent(state.name)}&mode=${encodeURIComponent(state.consultationMode)}&paid=${isPaid ? '1' : '0'}`;
     }
   }
 
@@ -863,7 +958,40 @@
   });
 
   // --------------------------------------------------------------------------
-  // 9. ON DOM READY
+  // 9. VIDEO PLAYER MODAL INTERACTIVITY
+  // --------------------------------------------------------------------------
+  window.openVideoPlayer = function(videoId, title) {
+    const modal = document.getElementById('video-player-modal');
+    const iframe = document.getElementById('video-player-iframe');
+    const titleEl = document.getElementById('video-player-title');
+    if (modal && iframe) {
+      if (title && titleEl) titleEl.textContent = title;
+      iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0';
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  window.closeVideoPlayer = function() {
+    const modal = document.getElementById('video-player-modal');
+    const iframe = document.getElementById('video-player-iframe');
+    if (modal && iframe) {
+      iframe.src = '';
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  };
+
+  document.getElementById('video-player-modal')?.addEventListener('click', function(e) {
+    if (e.target === this) window.closeVideoPlayer();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeVideoPlayer();
+  });
+
+  // --------------------------------------------------------------------------
+  // 10. ON DOM READY
   // --------------------------------------------------------------------------
   document.addEventListener('DOMContentLoaded', () => {
     initAttribution();
