@@ -260,13 +260,11 @@ img {
    ========================================================================== */
 .site-header,
 .header {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 100;
   background: rgba(250, 248, 245, 0.98);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-light);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .header-inner {
@@ -1208,13 +1206,47 @@ img {
   display: grid;
   grid-template-columns: 1fr;
   gap: 36px;
-  margin-bottom: 36px;
+  margin-bottom: 24px;
 }
 
 @media (min-width: 768px) {
   .footer-grid {
-    grid-template-columns: 1.5fr 1fr 1.2fr;
+    grid-template-columns: 1.4fr 1fr;
   }
+}
+
+.footer-legal-flattened {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 16px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin-bottom: 20px;
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+
+.footer-legal-flattened .legal-tag {
+  color: var(--accent-gold);
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+.footer-legal-flattened a {
+  color: #cbd5e1;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-legal-flattened a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+.footer-legal-flattened .legal-sep {
+  color: #64748b;
+  user-select: none;
 }
 
 .footer-col h4 {

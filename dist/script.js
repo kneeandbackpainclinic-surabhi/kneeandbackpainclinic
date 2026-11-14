@@ -14,7 +14,7 @@
     name: '',
     email: '',
     phone: '',
-    concern: 'Knee Osteoarthritis / Cartilage Wear (Difficulty Walking/Stairs)',
+    concern: 'Knee Pain (Difficulty Walking or Stairs)',
     consultationMode: 'in_clinic', // 'in_clinic' or 'online_video'
     whatsappConsent: false,
     selectedSlotDate: '',
@@ -256,7 +256,7 @@
       name: data.name,
       email: data.email || (data.phone ? `${data.phone}@patient.charakhealth.com` : ''),
       phone: data.phone,
-      concern: data.concern || 'Knee Osteoarthritis / Cartilage Wear (Difficulty Walking/Stairs)',
+      concern: data.concern || 'Knee Pain (Difficulty Walking or Stairs)',
       consultation_mode: state.consultationMode || 'in_clinic',
       whatsappConsent: Boolean(data.whatsapp_consent || data.whatsappConsent),
       utm_source: state.utm.source,
@@ -919,7 +919,7 @@
         state.name = heroName;
         state.email = heroEmail;
         state.phone = heroPhone;
-        state.concern = heroConcern || 'Knee Osteoarthritis / Cartilage Wear (Difficulty Walking/Stairs)';
+        state.concern = heroConcern || 'Knee Pain (Difficulty Walking or Stairs)';
         openBookingModal(2);
       } else {
         openBookingModal(1);
@@ -1004,14 +1004,16 @@
         const concernParam = (urlParams.get('concern') || '').toLowerCase();
         const concernField = document.getElementById('modal-concern') || document.getElementById('lead-concern');
         if (concernField && concernParam) {
-          if (concernParam.includes('stairs') || concernParam.includes('cartilage') || concernParam.includes('walking')) {
-            concernField.value = 'Knee Osteoarthritis / Cartilage Wear (Difficulty Walking/Stairs)';
-          } else if (concernParam.includes('sitting') || concernParam.includes('desk') || concernParam.includes('office')) {
-            concernField.value = 'Chronic Lower Back Pain & Lumbar Spine Stiffness';
-          } else if (concernParam.includes('50') || concernParam.includes('arthritis')) {
-            concernField.value = 'Knee Osteoarthritis / Cartilage Wear (Difficulty Walking/Stairs)';
+          if (concernParam.includes('stairs') || concernParam.includes('cartilage') || concernParam.includes('walking') || concernParam.includes('knee')) {
+            concernField.value = 'Knee Pain (Difficulty Walking or Stairs)';
+          } else if (concernParam.includes('sitting') || concernParam.includes('desk') || concernParam.includes('office') || concernParam.includes('back')) {
+            concernField.value = 'Lower Back Pain (Sitting, Standing or Stiffness)';
           } else if (concernParam.includes('sciatica') || concernParam.includes('leg') || concernParam.includes('radiating')) {
-            concernField.value = 'Sciatica / Radiating Leg, Hip or Buttock Pain';
+            concernField.value = 'Sciatica / Leg Pain (Shooting Pain or Tingling)';
+          } else if (concernParam.includes('both')) {
+            concernField.value = 'Both Knee & Back Pain';
+          } else if (concernParam.includes('neck') || concernParam.includes('joint')) {
+            concernField.value = 'Neck Pain or Other Joint Discomfort';
           }
         }
         setTimeout(() => {
