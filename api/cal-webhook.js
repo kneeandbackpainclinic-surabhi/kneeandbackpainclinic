@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       status: 'active',
       service: 'Dr. Surabhi Knee & Back Pain Clinic - Cal.id Webhook Handler',
-      endpoint: 'https://kneeandbackpainclinic.vercel.app/api/cal-webhook',
+      endpoint: 'https://kneeandbackpainrelief.com/api/cal-webhook',
       supportedEvents: [
         'BOOKING_CREATED (dispatches booking confirmation)',
         'BOOKING_RESCHEDULED (dispatches updated confirmation)',

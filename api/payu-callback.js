@@ -38,7 +38,7 @@ export default async function handler(req, res) {
     const parsedBody = await parseRequestBody(req);
     const payload = Object.assign({}, req.query || {}, parsedBody || {});
 
-    const host = req.headers['x-forwarded-host'] || req.headers.host || 'kneeandbackpainclinic.vercel.app';
+    const host = req.headers['x-forwarded-host'] || req.headers.host || 'kneeandbackpainrelief.com';
     const proto = req.headers['x-forwarded-proto'] || 'https';
     const baseUrl = `${proto}://${host}`;
 

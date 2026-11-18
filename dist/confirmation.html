@@ -42,12 +42,26 @@
         if (!sessionStorage.getItem(dedupeKey)) {
           sessionStorage.setItem(dedupeKey, 'true');
 
-          // 1. Consultation Booking Confirmed Event
+          var sid = sessionStorage.getItem('clinic_session_id') || ('sess_' + Date.now().toString(36));
+          var mode = (urlParams.get('mode') === 'online_video') ? 'online_video' : 'in_clinic';
+
+          // 1. Funnel Event: appointment_confirmed (Safe non-PII parameters)
+          window.dataLayer.push({
+            event: 'appointment_confirmed',
+            session_id: sid,
+            lead_id: leadId,
+            consultation_mode: mode,
+            is_prepaid: isPaidParam,
+            amount: isPaidParam ? 800 : 1000
+          });
+
+          // Backward-compatible Google Ads goal trigger
           window.dataLayer.push({
             event: 'consultation_booking_confirmed',
             event_category: 'booking',
+            session_id: sid,
             lead_id: leadId,
-            booking_type: 'in_clinic_consultation',
+            booking_type: mode === 'online_video' ? 'online_video_consultation' : 'in_clinic_consultation',
             slot: urlParams.get('slot') || 'Clinic Hours',
             is_prepaid: isPaidParam
           });
@@ -257,11 +271,11 @@
             Because you confirmed your consultation, you can prepay online now for only <strong>₹800</strong> instead of paying ₹1,000 at clinic reception!
           </p>
           <div style="background: #ffffff; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px; margin-bottom: 14px; font-size: 0.84rem; color: #14532d;">
-            <strong>Clinic UPI VPA ID:</strong> <code style="background: #f1f5f9; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.92rem;">surabhivaidya7@okhdfcbank</code><br>
-            <span style="color: #64748b; font-size: 0.78rem;">(Or click below to pay via Card / NetBanking / UPI QR)</span>
+            <strong>Clinic UPI ID (VPA):</strong> <code style="background: #f1f5f9; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.92rem;">surabhivaidya7@okhdfcbank</code><br>
+            <span style="color: #64748b; font-size: 0.78rem;">(Tap below to scan clinic QR code or pay via GPay / PhonePe / Paytm)</span>
           </div>
           <button type="button" class="btn btn-primary btn-block" id="btn-claim-prepay-800" style="background: #16a34a; border-color: #16a34a; font-weight: 700; font-size: 1rem; padding: 12px;">
-            Prepay ₹800 Online (Save 20%) →
+            Prepay ₹800 via UPI QR / UPI ID (Save 20%) →
           </button>
         </div>
 
@@ -275,7 +289,7 @@
         </div>
 
         <div class="pass-actions">
-          <a href="https://maps.google.com/?q=Raymond+TenX+Habitat+Thane+West" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <a href="https://maps.app.goo.gl/uyHninyje1x7GRgD9" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
             <span>📍</span> Open Clinic Directions on Google Maps ↗
           </a>
           <a href="/" class="btn btn-secondary btn-block">
@@ -312,7 +326,7 @@
         if (elSub) elSub.textContent = 'Charak Health Solutions · Online Video Consultation';
         if (elLocLabel) elLocLabel.textContent = 'Consultation Type:';
         if (elLocVal) elLocVal.textContent = '💻 Online Video Call (WhatsApp Video / Google Meet)';
-        var mapBtn = document.querySelector('.pass-actions a[href*="maps.google"]');
+        var mapBtn = document.querySelector('.pass-actions a[href*="maps"]');
         if (mapBtn) {
           mapBtn.innerHTML = '<span>💬</span> Message Clinic on WhatsApp (+91 9867510223) ↗';
           mapBtn.href = 'https://wa.me/919867510223?text=' + encodeURIComponent('Hello Dr. Surabhi Clinic, I have confirmed my Online Video Consultation booking (Patient: ' + name + ').');
@@ -335,46 +349,15 @@
         discountCard.style.display = 'block';
         var btnClaim = document.getElementById('btn-claim-prepay-800');
         if (btnClaim) {
-          btnClaim.addEventListener('click', async function() {
-            btnClaim.disabled = true;
-            btnClaim.textContent = 'Connecting to Secure Checkout...';
+          btnClaim.addEventListener('click', function() {
             var leadId = params.get('lead_id') || params.get('order_id') || ('LEAD-' + Date.now().toString().slice(-4));
-            try {
-              var res = await fetch('/api/create-payu-order', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  orderAmount: 800,
-                  customerName: name,
-                  customerPhone: params.get('phone') || '9867510223',
-                  customerEmail: params.get('email') || `${params.get('phone') || 'patient'}@charakhealth.com`,
-                  planType: 'In-Clinic Consultation (Prepaid ₹800)',
-                  leadId: leadId
-                })
-              });
-              var orderData = await res.json();
-              if (orderData && orderData.action && orderData.params) {
-                var form = document.createElement('form');
-                form.method = 'POST';
-                form.action = orderData.action;
-                for (var k in orderData.params) {
-                  var inp = document.createElement('input');
-                  inp.type = 'hidden';
-                  inp.name = k;
-                  inp.value = orderData.params[k];
-                  form.appendChild(inp);
-                }
-                document.body.appendChild(form);
-                form.submit();
-                return;
-              }
-              // Sandbox simulated completion
-              window.location.href = '/confirmation.html?lead_id=' + encodeURIComponent(leadId) + '&name=' + encodeURIComponent(name) + '&slot=' + encodeURIComponent(slot) + '&paid=1';
-            } catch (err) {
-              alert('Online payment gateway is completing maintenance. Your appointment remains reserved; fee is payable at clinic reception upon arrival.');
-              btnClaim.disabled = false;
-              btnClaim.textContent = 'Prepay ₹800 Online (Save 20%) →';
-            }
+            var phone = params.get('phone') || '';
+            window.location.href = '/pay-upi?lead=' + encodeURIComponent(leadId) +
+                                   '&name=' + encodeURIComponent(name) +
+                                   '&phone=' + encodeURIComponent(phone) +
+                                   '&slot=' + encodeURIComponent(slot) +
+                                   '&mode=' + encodeURIComponent(mode) +
+                                   '&am=800';
           });
         }
       }

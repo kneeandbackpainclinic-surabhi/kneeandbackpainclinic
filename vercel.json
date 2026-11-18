@@ -3,10 +3,46 @@
   "outputDirectory": "dist",
   "cleanUrls": true,
   "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        { "type": "host", "value": "kneeandbackpainclinic.com" }
+      ],
+      "destination": "https://kneeandbackpainrelief.com/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        { "type": "host", "value": "www.kneeandbackpainclinic.com" }
+      ],
+      "destination": "https://kneeandbackpainrelief.com/$1",
+      "permanent": true
+    },
     { "source": "/webinar", "destination": "/", "permanent": true },
     { "source": "/webinar.html", "destination": "/", "permanent": true },
     { "source": "/room", "destination": "/", "permanent": true },
-    { "source": "/room.html", "destination": "/", "permanent": true }
+    { "source": "/room.html", "destination": "/", "permanent": true },
+    { "source": "/book", "destination": "/", "permanent": true },
+    { "source": "/book.html", "destination": "/", "permanent": true },
+    { "source": "/krp", "destination": "/", "permanent": true },
+    { "source": "/krp.html", "destination": "/", "permanent": true },
+    { "source": "/panchakarma", "destination": "/", "permanent": true },
+    { "source": "/panchakarma.html", "destination": "/", "permanent": true },
+    { "source": "/treatments", "destination": "/", "permanent": true },
+    { "source": "/treatments.html", "destination": "/", "permanent": true },
+    { "source": "/services", "destination": "/", "permanent": true },
+    { "source": "/services.html", "destination": "/", "permanent": true },
+    { "source": "/all-services", "destination": "/", "permanent": true },
+    { "source": "/contact", "destination": "/about-us", "permanent": true },
+    { "source": "/contact-us", "destination": "/about-us", "permanent": true },
+    { "source": "/contact.html", "destination": "/about-us", "permanent": true },
+    { "source": "/contact-us.html", "destination": "/about-us", "permanent": true },
+    { "source": "/shipping-policy", "destination": "/shipping-and-return-policy", "permanent": true },
+    { "source": "/shipping-policy.html", "destination": "/shipping-and-return-policy", "permanent": true },
+    { "source": "/terms", "destination": "/terms-and-conditions", "permanent": true },
+    { "source": "/terms.html", "destination": "/terms-and-conditions", "permanent": true },
+    { "source": "/refund-and-cancellation-policy", "destination": "/refund-policy", "permanent": true }
   ],
   "rewrites": [
     { "source": "/blog", "destination": "/blog/index.html" },
@@ -21,11 +57,8 @@
     { "source": "/about-us", "destination": "/about-us.html" },
     { "source": "/privacy-policy", "destination": "/privacy-policy.html" },
     { "source": "/shipping-and-return-policy", "destination": "/shipping-and-return-policy.html" },
-    { "source": "/shipping-policy", "destination": "/shipping-policy.html" },
     { "source": "/refund-policy", "destination": "/refund-policy.html" },
-    { "source": "/refund-and-cancellation-policy", "destination": "/refund-policy.html" },
     { "source": "/terms-and-conditions", "destination": "/terms-and-conditions.html" },
-    { "source": "/terms", "destination": "/terms.html" },
     { "source": "/api/test-whatsapp", "destination": "/api/whatsapp-send?test=true" }
   ],
   "headers": [

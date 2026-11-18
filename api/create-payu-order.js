@@ -32,10 +32,11 @@ export default async function handler(req, res) {
     const cleanPhone = (customerPhone || '9999999999').replace(/[^0-9]/g, '').slice(-10);
     const txnid = 'TXN_' + Date.now() + '_' + Math.floor(1000 + Math.random() * 9000);
     const firstname = (customerName || 'Patient').trim().replace(/[^a-zA-Z0-9 ]/g, '').slice(0, 50) || 'Patient';
-    const email = (customerEmail || `${cleanPhone || 'patient'}@patient.charakhealth.com`).trim().toLowerCase();
+    // PayU parameter requirement: If patient opted not to provide email, use verified clinic desk billing address instead of inventing a fake address
+    const email = (customerEmail || process.env.CLINIC_DESK_EMAIL || 'kneeandbackpainclinic@gmail.com').trim().toLowerCase();
     const productinfo = (planType || 'Consultation Booking').replace(/[^a-zA-Z0-9 _-]/g, '').slice(0, 100).trim() || 'Charak Health Booking';
 
-    const host = req.headers['x-forwarded-host'] || req.headers.host || 'kneeandbackpainclinic.vercel.app';
+    const host = req.headers['x-forwarded-host'] || req.headers.host || 'kneeandbackpainrelief.com';
     const proto = req.headers['x-forwarded-proto'] || 'https';
     const baseUrl = `${proto}://${host}`;
 
@@ -111,6 +112,7 @@ export default async function handler(req, res) {
       return res.status(200).json({
         success: true,
         action: actionUrl,
+        txnid: txnid,
         environment: isProduction ? 'production' : 'sandbox',
         params: {
           key: payuKey,
@@ -136,6 +138,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       success: true,
       simulated: true,
+      txnid: txnid,
       action: `${baseUrl}/api/payu-callback?simulated=true`,
       notice: 'Running in simulation mode.',
       environment: 'simulation',

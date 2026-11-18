@@ -14,5 +14,5 @@ jobs:
       - name: Ping Clinic Reminder Sweep Endpoint
         run: |
           echo "Starting 30-minute consultation reminder sweep at $(date)..."
-          RESPONSE=$(curl -sS -X GET "https://kneeandbackpainclinic.vercel.app/api/send-reminders")
+          RESPONSE=$(curl -sS -X GET "https://kneeandbackpainrelief.com/api/send-reminders")
           echo "Sweep result: $RESPONSE"

@@ -126,7 +126,7 @@ export default async function handler(req, res) {
         reminderVariables = [
           testName,
           `Reminder: Your in-clinic consultation with Dr. Surabhi Vaidya begins in 30 minutes at ${testSlot}.`,
-          'Location: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Thane West.',
+          'Location: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Rd No. 2, Thane West (Directions: https://maps.app.goo.gl/uyHninyje1x7GRgD9).',
           'Please arrive 10 minutes early. Bring relevant reports and a current list of medicines, if available.'
         ];
       }
@@ -292,7 +292,7 @@ export default async function handler(req, res) {
               variables: [
                 lead.name || 'Patient',
                 `Reminder: Your in-clinic consultation with Dr. Surabhi Vaidya begins in 30 minutes at ${timeLabel}.`,
-                'Location: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Road No. 2, Thane West.',
+                'Location: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Rd No. 2, Thane West (Directions: https://maps.app.goo.gl/uyHninyje1x7GRgD9).',
                 'Please arrive 10 minutes early. Bring relevant reports and a current list of medicines, if available.'
               ],
               reference: `rem30m_${lead.id}_${Date.now()}`
@@ -451,8 +451,9 @@ export default async function handler(req, res) {
       let pendingLeads = [];
       if (supabaseUrl && supabaseKey) {
         try {
+          // Strictly query online payment drop-offs, excluding confirmed pay-at-clinic appointments
           const resp = await fetch(
-            `${supabaseUrl}/rest/v1/leads?payment_status=ilike.*pending*&select=id,name,phone,created_at,recovery_step,opted_out,whatsapp_consent`,
+            `${supabaseUrl}/rest/v1/leads?status=in.(Payment Dropped Off,Payment Initiated (Gateway In-Progress),Slot Selected - Awaiting Online Payment)&select=id,name,phone,created_at,recovery_step,opted_out,whatsapp_consent,payment_method,payment_status,status`,
             {
               headers: {
                 'apikey': supabaseKey,
@@ -477,6 +478,17 @@ export default async function handler(req, res) {
 
         // Skip if opted out
         if (lead.opted_out === true) {
+          sweepResults.recoveryAbandoned.skipped++;
+          continue;
+        }
+
+        // Strictly distinguish confirmed Pay-at-Clinic bookings from abandoned online payments:
+        // A confirmed pay-at-clinic appointment must NEVER receive an abandoned checkout message
+        if (
+          lead.payment_method === 'pay_at_clinic' ||
+          (lead.status && lead.status.toLowerCase().includes('pay at clinic')) ||
+          (lead.payment_status && lead.payment_status.toLowerCase().includes('pay at clinic'))
+        ) {
           sweepResults.recoveryAbandoned.skipped++;
           continue;
         }

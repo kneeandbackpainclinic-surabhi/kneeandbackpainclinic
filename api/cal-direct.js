@@ -26,11 +26,13 @@ export default async function handler(req, res) {
   const supabaseKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_nC7DTCfJj_vhf3YsK0LW9w_NKk54fd4';
 
   // --------------------------------------------------------------------------
-  // GET: Available consultation slots (with double-booking collision prevention)
+  // GET: Available consultation slots & slot verification
   // --------------------------------------------------------------------------
   if (req.method === 'GET') {
     try {
+      const action = req.query.action || 'slots';
       const daysCount = Math.min(parseInt(req.query.days || '6', 10), 10);
+      const consultationMode = (req.query.mode || 'in_clinic').trim();
       const now = new Date();
 
       // Query booked slots from Supabase to prevent double bookings
@@ -56,6 +58,24 @@ export default async function handler(req, res) {
         } catch (dbErr) {
           console.warn('Booking collision check note:', dbErr.message);
         }
+      }
+
+      // Action: Real-time single slot availability check to prevent double bookings
+      if (action === 'check') {
+        const checkDate = req.query.date || '';
+        const checkTime = req.query.time || '';
+        if (!checkDate || !checkTime) {
+          return res.status(400).json({ success: false, error: 'Date and time are required to check slot availability.' });
+        }
+        const slotKey = `${checkDate}_${checkTime}`;
+        const isTaken = bookedSlotsMap.has(slotKey) || bookedSlotsMap.has(`${checkDate} at ${checkTime}`.toLowerCase());
+        return res.status(200).json({
+          success: true,
+          available: !isTaken,
+          date: checkDate,
+          time: checkTime,
+          mode: consultationMode
+        });
       }
 
       // Verified Clinic Operational Hours:
@@ -133,6 +153,37 @@ export default async function handler(req, res) {
         }
       }
 
+      // Calculate first available slot and whether there are open appointments this week
+      let firstAvailableSlot = null;
+      let hasSlotsThisWeek = false;
+
+      // In IST, calculate days until Sunday (end of current week)
+      const nowISTString = now.toLocaleDateString('en-US', { timeZone: 'Asia/Kolkata' });
+      const nowISTDate = new Date(nowISTString);
+      const dayOfWeekIST = nowISTDate.getDay(); // 0 is Sunday, 1 is Monday... 6 is Saturday
+      const daysUntilSunday = dayOfWeekIST === 0 ? 0 : (7 - dayOfWeekIST);
+
+      for (let i = 0; i < availableDays.length; i++) {
+        const dayItem = availableDays[i];
+        const isThisWeek = i <= daysUntilSunday;
+        const freeSlot = (dayItem.slots || []).find(s => s.available);
+        if (freeSlot) {
+          if (!firstAvailableSlot) {
+            firstAvailableSlot = {
+              dateKey: freeSlot.dateKey,
+              time: freeSlot.time,
+              display: freeSlot.display,
+              displayDate: dayItem.displayDate,
+              dayOfWeek: dayItem.dayOfWeek,
+              isThisWeek: isThisWeek
+            };
+          }
+          if (isThisWeek) {
+            hasSlotsThisWeek = true;
+          }
+        }
+      }
+
       return res.status(200).json({
         success: true,
         clinic: 'Charak Health Solutions (Thane West)',
@@ -143,6 +194,8 @@ export default async function handler(req, res) {
         notice: CAL_API_KEY
           ? 'Live calendar reservation connected.'
           : 'Slots reflect verified clinic operating hours. Appointment requests are confirmed via WhatsApp / Call.',
+        firstAvailableSlot: firstAvailableSlot,
+        hasSlotsThisWeek: hasSlotsThisWeek,
         days: availableDays
       });
 
@@ -183,6 +236,30 @@ export default async function handler(req, res) {
       const paymentStatus = isOnlinePay
         ? 'Pending Online Payment (₹800)'
         : 'Pay at Clinic - Pending (₹1,000)';
+
+      // Real-time double booking collision prevention check
+      if (slotDate && slotTime && supabaseUrl && supabaseKey) {
+        try {
+          const checkResp = await fetch(`${supabaseUrl}/rest/v1/leads?slot_date=eq.${slotDate}&slot_time=eq.${slotTime}&phone=not.like.*${cleanPhone}*&select=id&limit=1`, {
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`
+            }
+          });
+          if (checkResp.ok) {
+            const collisions = await checkResp.json();
+            if (collisions && collisions.length > 0) {
+              return res.status(409).json({
+                success: false,
+                conflict: true,
+                error: 'This consultation slot has just been reserved by another patient. Please select another time.'
+              });
+            }
+          }
+        } catch (colErr) {
+          console.warn('Collision check notice:', colErr.message);
+        }
+      }
 
       // Sync reservation to Supabase public.leads
       let synced = false;

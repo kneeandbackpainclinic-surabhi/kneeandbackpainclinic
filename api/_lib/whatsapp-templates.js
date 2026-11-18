@@ -117,7 +117,7 @@ export const WHATSAPP_TEMPLATES = {
     defaultVariables: [],
     hasMedia: true,
     mediaType: 'image',
-    defaultMediaUrl: 'https://kneeandbackpainclinic.vercel.app/assets/garden-mobile-draft.png',
+    defaultMediaUrl: 'https://kneeandbackpainrelief.com/assets/garden-mobile-draft.png',
     body: '🫧 TIRED? STIFF? SLOW TO RECOVER?\n\nNow experience a personalised combination of Ozone Shots + Ayurveda at Charak Health Solutions 🌿\n\n✨ Support for recovery, circulation & overall wellness — with the holistic approach of Ayurveda.\n\n👩‍⚕️ Assessment before treatment\n📍 Vartak Nagar, Thane\n📞 9867510223\n\n👉 Book your Assessment today!'
   },
 
@@ -205,7 +205,7 @@ export const WHATSAPP_TEMPLATES = {
     defaultVariables: ['Patient', 'Please find your clinic protocol attached.', 'Kindly review the instructions before your visit.', 'Feel free to reply if you have questions.'],
     hasMedia: true,
     mediaType: 'document',
-    defaultMediaUrl: 'https://kneeandbackpainclinic.vercel.app/assets/knee_pain_guide.pdf',
+    defaultMediaUrl: 'https://kneeandbackpainrelief.com/assets/knee_pain_guide.pdf',
     body: 'Hello {{1}},\n\n{{2}}\n\n{{3}}\n\n{{4}}\n\n*Thank You.*\n\n_This information is being shared for reference purposes._'
   },
 
@@ -231,7 +231,7 @@ export const WHATSAPP_TEMPLATES = {
     defaultVariables: ['Patient', 'Line 1', 'Line 2', 'Line 3', 'Line 4'],
     hasMedia: true,
     mediaType: 'image',
-    defaultMediaUrl: 'https://kneeandbackpainclinic.vercel.app/assets/garden-mobile-draft.png',
+    defaultMediaUrl: 'https://kneeandbackpainrelief.com/assets/garden-mobile-draft.png',
     body: 'Hello {{1}},\n\n{{2}}\n\n{{3}}\n\n{{4}}\n\n{{5}}\n\nThis information is being shared for reference purposes.\n\n*Thank You.*'
   },
 
@@ -245,7 +245,7 @@ export const WHATSAPP_TEMPLATES = {
     defaultVariables: ['Patient', 'Line 1', 'Line 2', 'Line 3', 'Line 4'],
     hasMedia: true,
     mediaType: 'document',
-    defaultMediaUrl: 'https://kneeandbackpainclinic.vercel.app/assets/knee_pain_guide.pdf',
+    defaultMediaUrl: 'https://kneeandbackpainrelief.com/assets/knee_pain_guide.pdf',
     body: 'Hello {{1}},\n\n{{2}}\n\n{{3}}\n\n{{4}}\n\n{{5}}\n\nThis information is being shared for reference purposes.\n\n*Thank You.*'
   },
 
@@ -259,7 +259,7 @@ export const WHATSAPP_TEMPLATES = {
     defaultVariables: ['Patient', 'Line 1', 'Line 2', 'Line 3', 'Line 4'],
     hasMedia: true,
     mediaType: 'video',
-    defaultMediaUrl: 'https://kneeandbackpainclinic.vercel.app/assets/dr_surabhi_intro.mp4',
+    defaultMediaUrl: 'https://kneeandbackpainrelief.com/assets/dr_surabhi_intro.mp4',
     body: 'Hello {{1}},\n\n{{2}}\n\n{{3}}\n\n{{4}}\n\n{{5}}\n\nThis information is being shared for reference purposes.\n\n*Thank You.*'
   }
 };

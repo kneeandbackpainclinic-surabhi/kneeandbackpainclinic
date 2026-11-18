@@ -34,10 +34,11 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Please provide a valid patient name (at least 2 characters).' });
     }
 
-    const concern = body.concern || body.painArea || 'Knee Pain';
+    const concern = body.concern || body.painArea || 'Knee or Back Pain (Clinical Assessment)';
     const whatsappConsent = Boolean(body.whatsappConsent || body.whatsapp_consent);
     const patientEmail = (body.email || '').trim().toLowerCase();
     const city = (body.city || 'Thane West').trim();
+    const sessionId = (body.session_id || body.sessionId || '').trim() || null;
 
     // Consultation pricing logic:
     // Option 1: Pay Online ₹800 (Save 20%)
@@ -46,7 +47,7 @@ export default async function handler(req, res) {
     let amount = 1000;
     let discountApplied = 0;
 
-    if (paymentMethod === 'pay_online_payu' || body.amount === 800) {
+    if (paymentMethod === 'pay_online_upi' || paymentMethod === 'upi_direct' || paymentMethod === 'pay_online_payu' || body.amount === 800) {
       amount = 800;
       discountApplied = 200;
     } else if (body.amount) {
@@ -64,9 +65,9 @@ export default async function handler(req, res) {
     if (paymentMethod === 'pay_at_clinic') {
       if (!body.status) status = 'Appointment Requested - Pay at Clinic';
       if (!body.paymentStatus) paymentStatus = 'Pay at Clinic - Pending (₹1,000)';
-    } else if (paymentMethod === 'pay_online_payu' && (paymentStatus.includes('Paid') || body.isPaid)) {
+    } else if ((paymentMethod === 'pay_online_upi' || paymentMethod === 'upi_direct' || paymentMethod === 'pay_online_payu') && (paymentStatus.includes('Paid') || body.isPaid)) {
       status = 'Appointment Confirmed - Paid Online (₹800)';
-      paymentStatus = 'Paid Online (₹800)';
+      paymentStatus = 'Paid Online via UPI (₹800)';
     }
 
     const paymentOrderId = body.paymentOrderId || body.payment_order_id || body.orderId || null;
@@ -155,6 +156,7 @@ export default async function handler(req, res) {
           gclid: gclid,
           booking_type: bookingType,
           consultation_mode: consultationMode,
+          session_id: sessionId,
           created_at: createdAt
         };
 
@@ -180,6 +182,7 @@ export default async function handler(req, res) {
           if (paymentMethod) metaParts.push(`Method: ${paymentMethod}`);
           if (utmSource) metaParts.push(`UTM: ${utmSource}/${utmCampaign || ''}`);
           if (gclid) metaParts.push(`GCLID: ${gclid}`);
+          if (sessionId) metaParts.push(`Session: ${sessionId}`);
           const metaString = metaParts.length > 0 ? ` [${metaParts.join(' | ')}]` : '';
 
           const basePayload = {
@@ -252,7 +255,7 @@ export default async function handler(req, res) {
           headerMediaUrl = CLINIC_UPI_QR_URL;
           const locDetails = isOnline
             ? `Online Video Consultation (Meeting link will be shared prior to the call).`
-            : `Location: Cura 304, Raymond TenX Habitat, Thane West.`;
+            : `Location: Cura 304, Raymond TenX Habitat, Thane West (Maps: https://maps.app.goo.gl/uyHninyje1x7GRgD9).`;
           variables = [
             patientName,
             `Your consultation with Dr. Surabhi Vaidya is confirmed for ${displaySlot}. ${locDetails}`,
@@ -304,6 +307,7 @@ export default async function handler(req, res) {
       success: true,
       message: 'Consultation enquiry saved successfully',
       leadId: savedLeadId,
+      sessionId: sessionId,
       supabaseSynced: syncedToSupabase,
       lead: {
         id: savedLeadId,

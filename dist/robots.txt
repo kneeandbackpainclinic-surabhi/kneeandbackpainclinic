@@ -10,6 +10,7 @@ Allow: /terms-and-conditions
 Allow: /terms
 Allow: /refund-policy
 Allow: /shipping-policy
+Allow: /shipping-and-return-policy
 
 # Disallow Private & Administrative Paths
 Disallow: /admin
