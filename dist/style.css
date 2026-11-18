@@ -3876,21 +3876,29 @@ body {
   display: block;
   border: 1.5px solid var(--border-light);
   border-radius: var(--radius-md);
-  padding: 12px 14px;
+  padding: 13px 15px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   background: #ffffff;
+  position: relative;
+  user-select: none;
 }
 
 .compact-mode-card:hover {
-  border-color: var(--primary-sage);
-  background: #fafaf8;
+  border-color: #16a34a;
+  background: #f8fcf9;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(22, 163, 74, 0.12);
+}
+
+.compact-mode-card:active {
+  transform: translateY(0);
 }
 
 .compact-mode-card.active {
-  border-color: var(--primary-deep);
-  background: #f8fbf9;
-  box-shadow: 0 4px 14px rgba(20, 48, 38, 0.08);
+  border-color: #15803d;
+  background: #f8fcf9;
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.1);
 }
 
 .compact-mode-card input[type="radio"] {
@@ -3905,7 +3913,7 @@ body {
 }
 
 .mode-title {
-  font-size: 0.95rem;
+  font-size: 0.96rem;
   font-weight: 700;
   color: var(--primary-deep);
 }
@@ -3919,59 +3927,26 @@ body {
   border-radius: 12px;
 }
 
-.mode-pricing-row {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  font-size: 0.86rem;
-  margin-bottom: 4px;
-}
-
-.mode-standard-fee {
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.mode-prepay-deal {
-  color: #15803d;
-  font-size: 0.82rem;
-}
-
-.mode-prepay-deal strong {
-  font-size: 0.94rem;
-  color: #166534;
-}
-
-.discount-pill {
-  background: #dcfce7;
-  color: #166534;
-  border: 1px solid #86efac;
-  font-size: 0.7rem;
-  font-weight: 800;
-  padding: 1px 6px;
-  border-radius: 10px;
-  margin-left: 2px;
-}
-
 .mode-desc {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   color: var(--text-dim);
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
 .mode-action-hint {
-  font-size: 0.76rem;
-  font-weight: 600;
-  color: var(--primary-deep);
-  margin-top: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #166534;
+  margin-top: 8px;
   display: flex;
   align-items: center;
   gap: 4px;
+  transition: transform 0.15s ease, color 0.15s ease;
 }
 
-.compact-mode-card.active .mode-action-hint {
+.compact-mode-card:hover .mode-action-hint {
   color: #15803d;
-  font-weight: 700;
+  transform: translateX(3px);
 }
 
 .card-slot-status {
@@ -3981,9 +3956,17 @@ body {
   background: #f8fafc;
   border: 1px solid var(--border-light);
   border-radius: var(--radius-sm);
-  padding: 9px 12px;
-  font-size: 0.8rem;
+  padding: 10px 12px;
+  font-size: 0.82rem;
   color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.card-slot-status:hover {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
 }
 
 .status-indicator-dot {

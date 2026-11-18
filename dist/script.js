@@ -1057,12 +1057,46 @@
       });
     });
 
-    // Hero Compact Card Mode Selection Radio changes
-    document.querySelectorAll('input[name="hero_consult_mode"]').forEach(radio => {
-      radio.addEventListener('change', (e) => {
-        setConsultationMode(e.target.value);
+    // In-Clinic Hero Card Click: sets mode to in_clinic and opens calendar directly
+    const clinicCard = document.getElementById('card-mode-clinic-label');
+    if (clinicCard) {
+      const triggerClinic = (e) => {
+        e.preventDefault();
+        setConsultationMode('in_clinic');
+        openBookingModal(1, 'homepage_in_clinic_tab');
+      };
+      clinicCard.addEventListener('click', triggerClinic);
+      clinicCard.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') triggerClinic(e);
       });
-    });
+    }
+
+    // Online Video Hero Card Click: sets mode to online_video and opens calendar directly
+    const onlineCard = document.getElementById('card-mode-online-label');
+    if (onlineCard) {
+      const triggerOnline = (e) => {
+        e.preventDefault();
+        setConsultationMode('online_video');
+        openBookingModal(1, 'homepage_online_video_tab');
+      };
+      onlineCard.addEventListener('click', triggerOnline);
+      onlineCard.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') triggerOnline(e);
+      });
+    }
+
+    // Next Available Slot Status Card Click: opens calendar directly
+    const slotStatusBox = document.getElementById('card-slot-status');
+    if (slotStatusBox) {
+      const triggerStatus = (e) => {
+        e.preventDefault();
+        openBookingModal(1, 'homepage_slot_status_preview');
+      };
+      slotStatusBox.addEventListener('click', triggerStatus);
+      slotStatusBox.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') triggerStatus(e);
+      });
+    }
 
     // Modal Mode Selection Radio changes
     document.querySelectorAll('input[name="modal_consult_mode"]').forEach(radio => {

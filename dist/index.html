@@ -407,12 +407,7 @@
             </div>
           </div>
 
-          <div class="hero-actions">
-            <button type="button" class="btn btn-primary btn-lg btn-view-slots btn-open-booking" id="btn-hero-primary" data-trigger="homepage">
-              View Available Slots
-            </button>
-          </div>
-          <p class="hero-btn-subtext">
+          <p class="hero-btn-subtext" style="margin-top: 14px; margin-bottom: 14px;">
             See appointment times and the consultation fee before sharing your details.
           </p>
 
@@ -432,10 +427,10 @@
               <p class="booking-card-sub">Select your preferred consultation format to view open appointment times with Dr. Surabhi Vaidya.</p>
             </div>
 
-            <!-- Consultation Format Selector (Frictionless, No Price Blockers) -->
-            <div class="compact-modes-list" role="radiogroup" aria-label="Consultation Format Selection">
-              <label class="compact-mode-card active" id="card-mode-clinic-label">
-                <input type="radio" name="hero_consult_mode" value="in_clinic" checked>
+            <!-- Consultation Format Action Tabs: Click Either Tab to Open Live Calendar Directly -->
+            <div class="compact-modes-list" role="region" aria-label="Consultation Format Selection">
+              <div class="compact-mode-card active" id="card-mode-clinic-label" role="button" tabindex="0" data-mode="in_clinic">
+                <input type="radio" name="hero_consult_mode" value="in_clinic" checked style="display: none;">
                 <div class="mode-card-content">
                   <div class="mode-card-header">
                     <span class="mode-title">🏥 In-Clinic (Thane)</span>
@@ -444,10 +439,10 @@
                   <div class="mode-desc">Personal 1-on-1 joint evaluation &amp; mobility assessment at Raymond TenX Habitat clinic.</div>
                   <div class="mode-action-hint">Tap to view clinic slots →</div>
                 </div>
-              </label>
+              </div>
 
-              <label class="compact-mode-card" id="card-mode-online-label">
-                <input type="radio" name="hero_consult_mode" value="online_video">
+              <div class="compact-mode-card" id="card-mode-online-label" role="button" tabindex="0" data-mode="online_video">
+                <input type="radio" name="hero_consult_mode" value="online_video" style="display: none;">
                 <div class="mode-card-content">
                   <div class="mode-card-header">
                     <span class="mode-title">💻 Online video</span>
@@ -456,19 +451,14 @@
                   <div class="mode-desc">Dedicated 30-minute private video call via WhatsApp / Google Meet from home.</div>
                   <div class="mode-action-hint">Tap to view video slots →</div>
                 </div>
-              </label>
+              </div>
             </div>
 
             <!-- Next Available Slot Status Preview -->
-            <div class="card-slot-status" id="card-slot-status">
+            <div class="card-slot-status" id="card-slot-status" role="button" tabindex="0" title="Click to view all available slots">
               <span class="status-indicator-dot"></span>
               <span class="status-text">Next available: <strong id="card-next-slot-time">Loading live calendar...</strong></span>
             </div>
-
-            <!-- Primary Action Button -->
-            <button type="button" class="btn btn-primary btn-block btn-lg btn-view-slots btn-open-booking" id="btn-card-view-slots" data-trigger="homepage">
-              View Available Slots →
-            </button>
             
             <p class="booking-card-subtext">
               🔒 Instant live schedule · No contact details or payment needed to browse
