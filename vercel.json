@@ -55,6 +55,8 @@
     { "source": "/payment", "destination": "/payment.html" },
     { "source": "/pay", "destination": "/payment.html" },
     { "source": "/about-us", "destination": "/about-us.html" },
+    { "source": "/free-whatsapp-consultation", "destination": "/free-whatsapp-consultation.html" },
+    { "source": "/whatsapp-consultation", "destination": "/free-whatsapp-consultation.html" },
     { "source": "/privacy-policy", "destination": "/privacy-policy.html" },
     { "source": "/shipping-and-return-policy", "destination": "/shipping-and-return-policy.html" },
     { "source": "/refund-policy", "destination": "/refund-policy.html" },

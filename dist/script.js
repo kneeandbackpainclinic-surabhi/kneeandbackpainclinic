@@ -113,6 +113,7 @@
       const sid = getSessionId();
       const safeParams = {
         session_id: sid,
+        ab_variant: window.CLINIC_AB_VARIANT || 'A',
         ...params,
         timestamp: new Date().toISOString()
       };
@@ -124,7 +125,7 @@
       delete safeParams.concern;
       delete safeParams.pain_area;
 
-      const dedupeKey = `event_fired_${eventName}_${params.lead_id || params.slot_date || sid}`;
+      const dedupeKey = `event_fired_${eventName}_${params.lead_id || params.slot_date || params.dedupe_key || sid}`;
       if (sessionStorage.getItem(dedupeKey)) {
         return;
       }
@@ -147,6 +148,8 @@
       console.warn('[Tracking] Dispatch notice:', err);
     }
   }
+
+  window.clinicTrackEvent = trackEvent;
 
   // --------------------------------------------------------------------------
   // 4. UI MODAL CONTROLLERS & 3-STEP STEPPER
@@ -622,7 +625,7 @@
           utm_source: state.utm.source,
           utm_medium: state.utm.medium,
           utm_campaign: state.utm.campaign,
-          utm_content: state.utm.content,
+          utm_content: state.utm.content || (window.CLINIC_AB_VARIANT === 'B' ? 'ab_variant_b_whatsapp' : ''),
           utm_term: state.utm.term,
           gclid: state.utm.gclid
         };
@@ -1010,6 +1013,12 @@
           discount_applied: isPaid ? 200 : 0,
           paymentOrderId: finalOrderId,
           session_id: getSessionId(),
+          utm_source: state.utm.source,
+          utm_medium: state.utm.medium,
+          utm_campaign: state.utm.campaign,
+          utm_content: state.utm.content || (window.CLINIC_AB_VARIANT === 'B' ? 'ab_variant_b_whatsapp' : ''),
+          utm_term: state.utm.term,
+          gclid: state.utm.gclid,
           triggerWhatsApp: true
         })
       });
@@ -1179,7 +1188,7 @@
     loadAppointmentSlots(false);
 
     // Track Landing Page View (Funnel Start)
-    trackEvent('page_view', { page_type: 'consultation_landing' });
+    trackEvent('page_view', { page_type: window.CLINIC_PAGE_TYPE || 'consultation_landing' });
 
     // Handle incoming booking intent from direct links or blog (?book=1)
     try {

@@ -4394,3 +4394,213 @@ body {
 .btn-wa-receipt-link:hover {
   background: #1eb954;
 }
+
+/* ==========================================================================
+   VERSION B A/B TEST: FREE WHATSAPP CONSULTATION HERO CARD & FLOW
+   ========================================================================== */
+
+.wa-hero-badge {
+  background: #ecfdf5;
+  border-color: #6ee7b7;
+  color: #065f46;
+}
+
+.wa-card-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #065f46;
+  background: #d1fae5;
+  border: 1px solid #6ee7b7;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+}
+
+.wa-free-pill {
+  background: #16a34a;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.wa-concern-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--primary-deep);
+  margin-bottom: 8px;
+}
+
+.wa-concern-chips {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.wa-concern-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 11px;
+  border: 1.5px solid var(--border-light);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--primary-deep);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.wa-concern-chip:hover {
+  border-color: #16a34a;
+  background: #f0fdf4;
+}
+
+.wa-concern-chip.active {
+  border-color: #15803d;
+  background: #ecfdf5;
+  color: #14532d;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.12);
+}
+
+.wa-quick-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wa-quick-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 0.88rem;
+  font-family: inherit;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--primary-deep);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.wa-quick-input:focus {
+  outline: none;
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+}
+
+.wa-checklist-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.wa-checklist-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.wa-checklist-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.8rem;
+  color: #475569;
+  line-height: 1.38;
+}
+
+.wa-checklist-items li {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+}
+
+.btn-whatsapp-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  padding: 14px 18px;
+  background: #16a34a;
+  color: #ffffff;
+  border: 1.5px solid #15803d;
+  border-radius: 10px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 8px 20px rgba(22, 163, 74, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-whatsapp-cta:hover {
+  background: #15803d;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(21, 128, 61, 0.3);
+}
+
+.btn-whatsapp-cta:active {
+  transform: translateY(0);
+}
+
+.wa-launched-feedback {
+  background: #ecfdf5;
+  border: 1.5px solid #6ee7b7;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 0.82rem;
+  color: #065f46;
+  line-height: 1.45;
+}
+
+.wa-launched-feedback strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.86rem;
+}
+
+.wa-secondary-divider {
+  border-top: 1px dashed #cbd5e1;
+  padding-top: 12px;
+  text-align: center;
+}
+
+.wa-secondary-link-btn {
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  color: var(--primary-deep);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.wa-secondary-link-btn:hover {
+  color: #15803d;
+}
+
+@media (max-width: 480px) {
+  .wa-concern-chips {
+    grid-template-columns: 1fr;
+  }
+}

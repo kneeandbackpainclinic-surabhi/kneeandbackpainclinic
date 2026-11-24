@@ -55,6 +55,8 @@ const REWRITES = {
   '/payment': '/payment.html',
   '/pay': '/payment.html',
   '/about-us': '/about-us.html',
+  '/free-whatsapp-consultation': '/free-whatsapp-consultation.html',
+  '/whatsapp-consultation': '/free-whatsapp-consultation.html',
   '/privacy-policy': '/privacy-policy.html',
   '/shipping-policy': '/shipping-policy.html',
   '/shipping-and-return-policy': '/shipping-and-return-policy.html',
