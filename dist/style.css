@@ -4477,7 +4477,31 @@ body {
 .wa-quick-inputs {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+}
+
+.wa-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wa-field-group .form-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary-deep);
+  margin: 0;
+}
+
+.wa-field-group.has-error .wa-quick-input,
+.wa-field-group.has-error .form-input,
+.wa-field-group.has-error .phone-input-wrap {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+.wa-field-group.has-error .form-error-msg {
+  display: block;
 }
 
 .wa-quick-input {

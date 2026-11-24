@@ -47,10 +47,17 @@ export default async function handler(req, res) {
     let amount = 1000;
     let discountApplied = 0;
 
+    const consultationMode = body.consultation_mode || body.consultationMode || 'in_clinic';
+    const isWhatsAppFree = (consultationMode === 'whatsapp_free_review' || paymentMethod === 'whatsapp_free_review');
+    const isOnline = (consultationMode === 'online_video');
+
     if (paymentMethod === 'pay_online_upi' || paymentMethod === 'upi_direct' || paymentMethod === 'pay_online_payu' || body.amount === 800) {
       amount = 800;
       discountApplied = 200;
-    } else if (body.amount) {
+    } else if (isWhatsAppFree) {
+      amount = 0;
+      discountApplied = 0;
+    } else if (body.amount !== undefined && body.amount !== null && body.amount !== '') {
       amount = Number(body.amount);
     }
 
@@ -59,8 +66,8 @@ export default async function handler(req, res) {
     const slotTime = (body.slotTime || body.slot_time || '').trim();
 
     // Booking & Payment Statuses
-    let status = body.status || 'Lead Captured';
-    let paymentStatus = body.paymentStatus || body.payment_status || 'Unpaid';
+    let status = body.status || (isWhatsAppFree ? 'Free WhatsApp Consultation Requested' : 'Lead Captured');
+    let paymentStatus = body.paymentStatus || body.payment_status || (isWhatsAppFree ? 'Free WhatsApp Review (₹0)' : 'Unpaid');
 
     if (paymentMethod === 'pay_at_clinic') {
       if (!body.status) status = 'Appointment Requested - Pay at Clinic';
@@ -85,13 +92,15 @@ export default async function handler(req, res) {
     const utmTerm = body.utm_term || body.utmTerm || null;
     const gclid = body.gclid || null;
 
-    const consultationMode = body.consultation_mode || body.consultationMode || 'in_clinic';
-    const isOnline = (consultationMode === 'online_video');
-    const bookingType = isOnline ? 'online_video_consultation' : 'in_clinic_consultation';
+    const bookingType = isWhatsAppFree
+      ? 'whatsapp_free_review'
+      : (isOnline ? 'online_video_consultation' : 'in_clinic_consultation');
 
-    const recommendedStep = isOnline
-      ? (amount === 800 ? 'Online Video Consultation (Prepaid ₹800 - 20% Discount)' : 'Online Video Consultation (₹1,000)')
-      : (amount === 800 ? 'In-Clinic Consultation (Prepaid ₹800 - 20% Discount)' : 'In-Clinic Consultation (₹1,000 at Clinic Desk)');
+    const recommendedStep = isWhatsAppFree
+      ? 'Free WhatsApp Case Review (~48 Hr Reply)'
+      : (isOnline
+          ? (amount === 800 ? 'Online Video Consultation (Prepaid ₹800 - 20% Discount)' : 'Online Video Consultation (₹1,000)')
+          : (amount === 800 ? 'In-Clinic Consultation (Prepaid ₹800 - 20% Discount)' : 'In-Clinic Consultation (₹1,000 at Clinic Desk)'));
 
     const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://leqbwiexuzggdxgxngrm.supabase.co';
     const supabaseKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_nC7DTCfJj_vhf3YsK0LW9w_NKk54fd4';

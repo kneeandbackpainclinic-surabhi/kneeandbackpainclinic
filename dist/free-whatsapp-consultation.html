@@ -165,7 +165,7 @@
               </div>
               <h2 class="booking-card-title">Share Your Concern &amp; X-Ray on WhatsApp</h2>
               <p class="booking-card-sub">
-                Tell us briefly what is troubling you, then open WhatsApp to send your concern and any scan/report photos. Dr. Surabhi will respond in ~48 hours.
+                Enter your name and WhatsApp number so Dr. Surabhi's team knows who is messaging, then open WhatsApp to share your concern &amp; any X-rays. Reply in ~48 hours.
               </p>
             </div>
 
@@ -180,10 +180,27 @@
               </div>
             </div>
 
-            <!-- Optional Quick Pre-fill Fields (Zero blockers) -->
-            <div class="wa-quick-inputs">
-              <input type="text" id="wa-patient-name" class="wa-quick-input" placeholder="Your Name (optional)" autocomplete="name">
-              <input type="text" id="wa-patient-note" class="wa-quick-input" placeholder="Brief note (optional, e.g. pain since 6 months, have X-ray)">
+            <!-- Required Patient Name & WhatsApp Number + Optional Note -->
+            <div class="wa-quick-inputs" id="wa-details-fields">
+              <div class="wa-field-group" id="wa-group-name">
+                <label for="wa-patient-name" class="form-label">Full Name <span class="required">*</span></label>
+                <input type="text" id="wa-patient-name" name="name" class="wa-quick-input" placeholder="e.g. Ramesh Kumar" required autocomplete="name" minlength="2">
+                <span class="form-error-msg" id="err-wa-name">Please enter your full name (at least 2 characters).</span>
+              </div>
+
+              <div class="wa-field-group" id="wa-group-phone">
+                <label for="wa-patient-phone" class="form-label">WhatsApp Mobile Number <span class="required">*</span></label>
+                <div class="phone-input-wrap">
+                  <span class="phone-prefix">+91</span>
+                  <input type="tel" id="wa-patient-phone" name="phone" class="form-input phone-field" placeholder="98XXXXXXXX" required autocomplete="tel" maxlength="10" pattern="[6-9][0-9]{9}">
+                </div>
+                <span class="form-error-msg" id="err-wa-phone">Please enter a valid 10-digit WhatsApp mobile number.</span>
+              </div>
+
+              <div class="wa-field-group">
+                <label for="wa-patient-note" class="form-label">Brief Concern / Duration <span class="optional-tag">(Optional)</span></label>
+                <input type="text" id="wa-patient-note" name="note" class="wa-quick-input" placeholder="e.g. knee pain since 6 months, have X-ray">
+              </div>
             </div>
 
             <!-- What to Share in WhatsApp Chat Window -->
@@ -841,25 +858,60 @@
       var CLINIC_WHATSAPP_NUMBER = '919867510223';
       var selectedConcern = 'Knee Pain / Stiffness';
 
+      var heroCard = document.getElementById('hero-whatsapp-card');
       var chips = document.querySelectorAll('.wa-concern-chip');
       var nameInput = document.getElementById('wa-patient-name');
+      var phoneInput = document.getElementById('wa-patient-phone');
       var noteInput = document.getElementById('wa-patient-note');
+      var nameGroup = document.getElementById('wa-group-name');
+      var phoneGroup = document.getElementById('wa-group-phone');
       var feedbackBox = document.getElementById('wa-launched-feedback');
       var waLinks = document.querySelectorAll('.btn-launch-whatsapp');
 
+      function normalizeIndianPhone(raw) {
+        var digits = (raw || '').replace(/[^0-9]/g, '');
+        if (digits.length > 10) {
+          digits = digits.slice(-10);
+        }
+        return digits;
+      }
+
+      function validateDetails(showErrors) {
+        var nameVal = (nameInput && nameInput.value ? nameInput.value.trim() : '');
+        var phoneVal = normalizeIndianPhone(phoneInput ? phoneInput.value : '');
+
+        var isNameValid = nameVal.length >= 2;
+        var isPhoneValid = /^[6-9]\d{9}$/.test(phoneVal);
+
+        if (showErrors) {
+          if (nameGroup) nameGroup.classList.toggle('has-error', !isNameValid);
+          if (phoneGroup) phoneGroup.classList.toggle('has-error', !isPhoneValid);
+        } else {
+          if (isNameValid && nameGroup) nameGroup.classList.remove('has-error');
+          if (isPhoneValid && phoneGroup) phoneGroup.classList.remove('has-error');
+        }
+
+        return {
+          valid: isNameValid && isPhoneValid,
+          isNameValid: isNameValid,
+          isPhoneValid: isPhoneValid,
+          name: nameVal,
+          phone: phoneVal
+        };
+      }
+
       function buildWhatsAppUrl() {
         var nameVal = (nameInput && nameInput.value ? nameInput.value.trim() : '');
+        var phoneVal = normalizeIndianPhone(phoneInput ? phoneInput.value : '');
         var noteVal = (noteInput && noteInput.value ? noteInput.value.trim() : '');
 
         var lines = [
           'Namaste Dr. Surabhi, I would like a free initial WhatsApp consultation.',
           '',
+          'Name: ' + (nameVal || '(Required)'),
+          'WhatsApp Number: ' + (phoneVal ? '+91 ' + phoneVal : '(Required)'),
           'Main Concern: ' + selectedConcern
         ];
-
-        if (nameVal) {
-          lines.push('Name: ' + nameVal);
-        }
 
         if (noteVal) {
           lines.push('Details: ' + noteVal);
@@ -879,6 +931,52 @@
         });
       }
 
+      function getAttributionValue(key) {
+        try {
+          var urlParams = new URLSearchParams(window.location.search);
+          return urlParams.get(key) || sessionStorage.getItem('lead_' + key) || '';
+        } catch (e) {
+          return '';
+        }
+      }
+
+      function submitWhatsAppLeadToCRM(nameVal, phoneVal) {
+        try {
+          var noteVal = (noteInput && noteInput.value ? noteInput.value.trim() : '');
+          var concernText = noteVal ? (selectedConcern + ' — ' + noteVal) : selectedConcern;
+          var sid = sessionStorage.getItem('clinic_session_id') || ('sess_' + Date.now().toString(36));
+
+          fetch('/api/lead-intake', {
+            method: 'POST',
+            keepalive: true,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: nameVal,
+              phone: phoneVal,
+              concern: concernText,
+              consultation_mode: 'whatsapp_free_review',
+              paymentMethod: 'whatsapp_free_review',
+              amount: 0,
+              status: 'Free WhatsApp Consultation Requested',
+              paymentStatus: 'Free WhatsApp Review (₹0)',
+              whatsapp_consent: true,
+              session_id: sid,
+              sendConfirmation: false,
+              utm_source: getAttributionValue('utm_source'),
+              utm_medium: getAttributionValue('utm_medium'),
+              utm_campaign: getAttributionValue('utm_campaign'),
+              utm_content: getAttributionValue('utm_content') || 'ab_variant_b_whatsapp',
+              utm_term: getAttributionValue('utm_term'),
+              gclid: getAttributionValue('gclid')
+            })
+          }).catch(function(err) {
+            console.warn('WhatsApp lead CRM sync note:', err);
+          });
+        } catch (e) {
+          console.warn('WhatsApp lead sync notice:', e);
+        }
+      }
+
       chips.forEach(function(chip) {
         chip.addEventListener('click', function() {
           chips.forEach(function(c) { c.classList.remove('active'); });
@@ -888,13 +986,48 @@
         });
       });
 
-      if (nameInput) nameInput.addEventListener('input', syncAllWhatsAppLinks);
-      if (noteInput) noteInput.addEventListener('input', syncAllWhatsAppLinks);
+      if (nameInput) {
+        nameInput.addEventListener('input', function() {
+          validateDetails(false);
+          syncAllWhatsAppLinks();
+        });
+      }
+
+      if (phoneInput) {
+        phoneInput.addEventListener('input', function() {
+          var cleaned = normalizeIndianPhone(phoneInput.value);
+          if (phoneInput.value !== cleaned && cleaned.length <= 10) {
+            phoneInput.value = cleaned;
+          }
+          validateDetails(false);
+          syncAllWhatsAppLinks();
+        });
+      }
+
+      if (noteInput) {
+        noteInput.addEventListener('input', syncAllWhatsAppLinks);
+      }
 
       waLinks.forEach(function(link) {
-        link.addEventListener('click', function() {
+        link.addEventListener('click', function(e) {
+          var check = validateDetails(true);
+          if (!check.valid) {
+            e.preventDefault();
+            if (heroCard && typeof heroCard.scrollIntoView === 'function') {
+              heroCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            if (!check.isNameValid && nameInput) {
+              nameInput.focus();
+            } else if (!check.isPhoneValid && phoneInput) {
+              phoneInput.focus();
+            }
+            return;
+          }
+
           syncAllWhatsAppLinks();
           var trigger = link.getAttribute('data-wa-trigger') || 'unknown';
+
+          submitWhatsAppLeadToCRM(check.name, check.phone);
 
           if (feedbackBox) {
             feedbackBox.style.display = 'block';
