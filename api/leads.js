@@ -125,9 +125,41 @@ export default async function handler(req, res) {
   // 3. PATCH: Update lead details, staff notes, booking status, or payment
   if (req.method === 'PATCH') {
     try {
-      const { id, status, staffNotes, notes, deliveredMessage, paymentStatus, followUpRequired, slotPreference } = req.body || {};
+      const {
+        id,
+        status,
+        staffNotes,
+        notes,
+        deliveredMessage,
+        paymentStatus,
+        followUpRequired,
+        slotPreference,
+        triggerAction,
+        followupInterval,
+        sendWhatsApp
+      } = req.body || {};
+
       if (!id) {
         return res.status(400).json({ error: 'Missing required parameter: id' });
+      }
+
+      // 3a. Retrieve existing lead to detect status changes and access phone / slot details
+      let currentLead = null;
+      try {
+        const getResp = await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${id}&select=*`, {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`
+          }
+        });
+        if (getResp.ok) {
+          const list = await getResp.json();
+          if (Array.isArray(list) && list.length > 0) {
+            currentLead = list[0];
+          }
+        }
+      } catch (getErr) {
+        console.warn('Could not pre-fetch lead:', getErr.message);
       }
 
       const patchPayload = {};
@@ -142,6 +174,61 @@ export default async function handler(req, res) {
       if (followUpRequired !== undefined) patchPayload.follow_up_required = Boolean(followUpRequired);
       if (slotPreference !== undefined) patchPayload.slot_preference = slotPreference;
 
+      // 3b. Dispatch Automated WhatsApp Notifications on Manual Status Transitions:
+      //  - Status -> Consultation Completed / Visit Completed => Google Review link
+      //  - Status -> Payment Confirmed / Received => Payment receipt + Slot confirmed
+      //  - Status -> Cancelled => Reschedule booking link + Cancellation notice
+      //  - Explicit triggerAction ('send_review', 'send_payment_confirmation', 'send_cancellation')
+      let whatsappResult = null;
+      const isStatusTransition = status !== undefined && (!currentLead || currentLead.status !== status);
+      const isExplicitTrigger = Boolean(triggerAction);
+
+      if (sendWhatsApp !== false && (isStatusTransition || isExplicitTrigger)) {
+        try {
+          const { dispatchStatusWhatsAppNotification } = await import('./_lib/whatsapp-templates.js');
+          const leadForDispatch = {
+            id,
+            name: currentLead?.name || '',
+            phone: currentLead?.phone || '',
+            slotPreference: slotPreference !== undefined ? slotPreference : currentLead?.slot_preference,
+            slotDate: currentLead?.slot_date,
+            slotTime: currentLead?.slot_time,
+            followupInterval: followupInterval || '2 months'
+          };
+
+          whatsappResult = await dispatchStatusWhatsAppNotification({
+            lead: leadForDispatch,
+            newStatus: status || currentLead?.status,
+            action: triggerAction
+          });
+
+          if (whatsappResult && whatsappResult.sent) {
+            if (triggerAction === 'send_followup') {
+              const cleanInterval = (followupInterval || '2 months').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+              patchPayload.delivered_message = `followup_${cleanInterval}`;
+              patchPayload.delivered_message_time = new Date().toISOString();
+
+              const followDate = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+              const followNote = `[Follow-up reminder sent (${followupInterval || '2 months'}) on ${followDate}]`;
+              patchPayload.notes = [currentLead?.notes, followNote].filter(Boolean).join(' | ');
+            } else {
+              patchPayload.delivered_message = whatsappResult.template;
+              patchPayload.delivered_message_time = new Date().toISOString();
+            }
+
+            // Auto-align payment status if marked as confirmed
+            const stLower = (status || '').toLowerCase();
+            if ((stLower.includes('confirmed') || stLower.includes('paid')) && !patchPayload.payment_status) {
+              patchPayload.payment_status = 'Paid Online (₹800)';
+            }
+          }
+        } catch (waErr) {
+          console.error('Status WhatsApp automated dispatch error:', waErr.message);
+          whatsappResult = { sent: false, error: waErr.message };
+        }
+      }
+
+      // 3c. Persist updates to Supabase
       const patchResp = await fetch(`${supabaseUrl}/rest/v1/leads?id=eq.${id}`, {
         method: 'PATCH',
         headers: {
@@ -155,8 +242,10 @@ export default async function handler(req, res) {
       if (!patchResp.ok) {
         // Fallback if custom columns (like staff_notes) aren't migrated
         const safePayload = {};
-        if (status !== undefined) safePayload.status = status;
-        if (paymentStatus !== undefined) safePayload.payment_status = paymentStatus;
+        if (patchPayload.status !== undefined) safePayload.status = patchPayload.status;
+        if (patchPayload.payment_status !== undefined) safePayload.payment_status = patchPayload.payment_status;
+        if (patchPayload.delivered_message !== undefined) safePayload.delivered_message = patchPayload.delivered_message;
+        if (patchPayload.delivered_message_time !== undefined) safePayload.delivered_message_time = patchPayload.delivered_message_time;
         if (notes !== undefined || staffNotes !== undefined) {
           safePayload.notes = [notes, staffNotes ? `[Staff: ${staffNotes}]` : null].filter(Boolean).join(' | ');
         }
@@ -177,7 +266,12 @@ export default async function handler(req, res) {
         }
       }
 
-      return res.status(200).json({ success: true, id, updated: patchPayload });
+      return res.status(200).json({
+        success: true,
+        id,
+        updated: patchPayload,
+        whatsapp: whatsappResult
+      });
     } catch (e) {
       return res.status(500).json({ error: 'Server error while updating lead: ' + e.message });
     }

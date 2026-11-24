@@ -183,7 +183,8 @@
             <option value="Slot Selected">Slot Selected</option>
             <option value="Appointment Requested - Pay at Clinic">Pay at Clinic (Pending)</option>
             <option value="Appointment Confirmed - Paid Online (₹800)">Confirmed - Paid Online (₹800)</option>
-            <option value="Consultation Completed">Consultation Completed</option>
+            <option value="Appointment Confirmed - Paid at Clinic">Confirmed - Payment Received</option>
+            <option value="Consultation Completed">Consultation Completed (Review Sent)</option>
             <option value="Cancelled">Cancelled</option>
           </select>
 
@@ -268,11 +269,11 @@
 
           <div class="wa-template-card">
             <div class="wa-card-header">
-              <span class="badge" style="background: #fef8ee; color: #9a3412;">Marketing</span>
+              <span class="badge" style="background: #dcfce7; color: #166534;">Automated</span>
               <span class="wa-tpl-name">post_experience_google_review_v1</span>
             </div>
-            <p class="wa-tpl-desc">Neutral Google review request sent after consultation completion.</p>
-            <div class="wa-tpl-meta">Triggered manually by staff post-visit</div>
+            <p class="wa-tpl-desc">Google review request sent automatically when status is marked "Visit Completed" or via ⭐ Review button.</p>
+            <div class="wa-tpl-meta">Auto-triggered on Visit Completed · Universal Utility fallback included</div>
           </div>
 
         </div>
@@ -352,6 +353,52 @@
       <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px;">
         <button type="button" class="btn-admin-nav" id="btn-cancel-notes">Cancel</button>
         <button type="button" class="btn-login" id="btn-save-notes" style="padding: 8px 16px; background: #1b4332; color: #ffffff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">Save Notes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Follow-Up WhatsApp Modal -->
+  <div id="followup-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-card modal-card-sm">
+      <h3 style="margin-bottom: 4px; color: var(--admin-text); display: flex; align-items: center; gap: 8px;">
+        <span>📅</span> Send Follow-Up Consultation Reminder
+      </h3>
+      <p id="followup-patient-label" style="font-size: 0.84rem; color: var(--admin-muted); margin-bottom: 14px;"></p>
+
+      <div style="margin-bottom: 12px;">
+        <label for="followup-interval-select" style="font-size: 0.8rem; font-weight: 700; color: var(--admin-text); display: block; margin-bottom: 6px;">
+          Recommended Follow-Up Timeline:
+        </label>
+        <select id="followup-interval-select" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1.5px solid var(--admin-border); font-size: 0.88rem; font-weight: 600; background: #fff;">
+          <option value="2 months" selected>After 2 Months (Standard Follow-Up)</option>
+          <option value="3 months">After 3 Months (Quarterly Review)</option>
+          <option value="4 months">After 4 Months (Extended Check)</option>
+          <option value="1 month">After 1 Month (Early Review)</option>
+          <option value="6 weeks">After 6 Weeks (Intermediate Check)</option>
+          <option value="custom">Custom Timeline...</option>
+        </select>
+      </div>
+
+      <div id="followup-custom-wrap" style="display: none; margin-bottom: 12px;">
+        <label for="followup-custom-input" style="font-size: 0.78rem; font-weight: 600; color: var(--admin-muted); display: block; margin-bottom: 4px;">
+          Enter Custom Timeline (e.g. 6 months, 3 weeks):
+        </label>
+        <input type="text" id="followup-custom-input" placeholder="e.g. 6 months" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1.5px solid var(--admin-border); font-size: 0.88rem;">
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label style="font-size: 0.78rem; font-weight: 700; color: var(--admin-text); display: block; margin-bottom: 6px;">
+          WhatsApp Message Preview:
+        </label>
+        <div id="followup-preview-box" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; font-size: 0.8rem; color: #334155; line-height: 1.5; white-space: pre-wrap; font-family: inherit;">
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 8px; justify-content: flex-end;">
+        <button type="button" class="btn-admin-nav" id="btn-cancel-followup">Cancel</button>
+        <button type="button" class="btn-login" id="btn-send-followup" style="padding: 8px 18px; background: #0369a1; color: #ffffff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">
+          Send Follow-Up WhatsApp →
+        </button>
       </div>
     </div>
   </div>

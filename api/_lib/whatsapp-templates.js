@@ -323,3 +323,261 @@ export function buildAgentBandhuPayload({ to, templateName, variables, language,
 
   return payload;
 }
+
+// Verified Google Business Profile Review URL for Dr. Surabhi Vaidya / Charak Health Solutions
+export const CLINIC_GOOGLE_REVIEW_URL = 'https://g.page/r/CWxrIXBs-xz7EAE/review';
+
+/**
+ * Dispatch a message directly to the AgentBandhu WhatsApp Public API
+ */
+export async function sendAgentBandhuMessage({
+  to,
+  templateName,
+  variables,
+  language,
+  headerMediaUrl,
+  reference,
+  apiKey
+}) {
+  const finalApiKey = (
+    apiKey ||
+    process.env.AGENTBANDHU_API_KEY ||
+    process.env.META_WHATSAPP_ACCESS_TOKEN ||
+    ''
+  ).trim();
+
+  if (!finalApiKey) {
+    return {
+      ok: false,
+      status: 400,
+      error: 'Missing AgentBandhu API key (AGENTBANDHU_API_KEY or META_WHATSAPP_ACCESS_TOKEN not configured)'
+    };
+  }
+
+  const payload = buildAgentBandhuPayload({
+    to,
+    templateName,
+    variables,
+    language,
+    headerMediaUrl,
+    reference
+  });
+
+  try {
+    const response = await fetch(AGENTBANDHU_MESSAGES_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${finalApiKey}`,
+        'x-api-key': finalApiKey,
+        'api-key': finalApiKey
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const text = await response.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text };
+    }
+
+    return {
+      ok: response.ok,
+      status: response.status,
+      payload,
+      data
+    };
+  } catch (netErr) {
+    return {
+      ok: false,
+      status: 500,
+      error: 'Network exception during AgentBandhu dispatch: ' + netErr.message
+    };
+  }
+}
+
+/**
+ * High-Level Automated Dispatcher for Clinic CRM Status Transitions:
+ *  1. Visit Completed -> Post-Experience Google Review Request
+ *  2. Payment Confirmed / Received -> Payment Receipt + Slot Confirmation
+ *  3. Cancelled -> Cancellation notice + Reschedule booking link
+ */
+export async function dispatchStatusWhatsAppNotification({ lead, newStatus, action, apiKey }) {
+  if (!lead || !lead.phone) {
+    return { sent: false, skipped: true, reason: 'Missing lead or phone number' };
+  }
+
+  const cleanPhone = formatPhoneNumber(lead.phone);
+  if (!cleanPhone || cleanPhone.length < 12) {
+    return { sent: false, skipped: true, reason: 'Invalid recipient phone number: ' + lead.phone };
+  }
+
+  const patientName = lead.name || 'Patient';
+  const effectiveStatus = (newStatus || '').toLowerCase();
+  const effectiveAction = (action || '').toLowerCase();
+  const leadId = lead.id || 'lead';
+
+  // ---------------------------------------------------------------------------
+  // 1. VISIT COMPLETED -> Google Review Request
+  // ---------------------------------------------------------------------------
+  if (effectiveAction === 'send_review' || effectiveStatus.includes('completed')) {
+    // 1a. Try marketing template with registered CTA button first
+    let marketingResult = await sendAgentBandhuMessage({
+      to: cleanPhone,
+      templateName: 'post_experience_google_review_v1',
+      variables: [patientName],
+      reference: `rev_mkt_${leadId}_${Date.now()}`,
+      apiKey
+    });
+
+    if (marketingResult.ok) {
+      return {
+        sent: true,
+        template: 'post_experience_google_review_v1',
+        templateCategory: 'marketing',
+        recipient: cleanPhone,
+        status: marketingResult.status,
+        details: marketingResult.data
+      };
+    }
+
+    // 1b. Fallback to Utility template (surabhi_v4_no_image) containing the review link in body
+    const fallbackResult = await sendAgentBandhuMessage({
+      to: cleanPhone,
+      templateName: 'surabhi_v4_no_image',
+      variables: [
+        patientName,
+        'Thank you for consulting with Dr. Surabhi Vaidya at Charak Health Solutions today.',
+        'We hope your consultation was helpful. We would truly appreciate your feedback with an honest Google review:',
+        `${CLINIC_GOOGLE_REVIEW_URL} (Tap the link to share your review. Thank you!)`
+      ],
+      reference: `rev_utl_${leadId}_${Date.now()}`,
+      apiKey
+    });
+
+    return {
+      sent: fallbackResult.ok,
+      template: 'surabhi_v4_no_image',
+      templateCategory: 'utility_fallback',
+      recipient: cleanPhone,
+      status: fallbackResult.status,
+      details: fallbackResult.data,
+      note: marketingResult.error || 'Dispatched via guaranteed utility fallback'
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // 2. PAYMENT CONFIRMATION / RECEIVED & SLOT CONFIRMED
+  // ---------------------------------------------------------------------------
+  if (
+    effectiveAction === 'send_payment_confirmation' ||
+    effectiveStatus.includes('confirmed') ||
+    effectiveStatus.includes('payment received') ||
+    effectiveStatus.includes('paid online')
+  ) {
+    let slotText = (lead.slotPreference || lead.slot_preference || '').replace(/\[ISO:[^\]]+\]/g, '').trim();
+    if (!slotText || slotText === 'Flexible' || slotText.toLowerCase().includes('pending')) {
+      const parts = [lead.slotDate || lead.slot_date, lead.slotTime || lead.slot_time].filter(Boolean);
+      slotText = parts.length > 0 ? parts.join(' at ') : 'Upcoming Clinic Hours';
+    }
+
+    const payResult = await sendAgentBandhuMessage({
+      to: cleanPhone,
+      templateName: 'surabhi_v4_no_image',
+      variables: [
+        patientName,
+        'Your consultation payment has been received and your appointment is confirmed with Dr. Surabhi Vaidya.',
+        `Slot: ${slotText}. Location: Charak Health Solutions, Cura 304, Raymond TenX Habitat, Pokharan Rd No. 2, Thane West.`,
+        'Please arrive 10 minutes early. Bring relevant X-rays, MRI reports, and prescriptions if available.'
+      ],
+      reference: `pay_conf_${leadId}_${Date.now()}`,
+      apiKey
+    });
+
+    return {
+      sent: payResult.ok,
+      template: 'surabhi_v4_no_image',
+      templateCategory: 'utility',
+      recipient: cleanPhone,
+      status: payResult.status,
+      details: payResult.data
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // 3. CANCELLED -> Reschedule Link & Notice
+  // ---------------------------------------------------------------------------
+  if (effectiveAction === 'send_cancellation' || effectiveStatus.includes('cancel')) {
+    const cancelResult = await sendAgentBandhuMessage({
+      to: cleanPhone,
+      templateName: 'surabhi_v4_no_image',
+      variables: [
+        patientName,
+        'Your consultation appointment with Dr. Surabhi Vaidya at Charak Health Solutions has been cancelled as requested.',
+        'If you would like to reschedule your consultation, you can choose a convenient slot anytime:',
+        'https://kneeandbackpainrelief.com or call +91 90822 80274.'
+      ],
+      reference: `cancel_${leadId}_${Date.now()}`,
+      apiKey
+    });
+
+    return {
+      sent: cancelResult.ok,
+      template: 'surabhi_v4_no_image',
+      templateCategory: 'utility',
+      recipient: cleanPhone,
+      status: cancelResult.status,
+      details: cancelResult.data
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // 4. MANUAL FOLLOW-UP REMINDER (e.g. 2 months, 3 months, 4 months)
+  // ---------------------------------------------------------------------------
+  if (effectiveAction === 'send_followup' || effectiveStatus.includes('followup') || effectiveStatus.includes('follow-up')) {
+    const rawInterval = (lead.followupInterval || lead.interval || '2 months').trim();
+    const intervalText = rawInterval.toLowerCase().startsWith('after ') ? rawInterval : `after ${rawInterval}`;
+
+    const followupResult = await sendAgentBandhuMessage({
+      to: cleanPhone,
+      templateName: 'surabhi_v4_no_image',
+      variables: [
+        patientName,
+        'It is time to book your recommended follow-up consultation with Dr. Surabhi Vaidya at Charak Health Solutions.',
+        `As advised during your consultation, a follow-up assessment ${intervalText} ensures your knee/back recovery and joint mobility remain on track.`,
+        'To choose your preferred follow-up slot, tap here: https://kneeandbackpainrelief.com or call our clinic at +91 90822 80274.'
+      ],
+      reference: `folup_${leadId}_${Date.now()}`,
+      apiKey
+    });
+
+    return {
+      sent: followupResult.ok,
+      template: 'surabhi_v4_no_image',
+      templateCategory: 'utility',
+      recipient: cleanPhone,
+      interval: rawInterval,
+      status: followupResult.status,
+      details: followupResult.data
+    };
+  }
+
+  return {
+    sent: false,
+    skipped: true,
+    reason: `Status "${newStatus}" does not require an automated WhatsApp notification`
+  };
+}
+
+/**
+ * Dedicated Helper to Dispatch Manual Follow-Up Consultation Reminders
+ */
+export async function dispatchFollowupWhatsAppReminder({ lead, interval = '2 months', apiKey }) {
+  return dispatchStatusWhatsAppNotification({
+    lead: { ...lead, followupInterval: interval },
+    action: 'send_followup',
+    apiKey
+  });
+}

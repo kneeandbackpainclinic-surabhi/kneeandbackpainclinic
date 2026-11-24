@@ -354,15 +354,16 @@
             <div style="font-size: 0.84rem; font-weight: 600; color: var(--primary-deep);">${escapeHtml(lead.slotPreference || 'Pending Slot Selection')}</div>
           </td>
 
-          <!-- Booking Status (Editable) -->
+          <!-- Booking Status (Editable & Triggers WhatsApp) -->
           <td>
             <select class="status-select" data-id="${lead.id}" style="font-size: 0.78rem; padding: 4px 6px; border-radius: 4px; border: 1.5px solid var(--admin-border); font-weight: 600;">
               <option value="Lead Captured" ${lead.status === 'Lead Captured' ? 'selected' : ''}>Lead Captured</option>
               <option value="Slot Selected" ${lead.status === 'Slot Selected' ? 'selected' : ''}>Slot Selected</option>
               <option value="Appointment Requested - Pay at Clinic" ${lead.status === 'Appointment Requested - Pay at Clinic' ? 'selected' : ''}>Pay at Clinic (Pending)</option>
-              <option value="Appointment Confirmed - Paid Online (₹800)" ${lead.status && lead.status.includes('Confirmed') ? 'selected' : ''}>Confirmed - Paid (₹800)</option>
-              <option value="Consultation Completed" ${lead.status === 'Consultation Completed' ? 'selected' : ''}>Visit Completed</option>
-              <option value="Cancelled" ${lead.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+              <option value="Appointment Confirmed - Paid Online (₹800)" ${lead.status === 'Appointment Confirmed - Paid Online (₹800)' ? 'selected' : ''}>Confirmed - Paid Online (₹800) 💬</option>
+              <option value="Appointment Confirmed - Paid at Clinic" ${lead.status === 'Appointment Confirmed - Paid at Clinic' || lead.status === 'Payment Received - Slot Confirmed' ? 'selected' : ''}>Confirmed - Payment Received 💬</option>
+              <option value="Consultation Completed" ${lead.status === 'Consultation Completed' ? 'selected' : ''}>Visit Completed 💬 (Review)</option>
+              <option value="Cancelled" ${lead.status === 'Cancelled' ? 'selected' : ''}>Cancelled 💬 (Reschedule)</option>
             </select>
           </td>
 
@@ -388,9 +389,15 @@
           </td>
 
           <!-- Actions -->
-          <td>
+          <td style="white-space: nowrap;">
             <button type="button" class="btn-notes" data-id="${lead.id}" style="padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; border: 1px solid var(--admin-border); background: #ffffff; cursor: pointer;">
               📝 Notes ${lead.staffNotes ? '•' : ''}
+            </button>
+            <button type="button" class="btn-send-review" data-id="${lead.id}" title="Send Google Review link via WhatsApp" style="padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; border: 1px solid #16a34a; background: #f0fdf4; color: #166534; font-weight: 700; cursor: pointer; margin-left: 4px;">
+              ⭐ Review
+            </button>
+            <button type="button" class="btn-send-followup" data-id="${lead.id}" title="Send Follow-Up Consultation Reminder" style="padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; border: 1px solid #0284c7; background: #f0f9ff; color: #0369a1; font-weight: 700; cursor: pointer; margin-left: 4px;">
+              📅 Follow-up
             </button>
           </td>
         </tr>
@@ -402,29 +409,101 @@
   }
 
   function bindTableEvents() {
-    // 1. Status Dropdown Change
+    // 1. Status Dropdown Change (Triggers automated WhatsApp messages)
     document.querySelectorAll('.status-select').forEach(sel => {
       sel.addEventListener('change', async () => {
         const id = sel.getAttribute('data-id');
         const newStatus = sel.value;
+        const found = cachedLeads.find(l => l.id === id);
         sel.disabled = true;
 
         try {
           const resp = await patchLead(id, { status: newStatus });
           if (resp.ok) {
-            const found = cachedLeads.find(l => l.id === id);
-            if (found) found.status = newStatus;
+            const data = await resp.json().catch(() => ({}));
+            if (found) {
+              found.status = newStatus;
+              if (data.updated && data.updated.delivered_message) {
+                found.deliveredMessage = data.updated.delivered_message;
+              }
+              if (data.updated && data.updated.payment_status) {
+                found.paymentStatus = data.updated.payment_status;
+              }
+            }
             renderKPIs();
+            renderLeadsTable();
+
+            // Notify staff about WhatsApp dispatch outcome
+            if (data.whatsapp && data.whatsapp.sent) {
+              if (newStatus.toLowerCase().includes('completed')) {
+                showStatusToast(`✓ Status: Visit Completed. Google Review WhatsApp dispatched to ${found?.name || 'patient'}!`);
+              } else if (newStatus.toLowerCase().includes('confirmed') || newStatus.toLowerCase().includes('payment')) {
+                showStatusToast(`✓ Status: Payment Confirmed. Slot confirmation WhatsApp sent to ${found?.name || 'patient'}!`);
+              } else if (newStatus.toLowerCase().includes('cancel')) {
+                showStatusToast(`✓ Status: Cancelled. Reschedule link WhatsApp sent to ${found?.name || 'patient'}!`);
+              } else {
+                showStatusToast(`✓ Status updated to "${newStatus}" and WhatsApp dispatched.`);
+              }
+            } else if (data.whatsapp && data.whatsapp.error) {
+              showStatusToast(`⚠️ Status saved, but WhatsApp notice: ${data.whatsapp.error}`, true);
+            } else {
+              showStatusToast(`✓ Status updated to "${newStatus}".`);
+            }
           } else {
             alert('Failed to update status on server.');
           }
+        } catch (err) {
+          alert('Network error while updating status: ' + err.message);
         } finally {
           sel.disabled = false;
         }
       });
     });
 
-    // 2. Follow-up Checkbox
+    // 2. Direct "⭐ Review" button click (Dispatches Google Review link instantly)
+    document.querySelectorAll('.btn-send-review').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        const found = cachedLeads.find(l => l.id === id);
+        if (!found) return;
+
+        const clean10 = (found.phone || '').replace(/[^0-9]/g, '').slice(-10);
+        if (!confirm(`Dispatch Google Review WhatsApp message to ${found.name || 'Patient'} (+91 ${clean10})?`)) {
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
+
+        try {
+          const resp = await patchLead(id, { triggerAction: 'send_review' });
+          if (resp.ok) {
+            const data = await resp.json().catch(() => ({}));
+            if (data.updated && data.updated.delivered_message) {
+              found.deliveredMessage = data.updated.delivered_message;
+            }
+            renderLeadsTable();
+
+            if (data.whatsapp && data.whatsapp.sent) {
+              showStatusToast(`✓ Google Review link dispatched to ${found.name} (+91 ${clean10})!`);
+            } else if (data.whatsapp && data.whatsapp.error) {
+              showStatusToast(`⚠️ Notice: ${data.whatsapp.error}`, true);
+            } else {
+              showStatusToast(`✓ Google Review message dispatched to ${found.name}!`);
+            }
+          } else {
+            alert('Failed to dispatch Google Review message.');
+          }
+        } catch (err) {
+          alert('Network error: ' + err.message);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = '⭐ Review';
+        }
+      });
+    });
+
+    // 3. Follow-up Checkbox
     document.querySelectorAll('.cb-followup').forEach(cb => {
       cb.addEventListener('change', async () => {
         const id = cb.getAttribute('data-id');
@@ -435,13 +514,61 @@
       });
     });
 
-    // 3. Notes Modal Opener
+    // 4. Follow-up Modal Opener (📅 Follow-up button)
+    document.querySelectorAll('.btn-send-followup').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        openFollowupModal(id);
+      });
+    });
+
+    // 5. Notes Modal Opener
     document.querySelectorAll('.btn-notes').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-id');
         openNotesModal(id);
       });
     });
+  }
+
+  function showStatusToast(message, isWarning = false) {
+    let toast = document.getElementById('admin-status-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'admin-status-toast';
+      toast.style.position = 'fixed';
+      toast.style.bottom = '24px';
+      toast.style.right = '24px';
+      toast.style.padding = '12px 18px';
+      toast.style.borderRadius = '8px';
+      toast.style.boxShadow = '0 10px 25px -5px rgba(0,0,0,0.15), 0 8px 10px -6px rgba(0,0,0,0.1)';
+      toast.style.zIndex = '9999';
+      toast.style.fontSize = '0.86rem';
+      toast.style.fontWeight = '600';
+      toast.style.transition = 'all 0.3s ease';
+      toast.style.maxWidth = '420px';
+      document.body.appendChild(toast);
+    }
+
+    if (isWarning) {
+      toast.style.background = '#fef2f2';
+      toast.style.color = '#991b1b';
+      toast.style.border = '1.5px solid #f87171';
+    } else {
+      toast.style.background = '#f0fdf4';
+      toast.style.color = '#166534';
+      toast.style.border = '1.5px solid #4ade80';
+    }
+
+    toast.textContent = message;
+    toast.style.display = 'block';
+    toast.style.opacity = '1';
+
+    clearTimeout(toast._timeout);
+    toast._timeout = setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => { toast.style.display = 'none'; }, 300);
+    }, 4500);
   }
 
   async function patchLead(id, payload) {
@@ -509,7 +636,126 @@
   });
 
   // --------------------------------------------------------------------------
-  // 8. CSV EXPORT
+  // 8. FOLLOW-UP REMINDER MODAL (MANUAL TRIGGER FOR 2, 3, 4 MONTHS)
+  // --------------------------------------------------------------------------
+  let activeFollowupLeadId = null;
+  const followupModal = document.getElementById('followup-modal');
+  const followupPatientLabel = document.getElementById('followup-patient-label');
+  const followupIntervalSelect = document.getElementById('followup-interval-select');
+  const followupCustomWrap = document.getElementById('followup-custom-wrap');
+  const followupCustomInput = document.getElementById('followup-custom-input');
+  const followupPreviewBox = document.getElementById('followup-preview-box');
+  const btnSendFollowup = document.getElementById('btn-send-followup');
+  const btnCancelFollowup = document.getElementById('btn-cancel-followup');
+
+  function openFollowupModal(leadId) {
+    activeFollowupLeadId = leadId;
+    const lead = cachedLeads.find(l => l.id === leadId);
+    if (!lead || !followupModal) return;
+
+    if (followupPatientLabel) {
+      followupPatientLabel.textContent = `Patient: ${lead.name || 'Patient'} (+91 ${lead.phone || ''}) · ID: ${lead.id}`;
+    }
+
+    if (followupIntervalSelect) followupIntervalSelect.value = '2 months';
+    if (followupCustomWrap) followupCustomWrap.style.display = 'none';
+    if (followupCustomInput) followupCustomInput.value = '';
+
+    updateFollowupPreview();
+    followupModal.style.display = 'flex';
+  }
+
+  function closeFollowupModal() {
+    activeFollowupLeadId = null;
+    if (followupModal) followupModal.style.display = 'none';
+  }
+
+  function getEffectiveFollowupInterval() {
+    const val = followupIntervalSelect?.value || '2 months';
+    if (val === 'custom') {
+      return (followupCustomInput?.value || '2 months').trim() || '2 months';
+    }
+    return val;
+  }
+
+  function updateFollowupPreview() {
+    if (!followupPreviewBox) return;
+    const lead = cachedLeads.find(l => l.id === activeFollowupLeadId);
+    const patientName = lead?.name || 'Patient';
+    const interval = getEffectiveFollowupInterval();
+    const intervalText = interval.toLowerCase().startsWith('after ') ? interval : `after ${interval}`;
+
+    followupPreviewBox.textContent = `Hello ${patientName},
+
+It is time to book your recommended follow-up consultation with Dr. Surabhi Vaidya at Charak Health Solutions.
+
+As advised during your consultation, a follow-up assessment ${intervalText} ensures your knee/back recovery and joint mobility remain on track.
+
+To choose your preferred follow-up slot, tap here: https://kneeandbackpainrelief.com or call our clinic at +91 90822 80274.
+
+This information is being shared for reference purposes.
+*Thank You.*`;
+  }
+
+  followupIntervalSelect?.addEventListener('change', () => {
+    if (followupIntervalSelect.value === 'custom') {
+      if (followupCustomWrap) followupCustomWrap.style.display = 'block';
+      followupCustomInput?.focus();
+    } else {
+      if (followupCustomWrap) followupCustomWrap.style.display = 'none';
+    }
+    updateFollowupPreview();
+  });
+
+  followupCustomInput?.addEventListener('input', updateFollowupPreview);
+  btnCancelFollowup?.addEventListener('click', closeFollowupModal);
+
+  btnSendFollowup?.addEventListener('click', async () => {
+    if (!activeFollowupLeadId) return;
+    const lead = cachedLeads.find(l => l.id === activeFollowupLeadId);
+    if (!lead) return;
+
+    const interval = getEffectiveFollowupInterval();
+    btnSendFollowup.disabled = true;
+    btnSendFollowup.textContent = 'Dispatching WhatsApp...';
+
+    try {
+      const resp = await patchLead(activeFollowupLeadId, {
+        triggerAction: 'send_followup',
+        followupInterval: interval
+      });
+
+      if (resp.ok) {
+        const data = await resp.json().catch(() => ({}));
+        if (data.updated && data.updated.delivered_message) {
+          lead.deliveredMessage = data.updated.delivered_message;
+        }
+        if (data.updated && data.updated.notes) {
+          lead.notes = data.updated.notes;
+        }
+        closeFollowupModal();
+        renderLeadsTable();
+
+        if (data.whatsapp && data.whatsapp.sent) {
+          showStatusToast(`✓ Follow-up reminder (${interval}) dispatched to ${lead.name} (+91 ${lead.phone})!`);
+        } else if (data.whatsapp && data.whatsapp.error) {
+          showStatusToast(`⚠️ Notice: ${data.whatsapp.error}`, true);
+        } else {
+          showStatusToast(`✓ Follow-up reminder (${interval}) dispatched to ${lead.name}!`);
+        }
+      } else {
+        alert('Failed to send follow-up reminder.');
+      }
+    } catch (err) {
+      alert('Network error: ' + err.message);
+    } finally {
+      btnSendFollowup.disabled = false;
+      btnSendFollowup.textContent = 'Send Follow-Up WhatsApp →';
+    }
+  });
+
+  // --------------------------------------------------------------------------
+  // 9. CSV EXPORT
   // --------------------------------------------------------------------------
   const btnExportCsv = document.getElementById('btn-export-csv');
   if (btnExportCsv) {
