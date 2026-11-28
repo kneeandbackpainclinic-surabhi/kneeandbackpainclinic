@@ -115,7 +115,7 @@
         <div class="hero-content">
           <div class="hero-live-badge wa-hero-badge">
             <span class="badge-dot-live"></span>
-            <span>Free WhatsApp Case Review · <strong>Dr. Surabhi replies in ~48 hours</strong></span>
+            <span>Free WhatsApp Review · <strong>Reply in ~48 hours</strong></span>
           </div>
 
           <h1 id="hero-title" class="hero-title">
@@ -123,124 +123,80 @@
           </h1>
 
           <p class="hero-subheadline">
-            The evening walk you cut short. The stairs you avoid. The sleep you lose when your back aches. Start with a <strong>free WhatsApp consultation</strong>—share your concern and any X-ray or MRI reports right in the chat window. Dr. Surabhi Vaidya will review your details and reply in <strong>around 48 hours</strong>.
+            Have a question about knee pain, back pain, or sciatica? Send your question directly to Dr. Surabhi Vaidya on WhatsApp for a <strong>free initial review</strong>. She will look over your concern (and any optional reports you choose to share) and reply in <strong>around 48 hours</strong>.
           </p>
 
-          <!-- Consultation Highlights Box -->
-          <div class="hero-highlights-box" role="region" aria-label="Free WhatsApp Review Highlights">
-            <div class="hero-highlight-item">
-              <span class="highlight-icon">💬</span>
-              <div>
-                <strong>Free Initial WhatsApp Review (₹0)</strong>
-                <div class="highlight-sub">Describe your pain symptoms and attach photos of any X-ray, MRI, or reports directly in WhatsApp</div>
-              </div>
-            </div>
-            <div class="hero-highlight-item">
-              <span class="highlight-icon">⏱️</span>
-              <div>
-                <strong>Personal Doctor Review in ~48 Hours</strong>
-                <div class="highlight-sub">Get honest initial guidance. If further clinical investigation is required, you can book a full consultation afterward</div>
-              </div>
-            </div>
+          <div class="hero-trust-indicators" style="margin-top: 18px;">
+            <span>✓ 100% Free Initial Review</span>
+            <span>✓ Reply in ~48 Hours</span>
+            <span>✓ Reports / X-Rays Optional</span>
           </div>
 
-          <p class="hero-btn-subtext" style="margin-top: 14px; margin-bottom: 14px;">
-            No consultation fee required to message your concern or reports on WhatsApp.
-          </p>
-
-          <div class="hero-trust-indicators">
+          <div class="hero-trust-indicators" style="margin-top: 10px;">
             <span>✓ BAMS, MD (Ayurveda)</span>
             <span>✓ 15+ Years Clinical Practice</span>
-            <span>✓ Raymond TenX Habitat, Thane West</span>
+            <span>✓ Thane West</span>
           </div>
         </div>
 
-        <!-- Right: Free WhatsApp Consultation Action Card -->
+        <!-- Right: Simple Action-Focused WhatsApp Question Card -->
         <div class="hero-form-wrapper">
           <div class="hero-booking-card" id="hero-whatsapp-card">
             <div class="booking-card-header">
               <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
                 <span class="wa-card-tag">💬 Free WhatsApp Consultation</span>
-                <span class="wa-free-pill">100% Free Review</span>
+                <span class="wa-free-pill">Free</span>
               </div>
-              <h2 class="booking-card-title">Share Your Concern &amp; X-Ray on WhatsApp</h2>
+              <h2 class="booking-card-title">Ask Dr. Surabhi Your Question</h2>
               <p class="booking-card-sub">
-                Enter your name and WhatsApp number so Dr. Surabhi's team knows who is messaging, then open WhatsApp to share your concern &amp; any X-rays. Reply in ~48 hours.
+                Just enter your name and question below, then send it in WhatsApp.
               </p>
             </div>
 
-            <!-- Quick Concern Selector -->
-            <div>
-              <span class="wa-concern-label">1. Select your main pain concern:</span>
-              <div class="wa-concern-chips" role="group" aria-label="Select Pain Concern">
-                <button type="button" class="wa-concern-chip active" data-concern="Knee Pain / Stiffness">🦵 Knee Pain</button>
-                <button type="button" class="wa-concern-chip" data-concern="Lower Back Pain">🦴 Lower Back Pain</button>
-                <button type="button" class="wa-concern-chip" data-concern="Sciatica / Leg Tingling">⚡ Sciatica / Nerve</button>
-                <button type="button" class="wa-concern-chip" data-concern="Joint / Spine Pain">🌿 Other Joint Pain</button>
-              </div>
-            </div>
-
-            <!-- Required Patient Name & WhatsApp Number + Optional Note -->
+            <!-- Simple 2-Field Form: Name + Question -->
             <div class="wa-quick-inputs" id="wa-details-fields">
               <div class="wa-field-group" id="wa-group-name">
-                <label for="wa-patient-name" class="form-label">Full Name <span class="required">*</span></label>
+                <label for="wa-patient-name" class="form-label">Your Name <span class="required">*</span></label>
                 <input type="text" id="wa-patient-name" name="name" class="wa-quick-input" placeholder="e.g. Ramesh Kumar" required autocomplete="name" minlength="2">
-                <span class="form-error-msg" id="err-wa-name">Please enter your full name (at least 2 characters).</span>
+                <span class="form-error-msg" id="err-wa-name">Please enter your name (at least 2 characters).</span>
               </div>
 
-              <div class="wa-field-group" id="wa-group-phone">
-                <label for="wa-patient-phone" class="form-label">WhatsApp Mobile Number <span class="required">*</span></label>
-                <div class="phone-input-wrap">
-                  <span class="phone-prefix">+91</span>
-                  <input type="tel" id="wa-patient-phone" name="phone" class="form-input phone-field" placeholder="98XXXXXXXX" required autocomplete="tel" maxlength="10" pattern="[6-9][0-9]{9}">
-                </div>
-                <span class="form-error-msg" id="err-wa-phone">Please enter a valid 10-digit WhatsApp mobile number.</span>
-              </div>
-
-              <div class="wa-field-group">
-                <label for="wa-patient-note" class="form-label">Brief Concern / Duration <span class="optional-tag">(Optional)</span></label>
-                <input type="text" id="wa-patient-note" name="note" class="wa-quick-input" placeholder="e.g. knee pain since 6 months, have X-ray">
+              <div class="wa-field-group" id="wa-group-question">
+                <label for="wa-patient-question" class="form-label">Your Question <span class="required">*</span></label>
+                <textarea id="wa-patient-question" name="question" rows="3" class="wa-quick-input wa-textarea" placeholder="e.g. I have knee pain while climbing stairs for 6 months. Can Ayurvedic care help?" required minlength="5"></textarea>
+                <span class="form-error-msg" id="err-wa-question">Please enter your question so Dr. Surabhi can review it.</span>
               </div>
             </div>
 
-            <!-- What to Share in WhatsApp Chat Window -->
-            <div class="wa-checklist-box">
-              <div class="wa-checklist-title">What to share in the WhatsApp chat window:</div>
-              <ul class="wa-checklist-items">
-                <li><span>1.</span><span>Your pain symptoms &amp; how long you've had them</span></li>
-                <li><span>2.</span><span>Photo/PDF of any <strong>X-ray, MRI, or report</strong> <em>(if available)</em></span></li>
-                <li><span>3.</span><span>Current painkillers or past treatments <em>(if any)</em></span></li>
-              </ul>
+            <div class="wa-optional-note">
+              📎 <strong>Reports optional:</strong> If you have any X-ray, MRI, or test report, you can optionally attach it inside the WhatsApp chat window.
             </div>
 
             <!-- Primary WhatsApp CTA Link -->
-            <a href="https://wa.me/919082280274?text=Namaste%20Dr.%20Surabhi%2C%20I%20would%20like%20a%20free%20initial%20WhatsApp%20consultation."
+            <a href="https://wa.me/919082280274?text=Namaste%20Dr.%20Surabhi%2C%20I%20have%20a%20question%20about%20my%20pain."
                id="btn-hero-whatsapp-launch"
                target="_blank"
                rel="noopener noreferrer"
                class="btn-whatsapp-cta btn-launch-whatsapp"
                data-wa-trigger="hero_card">
               <span>💬</span>
-              <span>Start Free WhatsApp Consultation →</span>
+              <span>Send Question on WhatsApp →</span>
             </a>
 
             <!-- Post-click Guidance Feedback -->
             <div id="wa-launched-feedback" class="wa-launched-feedback" style="display: none;">
-              <strong>✅ WhatsApp chat window opened!</strong>
-              Please tap <strong>Send</strong> in WhatsApp and attach any X-ray, MRI, or report photos in the chat. Dr. Surabhi will review your case and get back to you in around <strong>48 hours</strong>.
+              <strong>✅ WhatsApp chat opened!</strong>
+              Tap <strong>Send</strong> in WhatsApp (and attach any reports if you wish). Dr. Surabhi will review your question and reply within ~48 hours.
             </div>
 
             <p class="booking-card-subtext">
-              ⏱️ Reply in ~48 hours on +91 9082280274 · Book a full visit only if needed
+              ⏱️ Dr. Surabhi replies in ~48 hours · Book a consultation later only if needed
             </p>
 
-            <!-- Secondary Option: Direct Paid Consultation Booking -->
+            <!-- Secondary Option: Direct Consultation Booking -->
             <div class="wa-secondary-divider">
-              <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 2px;">
-                Want a full 30-minute consultation right away instead?
-              </div>
               <button type="button" class="wa-secondary-link-btn btn-open-booking" data-trigger="version_b_secondary_booking">
-                📅 View Available In-Clinic &amp; Video Slots →
+                Or book a full 30-min In-Clinic / Video slot directly →
               </button>
             </div>
           </div>
@@ -471,9 +427,9 @@
           <!-- Step 1 -->
           <div class="process-step-card">
             <div class="step-badge">Step 1</div>
-            <h3 class="step-title">Share Your Concern &amp; Any X-Ray in WhatsApp</h3>
+            <h3 class="step-title">Send Your Name &amp; Question on WhatsApp</h3>
             <p class="step-desc">
-              Tap the WhatsApp button to open a chat with our clinic. Describe your knee or back pain, how long it has lasted, and attach photos of any X-ray, MRI, or test reports you have.
+              Enter your name and question above, then tap to send on WhatsApp. Adding X-rays, MRIs, or reports is completely optional.
             </p>
           </div>
 
@@ -482,7 +438,7 @@
             <div class="step-badge">Step 2</div>
             <h3 class="step-title">Dr. Surabhi Reviews Within ~48 Hours</h3>
             <p class="step-desc">
-              Dr. Surabhi Vaidya personally reviews your shared symptoms and imaging, and replies directly in your WhatsApp chat within around 48 hours with clear initial guidance.
+              Dr. Surabhi Vaidya personally reviews your question and replies directly in your WhatsApp chat within around 48 hours.
             </p>
           </div>
 
@@ -523,11 +479,11 @@
 
           <div class="faq-item">
             <button type="button" class="faq-question" aria-expanded="false">
-              <span>What should I share in the WhatsApp chat window?</span>
+              <span>Do I need to upload X-rays or reports?</span>
               <span class="faq-icon" aria-hidden="true">+</span>
             </button>
             <div class="faq-answer">
-              <p>Please share your age, where the pain is located (knee, lower back, sciatica), how long you have had it, and photos or PDFs of any X-rays, MRI scans, or reports if available. If you do not have any X-rays yet, you can still message your symptoms.</p>
+              <p>No—reports and X-rays are completely optional. Just send your name and question on WhatsApp. If you happen to have an X-ray, MRI, or test report, you can attach it inside the WhatsApp chat if you'd like.</p>
             </div>
           </div>
 
@@ -856,70 +812,51 @@
       'use strict';
 
       var CLINIC_WHATSAPP_NUMBER = '919082280274';
-      var selectedConcern = 'Knee Pain / Stiffness';
 
       var heroCard = document.getElementById('hero-whatsapp-card');
-      var chips = document.querySelectorAll('.wa-concern-chip');
       var nameInput = document.getElementById('wa-patient-name');
-      var phoneInput = document.getElementById('wa-patient-phone');
-      var noteInput = document.getElementById('wa-patient-note');
+      var questionInput = document.getElementById('wa-patient-question');
       var nameGroup = document.getElementById('wa-group-name');
-      var phoneGroup = document.getElementById('wa-group-phone');
+      var questionGroup = document.getElementById('wa-group-question');
       var feedbackBox = document.getElementById('wa-launched-feedback');
       var waLinks = document.querySelectorAll('.btn-launch-whatsapp');
 
-      function normalizeIndianPhone(raw) {
-        var digits = (raw || '').replace(/[^0-9]/g, '');
-        if (digits.length > 10) {
-          digits = digits.slice(-10);
-        }
-        return digits;
-      }
-
       function validateDetails(showErrors) {
         var nameVal = (nameInput && nameInput.value ? nameInput.value.trim() : '');
-        var phoneVal = normalizeIndianPhone(phoneInput ? phoneInput.value : '');
+        var questionVal = (questionInput && questionInput.value ? questionInput.value.trim() : '');
 
         var isNameValid = nameVal.length >= 2;
-        var isPhoneValid = /^[6-9]\d{9}$/.test(phoneVal);
+        var isQuestionValid = questionVal.length >= 5;
 
         if (showErrors) {
           if (nameGroup) nameGroup.classList.toggle('has-error', !isNameValid);
-          if (phoneGroup) phoneGroup.classList.toggle('has-error', !isPhoneValid);
+          if (questionGroup) questionGroup.classList.toggle('has-error', !isQuestionValid);
         } else {
           if (isNameValid && nameGroup) nameGroup.classList.remove('has-error');
-          if (isPhoneValid && phoneGroup) phoneGroup.classList.remove('has-error');
+          if (isQuestionValid && questionGroup) questionGroup.classList.remove('has-error');
         }
 
         return {
-          valid: isNameValid && isPhoneValid,
+          valid: isNameValid && isQuestionValid,
           isNameValid: isNameValid,
-          isPhoneValid: isPhoneValid,
+          isQuestionValid: isQuestionValid,
           name: nameVal,
-          phone: phoneVal
+          question: questionVal
         };
       }
 
       function buildWhatsAppUrl() {
         var nameVal = (nameInput && nameInput.value ? nameInput.value.trim() : '');
-        var phoneVal = normalizeIndianPhone(phoneInput ? phoneInput.value : '');
-        var noteVal = (noteInput && noteInput.value ? noteInput.value.trim() : '');
+        var questionVal = (questionInput && questionInput.value ? questionInput.value.trim() : '');
 
         var lines = [
-          'Namaste Dr. Surabhi, I would like a free initial WhatsApp consultation.',
+          'Namaste Dr. Surabhi,',
           '',
-          'Name: ' + (nameVal || '(Required)'),
-          'WhatsApp Number: ' + (phoneVal ? '+91 ' + phoneVal : '(Required)'),
-          'Main Concern: ' + selectedConcern
+          'Name: ' + (nameVal || ''),
+          'Question: ' + (questionVal || ''),
+          '',
+          '(Any X-ray / reports are optional — attaching below if available.)'
         ];
-
-        if (noteVal) {
-          lines.push('Details: ' + noteVal);
-        } else {
-          lines.push('Duration & Symptoms: (Sharing below)');
-        }
-
-        lines.push('X-Ray / MRI / Reports: (Attaching here if available)');
 
         return 'https://wa.me/' + CLINIC_WHATSAPP_NUMBER + '?text=' + encodeURIComponent(lines.join('\n'));
       }
@@ -931,61 +868,6 @@
         });
       }
 
-      function getAttributionValue(key) {
-        try {
-          var urlParams = new URLSearchParams(window.location.search);
-          return urlParams.get(key) || sessionStorage.getItem('lead_' + key) || '';
-        } catch (e) {
-          return '';
-        }
-      }
-
-      function submitWhatsAppLeadToCRM(nameVal, phoneVal) {
-        try {
-          var noteVal = (noteInput && noteInput.value ? noteInput.value.trim() : '');
-          var concernText = noteVal ? (selectedConcern + ' — ' + noteVal) : selectedConcern;
-          var sid = sessionStorage.getItem('clinic_session_id') || ('sess_' + Date.now().toString(36));
-
-          fetch('/api/lead-intake', {
-            method: 'POST',
-            keepalive: true,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              name: nameVal,
-              phone: phoneVal,
-              concern: concernText,
-              consultation_mode: 'whatsapp_free_review',
-              paymentMethod: 'whatsapp_free_review',
-              amount: 0,
-              status: 'Free WhatsApp Consultation Requested',
-              paymentStatus: 'Free WhatsApp Review (₹0)',
-              whatsapp_consent: true,
-              session_id: sid,
-              sendConfirmation: false,
-              utm_source: getAttributionValue('utm_source'),
-              utm_medium: getAttributionValue('utm_medium'),
-              utm_campaign: getAttributionValue('utm_campaign'),
-              utm_content: getAttributionValue('utm_content') || 'ab_variant_b_whatsapp',
-              utm_term: getAttributionValue('utm_term'),
-              gclid: getAttributionValue('gclid')
-            })
-          }).catch(function(err) {
-            console.warn('WhatsApp lead CRM sync note:', err);
-          });
-        } catch (e) {
-          console.warn('WhatsApp lead sync notice:', e);
-        }
-      }
-
-      chips.forEach(function(chip) {
-        chip.addEventListener('click', function() {
-          chips.forEach(function(c) { c.classList.remove('active'); });
-          chip.classList.add('active');
-          selectedConcern = chip.getAttribute('data-concern') || 'Knee / Back Pain';
-          syncAllWhatsAppLinks();
-        });
-      });
-
       if (nameInput) {
         nameInput.addEventListener('input', function() {
           validateDetails(false);
@@ -993,19 +875,11 @@
         });
       }
 
-      if (phoneInput) {
-        phoneInput.addEventListener('input', function() {
-          var cleaned = normalizeIndianPhone(phoneInput.value);
-          if (phoneInput.value !== cleaned && cleaned.length <= 10) {
-            phoneInput.value = cleaned;
-          }
+      if (questionInput) {
+        questionInput.addEventListener('input', function() {
           validateDetails(false);
           syncAllWhatsAppLinks();
         });
-      }
-
-      if (noteInput) {
-        noteInput.addEventListener('input', syncAllWhatsAppLinks);
       }
 
       waLinks.forEach(function(link) {
@@ -1018,16 +892,14 @@
             }
             if (!check.isNameValid && nameInput) {
               nameInput.focus();
-            } else if (!check.isPhoneValid && phoneInput) {
-              phoneInput.focus();
+            } else if (!check.isQuestionValid && questionInput) {
+              questionInput.focus();
             }
             return;
           }
 
           syncAllWhatsAppLinks();
           var trigger = link.getAttribute('data-wa-trigger') || 'unknown';
-
-          submitWhatsAppLeadToCRM(check.name, check.phone);
 
           if (feedbackBox) {
             feedbackBox.style.display = 'block';
@@ -1036,7 +908,6 @@
           if (typeof window.clinicTrackEvent === 'function') {
             window.clinicTrackEvent('whatsapp_consultation_started', {
               ab_variant: 'B',
-              concern_category: selectedConcern,
               trigger_source: trigger,
               dedupe_key: 'wa_b_' + trigger
             });
@@ -1045,7 +916,6 @@
             window.dataLayer.push({
               event: 'whatsapp_consultation_started',
               ab_variant: 'B',
-              concern_category: selectedConcern,
               trigger_source: trigger
             });
           }

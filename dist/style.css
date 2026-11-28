@@ -4522,6 +4522,22 @@ body {
   box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
 }
 
+.wa-textarea {
+  resize: vertical;
+  min-height: 92px;
+  line-height: 1.45;
+}
+
+.wa-optional-note {
+  font-size: 0.78rem;
+  color: #475569;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 11px;
+  line-height: 1.4;
+}
+
 .wa-checklist-box {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
